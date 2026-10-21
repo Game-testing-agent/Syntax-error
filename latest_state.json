@@ -1,0 +1,180 @@
+{
+  "coins": {
+    "all": [
+      {
+        "distance": 0,
+        "relative_x": 0,
+        "relative_y": 0,
+        "x": 1860,
+        "y": 460
+      },
+      {
+        "distance": 0,
+        "relative_x": 0,
+        "relative_y": 0,
+        "x": 2240,
+        "y": 460
+      },
+      {
+        "distance": 0,
+        "relative_x": 0,
+        "relative_y": 0,
+        "x": 3340,
+        "y": 300
+      },
+      {
+        "distance": 0,
+        "relative_x": 0,
+        "relative_y": 0,
+        "x": 3160,
+        "y": 370
+      },
+      {
+        "distance": 0,
+        "relative_x": 0,
+        "relative_y": 0,
+        "x": 3520,
+        "y": 240
+      },
+      {
+        "distance": 0,
+        "relative_x": 0,
+        "relative_y": 0,
+        "x": 3990,
+        "y": 430
+      },
+      {
+        "distance": 0,
+        "relative_x": 0,
+        "relative_y": 0,
+        "x": 4110,
+        "y": 410
+      },
+      {
+        "distance": 0,
+        "relative_x": 0,
+        "relative_y": 0,
+        "x": 4240,
+        "y": 390
+      }
+    ],
+    "coins_collected": 3,
+    "coins_remaining": 21,
+    "nearest_coin": {
+      "distance": 0,
+      "relative_x": 0,
+      "relative_y": 0,
+      "x": 1860,
+      "y": 460
+    }
+  },
+  "enemies": {
+    "all": [
+      {
+        "distance": 0,
+        "is_stompable": false,
+        "is_threat": false,
+        "name": "Enemy",
+        "player_is_above": false,
+        "relative_x": 0,
+        "relative_y": 0,
+        "vel_x": 400,
+        "x": 167,
+        "y": 800
+      },
+      {
+        "distance": 0,
+        "is_stompable": false,
+        "is_threat": false,
+        "name": "Enemy2",
+        "player_is_above": false,
+        "relative_x": 0,
+        "relative_y": 0,
+        "vel_x": -400,
+        "x": 3800,
+        "y": 790
+      },
+      {
+        "distance": 0,
+        "is_stompable": false,
+        "is_threat": false,
+        "name": "Enemy3",
+        "player_is_above": false,
+        "relative_x": 0,
+        "relative_y": 0,
+        "vel_x": -400,
+        "x": 5510,
+        "y": 800
+      },
+      {
+        "distance": 0,
+        "is_stompable": false,
+        "is_threat": false,
+        "name": "Enemy4",
+        "player_is_above": false,
+        "relative_x": 0,
+        "relative_y": 0,
+        "vel_x": -400,
+        "x": 6970,
+        "y": 230
+      },
+      {
+        "distance": 0,
+        "is_stompable": false,
+        "is_threat": false,
+        "name": "Enemy5",
+        "player_is_above": false,
+        "relative_x": 0,
+        "relative_y": 0,
+        "vel_x": -400,
+        "x": 7020,
+        "y": 800
+      }
+    ],
+    "closest_enemy": {
+      "distance": 0,
+      "is_stompable": false,
+      "is_threat": false,
+      "name": "Enemy",
+      "player_is_above": false,
+      "relative_x": 0,
+      "relative_y": 0,
+      "vel_x": 400,
+      "x": 167,
+      "y": 800
+    },
+    "count": 5
+  },
+  "fps": 59,
+  "frame": 1612,
+  "game_state": "player_died",
+  "goal": {
+    "distance_to_portal": 0,
+    "found": true,
+    "portal_x": 7410,
+    "portal_y": 160,
+    "relative_x": 0,
+    "relative_y": 0
+  },
+  "inputs": {
+    "jump": false,
+    "jump_just_pressed": false,
+    "move_left": false,
+    "move_right": false,
+    "pause": false,
+    "raw_direction": {
+      "x": 0,
+      "y": 0
+    }
+  },
+  "player": {
+    "alive": false
+  },
+  "scene": "Level01",
+  "session_time": 27.29,
+  "stats": {
+    "deaths": 1,
+    "score": 300
+  },
+  "timestamp": 1792610917.706
+}
