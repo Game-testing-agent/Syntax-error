@@ -44,6 +44,12 @@ var stuck_check_pos: Vector2 = Vector2.ZERO
 # Recursion Guard
 var is_logging_internal: bool = false
 
+# Agent Control Server (UDP & Command File IPC)
+@export var enable_agent_control: bool = true
+@export var agent_udp_port: int = 4242
+var _agent_udp: PacketPeerUDP = null
+var _currently_pressed_agent_actions: Array[String] = []
+
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS # Keep logging even when game is paused!
@@ -52,6 +58,9 @@ func _ready() -> void:
 	session_id = "session_%d_%d" % [int(Time.get_unix_time_from_system()), randi() % 90000 + 10000]
 
 	_setup_output_paths()
+
+	if enable_agent_control:
+		_setup_agent_server()
 
 	# Connect PlayerData signals if available
 	if PlayerData:
@@ -72,11 +81,15 @@ func _ready() -> void:
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_CLOSE_REQUEST or what == NOTIFICATION_PREDELETE:
 		is_shutting_down = true
+		_release_all_agent_actions()
+		if _agent_udp:
+			_agent_udp.close()
 		if enable_logging and session_id != "":
 			log_lifecycle("session_end", {
 				"total_events": event_id,
 				"session_duration_ms": Time.get_ticks_msec() - session_start_ticks
 			})
+			generate_coverage_report()  # Auto-generate on clean shutdown
 
 
 func _setup_output_paths() -> void:
@@ -138,6 +151,9 @@ func _input(event: InputEvent) -> void:
 # ==============================================================================
 
 func _process(_delta: float) -> void:
+	if enable_agent_control:
+		_poll_agent_commands()
+
 	if not enable_logging:
 		return
 
@@ -294,6 +310,7 @@ func log_lifecycle(event_name: String, data: Dictionary = {}) -> Dictionary:
 
 func _build_record(event_name: String, category: String, data: Dictionary, entity: Node) -> Dictionary:
 	event_id += 1
+	_track_event(event_name)  # Coverage tracking
 	var now_unix_ms = int(Time.get_unix_time_from_system() * 1000.0)
 	var elapsed_ms = Time.get_ticks_msec() - session_start_ticks
 	var phys_frame = Engine.get_physics_frames()
@@ -459,7 +476,7 @@ func _on_player_data_updated() -> void:
 
 
 func _on_player_died() -> void:
-	pass
+	_release_all_agent_actions()
 
 
 func _on_player_reset() -> void:
@@ -704,3 +721,336 @@ func vec2_to_dict(v: Vector2) -> Dictionary:
 		"x": round(v.x * 100.0) / 100.0,
 		"y": round(v.y * 100.0) / 100.0
 	}
+
+
+# ==============================================================================
+# COVERAGE TRACKING & REPORTING
+# ==============================================================================
+
+## Full inventory of expected Schema 1.0 event names organised by category.
+## Used by generate_coverage_report() to compute PASS/MISSING per event.
+const EXPECTED_EVENTS: Dictionary = {
+	"input": [
+		"move_left_pressed", "move_left_released",
+		"move_right_pressed", "move_right_released",
+		"jump_pressed", "jump_released", "pause_pressed",
+		"retry_pressed", "quit_pressed", "main_menu_pressed"
+	],
+	"player_movement": [
+		"jump_started", "jump_interrupted", "fall_started",
+		"fall_distance_threshold_reached", "player_landed",
+		"player_left_floor", "player_moved"
+	],
+	"player_lifecycle": [
+		"player_spawned", "player_died", "player_removed",
+		"death_counter_incremented"
+	],
+	"enemy": [
+		"enemy_spawned", "enemy_started_moving", "enemy_reversed_at_wall",
+		"stomp_attempted", "enemy_stomp_area_entered", "enemy_stomped",
+		"enemy_contact_started", "enemy_contact_death",
+		"enemy_killed", "enemy_removed"
+	],
+	"collectible": [
+		"coin_spawned", "coin_overlap_started", "coin_picked",
+		"coin_score_awarded", "coin_animation_started",
+		"coin_remaining_count_changed", "coin_removed"
+	],
+	"portal": [
+		"portal_entered", "portal_transition_started", "portal_fade_started",
+		"portal_fade_completed", "scene_change_requested", "level_completed",
+		"portal_target_missing", "scene_load_failed"
+	],
+	"scene_lifecycle": [
+		"session_start", "session_end", "scene_loaded",
+		"level_loaded", "main_screen_loaded", "end_screen_loaded"
+	],
+	"ui": [
+		"pause_opened", "pause_closed", "death_overlay_shown",
+		"death_menu_opened", "score_label_updated", "retry_started",
+		"global_state_reset", "return_to_main_menu"
+	],
+	"state_snapshot": ["state_snapshot"],
+	"anomaly": [
+		"player_stuck_detected", "player_out_of_bounds",
+		"unexpected_player_removal", "unexpected_score_change",
+		"duplicate_pickup_attempt", "missing_expected_object",
+		"scene_transition_timeout", "runtime_error_observed"
+	]
+}
+
+## In-memory set of event names observed during this session
+var _observed_events: Dictionary = {}
+
+
+## Override _build_record to also track coverage
+func _track_event(event_name: String) -> void:
+	_observed_events[event_name] = _observed_events.get(event_name, 0) + 1
+
+
+## Generate and write a machine-readable coverage_report.json to all output dirs.
+## Call at session_end or from a test script to get a PASS/MISSING audit.
+func generate_coverage_report() -> Dictionary:
+	var report = {
+		"schema_version": SCHEMA_VERSION,
+		"session_id": session_id,
+		"generated_at_unix_ms": int(Time.get_unix_time_from_system() * 1000.0),
+		"session_duration_ms": Time.get_ticks_msec() - session_start_ticks,
+		"total_events_logged": event_id,
+		"categories": {}
+	}
+
+	var total_expected = 0
+	var total_observed = 0
+
+	for category in EXPECTED_EVENTS:
+		var cat_result = {
+			"expected": [],
+			"observed": [],
+			"missing": [],
+			"extra": [],
+			"pass_count": 0,
+			"missing_count": 0
+		}
+		for ev_name in EXPECTED_EVENTS[category]:
+			total_expected += 1
+			cat_result["expected"].append(ev_name)
+			if _observed_events.has(ev_name):
+				cat_result["observed"].append(ev_name)
+				cat_result["pass_count"] += 1
+				total_observed += 1
+			else:
+				cat_result["missing"].append(ev_name)
+				cat_result["missing_count"] += 1
+
+		# Check for events emitted that were not in the expected list
+		for obs_ev in _observed_events:
+			if obs_ev in EXPECTED_EVENTS[category]:
+				continue
+			# Simple heuristic: if the observed event was not in any category, list as extra
+			var in_any = false
+			for cat2 in EXPECTED_EVENTS:
+				if obs_ev in EXPECTED_EVENTS[cat2]:
+					in_any = true
+					break
+			if not in_any and not cat_result["extra"].has(obs_ev):
+				cat_result["extra"].append(obs_ev)
+
+		report["categories"][category] = cat_result
+
+	report["summary"] = {
+		"total_expected": total_expected,
+		"total_observed_and_matched": total_observed,
+		"total_missing": total_expected - total_observed,
+		"coverage_percent": round(float(total_observed) / float(max(total_expected, 1)) * 1000.0) / 10.0
+	}
+
+	# Persist to disk
+	var json_str = JSON.stringify(report, "  ")
+	for dir in output_dirs:
+		var path = dir.path_join("coverage_report.json")
+		var f = FileAccess.open(path, FileAccess.WRITE)
+		if f:
+			f.store_string(json_str)
+			f.flush()
+			f.close()
+
+	return report
+
+
+# ==============================================================================
+# AGENT CONTROL ADAPTER (UDP & File-based IPC)
+# ==============================================================================
+
+func _setup_agent_server() -> void:
+	_agent_udp = PacketPeerUDP.new()
+	var err = _agent_udp.bind(agent_udp_port, "*")
+	if err == OK:
+		print("[GameLogger] Agent control server listening on UDP port %d" % agent_udp_port)
+	else:
+		print("[GameLogger] Agent UDP port %d unavailable (code %d), mailbox active" % [agent_udp_port, err])
+
+
+func _poll_agent_commands() -> void:
+	# 1. Check UDP packets
+	if _agent_udp and _agent_udp.is_bound():
+		while _agent_udp.get_available_packet_count() > 0:
+			var sender_ip = _agent_udp.get_packet_ip()
+			var sender_port = _agent_udp.get_packet_port()
+			var pkt = _agent_udp.get_packet().get_string_from_utf8()
+			var json = JSON.new()
+			if json.parse(pkt) == OK and typeof(json.data) == TYPE_DICTIONARY:
+				var resp = _execute_agent_command(json.data)
+				if resp != null and sender_ip != "" and sender_port > 0:
+					_agent_udp.set_dest_address(sender_ip, sender_port)
+					_agent_udp.put_packet(JSON.stringify(resp).to_utf8_buffer())
+
+	# 2. Check agent_command.json mailbox fallback
+	for dir in output_dirs:
+		var cmd_path = dir.path_join("agent_command.json")
+		if FileAccess.file_exists(cmd_path):
+			var f = FileAccess.open(cmd_path, FileAccess.READ)
+			if f:
+				var txt = f.get_as_text()
+				f.close()
+				DirAccess.remove_absolute(cmd_path)
+				var json = JSON.new()
+				if json.parse(txt) == OK and typeof(json.data) == TYPE_DICTIONARY:
+					_execute_agent_command(json.data)
+			break
+
+
+func _execute_agent_command(cmd: Dictionary) -> Dictionary:
+	var cmd_type = cmd.get("command", cmd.get("action", ""))
+
+	# Ping / Handshake / State query
+	if cmd_type == "ping" or cmd_type == "get_state":
+		var tree = get_tree() if is_inside_tree() else null
+		var cur_scene = tree.current_scene.name if tree and tree.current_scene else ""
+		return {
+			"status": "ok",
+			"type": "pong",
+			"frame": frame_count,
+			"session_id": session_id,
+			"scene": cur_scene,
+			"player_alive": is_instance_valid(active_player) and active_player.is_inside_tree(),
+			"score": PlayerData.score if PlayerData else 0,
+			"deaths": PlayerData.deaths if PlayerData else 0,
+			"paused": tree.paused if tree else false,
+			"active_actions": _currently_pressed_agent_actions.duplicate()
+		}
+
+	# Retry / Restart current level
+	if cmd_type == "retry":
+		_release_all_agent_actions()
+		if PlayerData:
+			PlayerData.score = 0
+		var tree = get_tree() if is_inside_tree() else null
+		if tree:
+			tree.paused = false
+			if tree.current_scene and tree.current_scene.scene_file_path != "":
+				tree.change_scene_to_file(tree.current_scene.scene_file_path)
+			else:
+				tree.reload_current_scene()
+		log_action("retry_pressed", {"source": "agent"})
+		log_event("retry_started", "ui", {"source": "agent"})
+		return {"status": "ok", "action": "retry"}
+
+	# Pause toggle / set
+	if cmd_type == "pause":
+		var tree = get_tree() if is_inside_tree() else null
+		if tree:
+			if cmd.has("value"):
+				tree.paused = bool(cmd["value"])
+			else:
+				tree.paused = not tree.paused
+			log_action("pause_pressed", {"source": "agent", "paused": tree.paused})
+		return {"status": "ok", "action": "pause", "paused": tree.paused if tree else false}
+
+	# Start Game / Go to Level 1
+	if cmd_type == "start_game" or cmd_type == "play":
+		var tree = get_tree() if is_inside_tree() else null
+		if tree:
+			tree.paused = false
+			tree.change_scene_to_file("res://src/Levels/Level01.tscn")
+		return {"status": "ok", "action": "start_game"}
+
+	# Main Menu
+	if cmd_type == "main_menu":
+		_release_all_agent_actions()
+		var tree = get_tree() if is_inside_tree() else null
+		if tree:
+			tree.paused = false
+			tree.change_scene_to_file("res://src/Screens/MainScreen.tscn")
+			log_action("main_menu_pressed", {"source": "agent"})
+		return {"status": "ok", "action": "main_menu"}
+
+	# Release all actions
+	if cmd_type == "release_all" or cmd.get("release_all", false):
+		_release_all_agent_actions()
+		return {"status": "ok", "action": "release_all"}
+
+	# Multi-action list: "actions": ["move_right", "jump"]
+	if cmd.has("actions") and typeof(cmd["actions"]) == TYPE_ARRAY:
+		var target_actions: Array = cmd["actions"]
+		# Release any currently pressed not in target
+		for act in _currently_pressed_agent_actions.duplicate():
+			if not (act in target_actions):
+				_set_agent_action_state(act, false)
+		# Press any in target
+		for act in target_actions:
+			if typeof(act) == TYPE_STRING:
+				_set_agent_action_state(act, true)
+		return {"status": "ok", "active_actions": _currently_pressed_agent_actions.duplicate()}
+
+	# Explicit press and release arrays: {"press": ["jump"], "release": ["move_left"]}
+	if cmd.has("press") or cmd.has("release"):
+		if cmd.has("release") and typeof(cmd["release"]) == TYPE_ARRAY:
+			for act in cmd["release"]:
+				if typeof(act) == TYPE_STRING:
+					_set_agent_action_state(act, false)
+		if cmd.has("press") and typeof(cmd["press"]) == TYPE_ARRAY:
+			for act in cmd["press"]:
+				if typeof(act) == TYPE_STRING:
+					_set_agent_action_state(act, true)
+		return {"status": "ok", "active_actions": _currently_pressed_agent_actions.duplicate()}
+
+	# Single action with pressed bool: {"action": "move_right", "pressed": true}
+	if cmd.has("action") and typeof(cmd["action"]) == TYPE_STRING:
+		var act = cmd["action"]
+		var is_pressed = cmd.get("pressed", true)
+		_set_agent_action_state(act, is_pressed)
+		return {"status": "ok", "action": act, "pressed": is_pressed}
+
+	return {"status": "ignored", "reason": "unknown_command"}
+
+
+func _set_agent_action_state(action: String, is_pressed: bool) -> void:
+	if action == "retry":
+		if is_pressed:
+			_execute_agent_command({"command": "retry"})
+		return
+	elif action == "pause":
+		if is_pressed:
+			_execute_agent_command({"command": "pause"})
+		return
+	elif action == "main_menu":
+		if is_pressed:
+			_execute_agent_command({"command": "main_menu"})
+		return
+	elif action == "release_all":
+		_release_all_agent_actions()
+		return
+
+	if not (action in ["move_left", "move_right", "jump"]):
+		return
+
+	var currently_pressed = _currently_pressed_agent_actions.has(action)
+	if is_pressed and not currently_pressed:
+		_currently_pressed_agent_actions.append(action)
+		Input.action_press(action, 1.0)
+		var ev = InputEventAction.new()
+		ev.action = action
+		ev.pressed = true
+		ev.strength = 1.0
+		Input.parse_input_event(ev)
+	elif not is_pressed and currently_pressed:
+		_currently_pressed_agent_actions.erase(action)
+		Input.action_release(action)
+		var ev = InputEventAction.new()
+		ev.action = action
+		ev.pressed = false
+		ev.strength = 0.0
+		Input.parse_input_event(ev)
+
+
+func _release_all_agent_actions() -> void:
+	for action in _currently_pressed_agent_actions.duplicate():
+		Input.action_release(action)
+		var ev = InputEventAction.new()
+		ev.action = action
+		ev.pressed = false
+		ev.strength = 0.0
+		Input.parse_input_event(ev)
+	_currently_pressed_agent_actions.clear()
+

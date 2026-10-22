@@ -1,0 +1,46 @@
+{
+  "name": "coin_and_jump_test",
+  "description": "Navigate right towards coins, perform coordinated jump, and verify checkpoints",
+  "steps": [
+    {
+      "action": "move_right",
+      "frames": 45,
+      "description": "Run right towards the first elevation"
+    },
+    {
+      "actions": ["move_right", "jump"],
+      "frames": 25,
+      "description": "Simultaneous jump-right to grab airborne height"
+    },
+    {
+      "action": "move_right",
+      "frames": 35,
+      "description": "Carry momentum onto the upper platform"
+    },
+    {
+      "action": "wait",
+      "frames": 20,
+      "description": "Wait to land safely on floor",
+      "checkpoint": {
+        "type": "on_floor",
+        "expected": true,
+        "timeout": 2.0
+      }
+    },
+    {
+      "action": "move_right",
+      "frames": 50,
+      "description": "Collect coin along the platform"
+    },
+    {
+      "action": "wait",
+      "frames": 10,
+      "description": "Verify score checkpoint",
+      "checkpoint": {
+        "type": "score_greater_than",
+        "value": 0,
+        "timeout": 2.0
+      }
+    }
+  ]
+}

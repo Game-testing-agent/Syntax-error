@@ -1,0 +1,31 @@
+{
+  "name": "retry_recovery",
+  "description": "Tests retry command execution and state recovery",
+  "steps": [
+    {
+      "action": "move_right",
+      "frames": 40,
+      "description": "Run right"
+    },
+    {
+      "action": "retry",
+      "frames": 10,
+      "description": "Trigger restart/retry of level"
+    },
+    {
+      "action": "wait",
+      "frames": 30,
+      "description": "Verify player is alive after retry",
+      "checkpoint": {
+        "type": "player_alive",
+        "expected": true,
+        "timeout": 3.0
+      }
+    },
+    {
+      "action": "move_right",
+      "frames": 25,
+      "description": "Resume moving after clean recovery"
+    }
+  ]
+}

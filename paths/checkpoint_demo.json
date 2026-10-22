@@ -1,0 +1,45 @@
+{
+  "name": "checkpoint_demo",
+  "description": "Demonstration of advanced conditional checkpoints, timeouts, and state verification",
+  "steps": [
+    {
+      "action": "move_right",
+      "frames": 30,
+      "description": "Initial sprint"
+    },
+    {
+      "actions": ["move_right", "jump"],
+      "frames": 15,
+      "description": "Simultaneous jump and run right",
+      "checkpoint": {
+        "type": "is_airborne",
+        "timeout": 1.0
+      }
+    },
+    {
+      "action": "wait",
+      "frames": 45,
+      "description": "Wait until player touches down on the ground",
+      "checkpoint": {
+        "type": "on_floor",
+        "expected": true,
+        "timeout": 3.0
+      }
+    },
+    {
+      "action": "move_right",
+      "duration": 0.8,
+      "description": "Sprint right using seconds duration"
+    },
+    {
+      "action": "wait",
+      "frames": 10,
+      "description": "Verify player position progressed right",
+      "checkpoint": {
+        "type": "position_x_greater",
+        "value": 150.0,
+        "timeout": 1.5
+      }
+    }
+  ]
+}

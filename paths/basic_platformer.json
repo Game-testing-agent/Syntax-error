@@ -1,0 +1,31 @@
+{
+  "name": "basic_platformer",
+  "description": "Baseline platformer sequence: moving right, jumping, settling, and returning left",
+  "steps": [
+    {
+      "action": "move_right",
+      "frames": 40,
+      "description": "Run right to build momentum"
+    },
+    {
+      "action": "jump",
+      "frames": 1,
+      "description": "Trigger jump"
+    },
+    {
+      "action": "move_right",
+      "frames": 30,
+      "description": "Air-glide right while maintaining forward motion"
+    },
+    {
+      "action": "release_all",
+      "frames": 15,
+      "description": "Release all inputs and settle on the floor"
+    },
+    {
+      "action": "move_left",
+      "frames": 20,
+      "description": "Step back left"
+    }
+  ]
+}

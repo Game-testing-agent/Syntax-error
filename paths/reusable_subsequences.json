@@ -1,0 +1,41 @@
+{
+  "name": "reusable_subsequences_test",
+  "description": "Demonstrates path reusability with predefined subsequence templates",
+  "subsequences": {
+    "run_jump_right": [
+      {
+        "action": "move_right",
+        "frames": 25,
+        "description": "Run-up sprint"
+      },
+      {
+        "actions": ["move_right", "jump"],
+        "frames": 20,
+        "description": "Airborne leap"
+      },
+      {
+        "action": "move_right",
+        "frames": 25,
+        "description": "Landing glide"
+      },
+      {
+        "action": "release_all",
+        "frames": 10,
+        "description": "Stabilize on landing"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "subsequence": "run_jump_right"
+    },
+    {
+      "action": "wait",
+      "frames": 15,
+      "description": "Short pause between maneuvers"
+    },
+    {
+      "subsequence": "run_jump_right"
+    }
+  ]
+}

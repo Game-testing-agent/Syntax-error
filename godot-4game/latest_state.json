@@ -2,148 +2,161 @@
   "coins": {
     "all": [
       {
-        "distance": 0,
-        "id": 182569666070,
-        "relative_x": 0,
-        "relative_y": 0,
+        "distance": 758,
+        "id": 250433505010,
+        "relative_x": 661.6,
+        "relative_y": -370,
+        "x": 3990,
+        "y": 430
+      },
+      {
+        "distance": 873.5,
+        "id": 250517391095,
+        "relative_x": 781.6,
+        "relative_y": -390,
+        "x": 4110,
+        "y": 410
+      },
+      {
+        "distance": 999.5,
+        "id": 250601277180,
+        "relative_x": 911.6,
+        "relative_y": -410,
         "x": 4240,
         "y": 390
       },
       {
-        "distance": 0,
-        "id": 182653552155,
-        "relative_x": 0,
-        "relative_y": 0,
+        "distance": 1113.8,
+        "id": 250685163265,
+        "relative_x": 1031.6,
+        "relative_y": -420,
         "x": 4360,
         "y": 380
       },
       {
-        "distance": 0,
-        "id": 182989096495,
-        "relative_x": 0,
-        "relative_y": 0,
+        "distance": 1880.2,
+        "id": 250769049350,
+        "relative_x": 1871.6,
+        "relative_y": -180,
+        "x": 5200,
+        "y": 620
+      },
+      {
+        "distance": 1892.4,
+        "id": 250852935435,
+        "relative_x": 1871.6,
+        "relative_y": -280,
+        "x": 5200,
+        "y": 520
+      },
+      {
+        "distance": 1909.8,
+        "id": 250936821520,
+        "relative_x": 1871.6,
+        "relative_y": -380,
+        "x": 5200,
+        "y": 420
+      },
+      {
+        "distance": 1932.2,
+        "id": 251020707605,
+        "relative_x": 1871.6,
+        "relative_y": -480,
         "x": 5200,
         "y": 320
-      },
-      {
-        "distance": 0,
-        "id": 183156868665,
-        "relative_x": 0,
-        "relative_y": 0,
-        "x": 6530,
-        "y": 390
-      },
-      {
-        "distance": 0,
-        "id": 183240754750,
-        "relative_x": 0,
-        "relative_y": 0,
-        "x": 6700,
-        "y": 170
-      },
-      {
-        "distance": 0,
-        "id": 183324640835,
-        "relative_x": 0,
-        "relative_y": 0,
-        "x": 6570,
-        "y": 50
-      },
-      {
-        "distance": 0,
-        "id": 183408526920,
-        "relative_x": 0,
-        "relative_y": 0,
-        "x": 6210,
-        "y": -180
-      },
-      {
-        "distance": 0,
-        "id": 183492413005,
-        "relative_x": 0,
-        "relative_y": 0,
-        "x": 6320,
-        "y": -180
       }
     ],
-    "coins_collected": 16,
-    "coins_remaining": 10,
+    "coins_collected": 9,
+    "coins_remaining": 16,
     "nearest_coin": {
-      "distance": 0,
-      "id": 182569666070,
-      "relative_x": 0,
-      "relative_y": 0,
-      "x": 4240,
-      "y": 390
+      "distance": 758,
+      "id": 250433505010,
+      "relative_x": 661.6,
+      "relative_y": -370,
+      "x": 3990,
+      "y": 430
     }
   },
   "enemies": {
     "all": [
       {
-        "distance": 0,
-        "id": 183878288996,
+        "distance": 745,
+        "id": 251909900106,
         "is_stompable": false,
         "is_threat": false,
         "name": "Enemy2",
         "player_is_above": false,
-        "relative_x": 0,
-        "relative_y": 0,
-        "vel_x": -400,
-        "x": 3966.7,
+        "relative_x": 745,
+        "relative_y": -0.1,
+        "vel_x": 400,
+        "x": 4073.4,
         "y": 799.9
       },
       {
-        "distance": 0,
-        "id": 184113170034,
+        "distance": 2181.6,
+        "id": 252027340625,
+        "is_stompable": false,
+        "is_threat": false,
+        "name": "Enemy3",
+        "player_is_above": false,
+        "relative_x": 2181.6,
+        "relative_y": 0,
+        "vel_x": -400,
+        "x": 5510,
+        "y": 800
+      },
+      {
+        "distance": 3685.9,
+        "id": 252144781144,
         "is_stompable": false,
         "is_threat": false,
         "name": "Enemy4",
         "player_is_above": false,
-        "relative_x": 0,
-        "relative_y": 0,
+        "relative_x": 3641.6,
+        "relative_y": -570,
         "vel_x": -400,
-        "x": 6863.3,
-        "y": 239.9
+        "x": 6970,
+        "y": 230
       },
       {
-        "distance": 0,
-        "id": 184230610553,
+        "distance": 3691.6,
+        "id": 252262221663,
         "is_stompable": false,
         "is_threat": false,
         "name": "Enemy5",
         "player_is_above": false,
-        "relative_x": 0,
+        "relative_x": 3691.6,
         "relative_y": 0,
         "vel_x": -400,
-        "x": 6756.6,
-        "y": 799.9
+        "x": 7020,
+        "y": 800
       }
     ],
     "closest_enemy": {
-      "distance": 0,
-      "id": 183878288996,
+      "distance": 745,
+      "id": 251909900106,
       "is_stompable": false,
       "is_threat": false,
       "name": "Enemy2",
       "player_is_above": false,
-      "relative_x": 0,
-      "relative_y": 0,
-      "vel_x": -400,
-      "x": 3966.7,
+      "relative_x": 745,
+      "relative_y": -0.1,
+      "vel_x": 400,
+      "x": 4073.4,
       "y": 799.9
     },
-    "count": 3
+    "count": 4
   },
-  "fps": 60,
-  "frame": 7336,
-  "game_state": "player_died",
+  "fps": 165,
+  "frame": 7292,
+  "game_state": "paused",
   "goal": {
-    "distance_to_portal": 0,
+    "distance_to_portal": 4131.5,
     "found": true,
     "portal_x": 7410,
     "portal_y": 160,
-    "relative_x": 0,
-    "relative_y": 0
+    "relative_x": 4081.6,
+    "relative_y": -640
   },
   "inputs": {
     "jump": false,
@@ -156,15 +169,38 @@
       "y": 0
     }
   },
-  "physics_frame": 7506,
+  "physics_frame": 2705,
   "player": {
-    "alive": false
+    "alive": true,
+    "distance_to_ground": -1,
+    "distance_to_wall_ahead": -1,
+    "facing": 1,
+    "hitbox": {
+      "height": 82,
+      "width": 80
+    },
+    "on_ceiling": false,
+    "on_floor": true,
+    "on_wall": false,
+    "position": {
+      "x": 3328.42,
+      "y": 800
+    },
+    "speed_max": {
+      "x": 700,
+      "y": 1350
+    },
+    "stomp_impulse": 1600,
+    "velocity": {
+      "x": 0,
+      "y": 0
+    }
   },
   "scene": "Level01",
-  "session_time": 125.64,
+  "session_time": 45.46,
   "stats": {
     "deaths": 1,
-    "score": 1600
+    "score": 900
   },
-  "timestamp": 1792672793.855
+  "timestamp": 1792685849.557
 }
