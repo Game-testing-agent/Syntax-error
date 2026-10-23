@@ -1,0 +1,855 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "GameLogger Compact Record Schema v3 (unique_id first)",
+  "description": "Fixed schema for converted GameLogger.gd events. The first output attribute is unique_id, composed from session_id and event_id for the current logger convention.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "unique_id",
+    "schema_version",
+    "session_id",
+    "event_id",
+    "event_name",
+    "category",
+    "timestamp_unix_ms",
+    "elapsed_ms",
+    "physics_frame",
+    "frame",
+    "state_physics_frame",
+    "state_timestamp_unix_ms",
+    "session_time",
+    "fps",
+    "scene",
+    "state_scene",
+    "game_state",
+    "paused",
+    "stats",
+    "player_instance_id",
+    "player",
+    "inputs",
+    "coins",
+    "enemies",
+    "goal",
+    "entity",
+    "recent_actions",
+    "evidence",
+    "extra"
+  ],
+  "$defs": {
+    "CoinRow": {
+      "title": "Coin row",
+      "description": "[id, x, y, distance, relative_x, relative_y]",
+      "type": "array",
+      "prefixItems": [
+        {
+          "title": "id",
+          "description": "Coin instance/entity ID, when provided.",
+          "type": [
+            "integer",
+            "number",
+            "string",
+            "null"
+          ]
+        },
+        {
+          "title": "x",
+          "description": "Coin's world X coordinate.",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        {
+          "title": "y",
+          "description": "Coin's world Y coordinate.",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        {
+          "title": "distance",
+          "description": "Distance from the player to this coin.",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        {
+          "title": "relative_x",
+          "description": "Coin X minus player X; positive means coin is to the right.",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        {
+          "title": "relative_y",
+          "description": "Coin Y minus player Y; interpret with the game's coordinate convention.",
+          "type": [
+            "number",
+            "null"
+          ]
+        }
+      ],
+      "minItems": 6,
+      "maxItems": 6,
+      "items": false
+    },
+    "EnemyRow": {
+      "title": "Enemy row",
+      "description": "[id, name, x, y, velocity_x, distance, relative_x, relative_y, player_is_above, is_stompable, is_threat]",
+      "type": "array",
+      "prefixItems": [
+        {
+          "title": "id",
+          "description": "Enemy instance/entity ID, when provided.",
+          "type": [
+            "integer",
+            "number",
+            "string",
+            "null"
+          ]
+        },
+        {
+          "title": "name",
+          "description": "Enemy node/name.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        {
+          "title": "x",
+          "description": "Enemy's world X coordinate.",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        {
+          "title": "y",
+          "description": "Enemy's world Y coordinate.",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        {
+          "title": "velocity_x",
+          "description": "Enemy's horizontal velocity.",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        {
+          "title": "distance",
+          "description": "Distance from player to enemy.",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        {
+          "title": "relative_x",
+          "description": "Enemy X minus player X; positive means enemy is to the right.",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        {
+          "title": "relative_y",
+          "description": "Enemy Y minus player Y.",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        {
+          "title": "player_is_above",
+          "description": "1 if logger's above-player test is true, 0 if false, null if unavailable.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 1
+        },
+        {
+          "title": "is_stompable",
+          "description": "1 if logger flags enemy stompable, 0 if not, null if unavailable.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 1
+        },
+        {
+          "title": "is_threat",
+          "description": "1 if logger flags enemy as a threat, 0 if not, null if unavailable.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 1
+        }
+      ],
+      "minItems": 11,
+      "maxItems": 11,
+      "items": false
+    },
+    "RecentActionRow": {
+      "title": "Recent action row",
+      "description": "[action, physics_frame, timestamp_unix_ms]",
+      "type": "array",
+      "prefixItems": [
+        {
+          "title": "action",
+          "description": "Action name, e.g. jump_pressed.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        {
+          "title": "physics_frame",
+          "description": "Physics frame when action occurred.",
+          "type": [
+            "integer",
+            "number",
+            "null"
+          ]
+        },
+        {
+          "title": "timestamp_unix_ms",
+          "description": "Unix timestamp in milliseconds when action occurred.",
+          "type": [
+            "integer",
+            "number",
+            "null"
+          ]
+        }
+      ],
+      "minItems": 3,
+      "maxItems": 3,
+      "items": false
+    }
+  },
+  "properties": {
+    "unique_id": {
+      "title": "unique_id",
+      "description": "Unique event identifier. For current GameLogger records, this is the session_id and event_id joined with a colon (session_id:event_id). If either source field is missing, the converter uses legacy-line:<source line number>.",
+      "type": "string",
+      "examples": [
+        "session_1792771787_87516:1",
+        "legacy-line:42"
+      ]
+    },
+    "schema_version": {
+      "title": "schema_version",
+      "description": "Version of the source logger schema.",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "session_id": {
+      "title": "session_id",
+      "description": "Session identifier; combine with event_id for event identity.",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "event_id": {
+      "title": "event_id",
+      "description": "Sequential event ID assigned during the session, restarting for a new session.",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "event_name": {
+      "title": "event_name",
+      "description": "Event name such as session_start, state_snapshot, or coin_picked.",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "category": {
+      "title": "category",
+      "description": "Event category such as input, collectible, state_snapshot, or anomaly.",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "timestamp_unix_ms": {
+      "title": "timestamp_unix_ms",
+      "description": "Canonical event timestamp in milliseconds; null only if absent from source.",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "elapsed_ms": {
+      "title": "elapsed_ms",
+      "description": "Milliseconds since current session started at event creation.",
+      "type": [
+        "integer",
+        "number",
+        "null"
+      ]
+    },
+    "physics_frame": {
+      "title": "physics_frame",
+      "description": "Physics frame of the overall event.",
+      "type": [
+        "integer",
+        "number",
+        "null"
+      ]
+    },
+    "frame": {
+      "title": "frame",
+      "description": "Process-frame counter in state data, when available.",
+      "type": [
+        "integer",
+        "number",
+        "null"
+      ]
+    },
+    "state_physics_frame": {
+      "title": "state_physics_frame",
+      "description": "Nested snapshot physics frame, separate from the event-level frame.",
+      "type": [
+        "integer",
+        "number",
+        "null"
+      ]
+    },
+    "state_timestamp_unix_ms": {
+      "title": "state_timestamp_unix_ms",
+      "description": "Nested snapshot timestamp normalized to milliseconds, when available.",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "session_time": {
+      "title": "session_time",
+      "description": "Elapsed session time in seconds from the state snapshot.",
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "fps": {
+      "title": "fps",
+      "description": "FPS value from the state snapshot.",
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "scene": {
+      "title": "scene",
+      "description": "Scene path/name on the event envelope.",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "state_scene": {
+      "title": "state_scene",
+      "description": "Scene name recorded inside the state snapshot.",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "game_state": {
+      "title": "game_state",
+      "description": "State string such as playing, paused, player_died, victory, or main_menu.",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "paused": {
+      "title": "paused",
+      "description": "Pause state from the event envelope's game_state object.",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "stats": {
+      "title": "Game statistics",
+      "description": "[score, deaths]",
+      "type": [
+        "array",
+        "null"
+      ],
+      "prefixItems": [
+        {
+          "title": "score",
+          "description": "Current game score.",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        {
+          "title": "deaths",
+          "description": "Death count recorded by the game.",
+          "type": [
+            "number",
+            "null"
+          ]
+        }
+      ],
+      "minItems": 2,
+      "maxItems": 2,
+      "items": false
+    },
+    "player_instance_id": {
+      "title": "player_instance_id",
+      "description": "Godot instance ID of the player, when provided by event-level player context.",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "player": {
+      "title": "Player array",
+      "description": "16 values: [alive, x, y, velocity_x, velocity_y, on_floor, on_wall, on_ceiling, facing, stomp_impulse, speed_max_x, speed_max_y, hitbox_width, hitbox_height, distance_to_ground, distance_to_wall_ahead].",
+      "type": [
+        "array",
+        "null"
+      ],
+      "prefixItems": [
+        {
+          "title": "alive",
+          "description": "1 if player data indicates player alive/present; 0 if false; null if unknown.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 1
+        },
+        {
+          "title": "x",
+          "description": "Player world X coordinate.",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        {
+          "title": "y",
+          "description": "Player world Y coordinate.",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        {
+          "title": "velocity_x",
+          "description": "Player horizontal velocity.",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        {
+          "title": "velocity_y",
+          "description": "Player vertical velocity.",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        {
+          "title": "on_floor",
+          "description": "1 if player is on floor; 0 if not; null if unavailable.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 1
+        },
+        {
+          "title": "on_wall",
+          "description": "1 if player touches a wall; 0 if not; null if unavailable.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 1
+        },
+        {
+          "title": "on_ceiling",
+          "description": "1 if player touches ceiling; 0 if not; null if unavailable.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 1
+        },
+        {
+          "title": "facing",
+          "description": "Facing direction; typically 1=right and -1=left.",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        {
+          "title": "stomp_impulse",
+          "description": "Configured stomp/bounce impulse.",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        {
+          "title": "speed_max_x",
+          "description": "Configured maximum horizontal speed.",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        {
+          "title": "speed_max_y",
+          "description": "Configured maximum vertical speed.",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        {
+          "title": "hitbox_width",
+          "description": "Player hitbox width in game units.",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        {
+          "title": "hitbox_height",
+          "description": "Player hitbox height in game units.",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        {
+          "title": "distance_to_ground",
+          "description": "Raycast distance to ground; -1 may indicate no hit.",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        {
+          "title": "distance_to_wall_ahead",
+          "description": "Raycast distance to wall ahead; -1 may indicate no hit.",
+          "type": [
+            "number",
+            "null"
+          ]
+        }
+      ],
+      "minItems": 16,
+      "maxItems": 16,
+      "items": false
+    },
+    "inputs": {
+      "title": "Input array",
+      "description": "[move_left, move_right, jump, jump_just_pressed, pause, raw_direction_x, raw_direction_y]",
+      "type": [
+        "array",
+        "null"
+      ],
+      "prefixItems": [
+        {
+          "title": "move_left",
+          "description": "1 if left input is pressed; 0 if not; null if unavailable.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 1
+        },
+        {
+          "title": "move_right",
+          "description": "1 if right input is pressed; 0 if not; null if unavailable.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 1
+        },
+        {
+          "title": "jump",
+          "description": "1 if jump is held; 0 if not; null if unavailable.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 1
+        },
+        {
+          "title": "jump_just_pressed",
+          "description": "1 if jump was newly pressed this frame.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 1
+        },
+        {
+          "title": "pause",
+          "description": "1 if pause input is pressed; 0 if not; null if unavailable.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 1
+        },
+        {
+          "title": "raw_direction_x",
+          "description": "Right input strength minus left input strength.",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        {
+          "title": "raw_direction_y",
+          "description": "Vertical input component supplied by the source logger.",
+          "type": [
+            "number",
+            "null"
+          ]
+        }
+      ],
+      "minItems": 7,
+      "maxItems": 7,
+      "items": false
+    },
+    "coins": {
+      "title": "Coin state",
+      "description": "[coins_collected, coins_remaining, nearest_coin, all_coins].",
+      "type": [
+        "array",
+        "null"
+      ],
+      "prefixItems": [
+        {
+          "title": "coins_collected",
+          "description": "Number of coins collected according to the snapshot.",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        {
+          "title": "coins_remaining",
+          "description": "Number of coin entities reported remaining.",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        {
+          "title": "nearest_coin",
+          "description": "Nearest coin row, or null if no nearest coin is available.",
+          "oneOf": [
+            {
+              "$ref": "#/$defs/CoinRow"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        {
+          "title": "all_coins",
+          "description": "List of coin rows.",
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "$ref": "#/$defs/CoinRow"
+          }
+        }
+      ],
+      "minItems": 4,
+      "maxItems": 4,
+      "items": false
+    },
+    "enemies": {
+      "title": "Enemy state",
+      "description": "[count, closest_enemy, all_enemies].",
+      "type": [
+        "array",
+        "null"
+      ],
+      "prefixItems": [
+        {
+          "title": "count",
+          "description": "Number of enemy entities reported in the snapshot.",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        {
+          "title": "closest_enemy",
+          "description": "Nearest enemy row, or null if absent.",
+          "oneOf": [
+            {
+              "$ref": "#/$defs/EnemyRow"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        {
+          "title": "all_enemies",
+          "description": "List of enemy rows.",
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "$ref": "#/$defs/EnemyRow"
+          }
+        }
+      ],
+      "minItems": 3,
+      "maxItems": 3,
+      "items": false
+    },
+    "goal": {
+      "title": "Goal/portal array",
+      "description": "[found, portal_x, portal_y, distance_to_portal, relative_x, relative_y]",
+      "type": [
+        "array",
+        "null"
+      ],
+      "prefixItems": [
+        {
+          "title": "found",
+          "description": "1 if portal was found; 0 if not; null if unavailable.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 1
+        },
+        {
+          "title": "portal_x",
+          "description": "Portal's world X coordinate.",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        {
+          "title": "portal_y",
+          "description": "Portal's world Y coordinate.",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        {
+          "title": "distance_to_portal",
+          "description": "Distance from player to portal.",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        {
+          "title": "relative_x",
+          "description": "Portal X minus player X; positive means right.",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        {
+          "title": "relative_y",
+          "description": "Portal Y minus player Y.",
+          "type": [
+            "number",
+            "null"
+          ]
+        }
+      ],
+      "minItems": 6,
+      "maxItems": 6,
+      "items": false
+    },
+    "entity": {
+      "title": "Entity context",
+      "description": "Event's entity object, including instance ID, name, type, and position when provided.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": true
+    },
+    "recent_actions": {
+      "title": "Recent action history",
+      "description": "Previous action records, each [action, physics_frame, timestamp_unix_ms].",
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "$ref": "#/$defs/RecentActionRow"
+      }
+    },
+    "evidence": {
+      "title": "Evidence",
+      "description": "Evidence metadata, often screenshot_path.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": true
+    },
+    "extra": {
+      "title": "Extra event payload",
+      "description": "Unmapped event-specific data and unknown fields preserved by the converter.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": true
+    }
+  }
+}
