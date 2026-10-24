@@ -17,8 +17,8 @@ if errorlevel 1 (
     exit /b 1
 )
 
-echo [*] Verifying dependencies (FastAPI, Uvicorn)...
-python -c "import fastapi, uvicorn" >nul 2>&1
+echo [*] Verifying dependencies (FastAPI, Uvicorn, WebSockets)...
+python -c "import fastapi, uvicorn, websockets" >nul 2>&1
 if errorlevel 1 (
     echo [*] Installing required dashboard packages...
     python -m pip install -r requirements.txt
