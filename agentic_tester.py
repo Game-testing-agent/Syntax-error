@@ -702,7 +702,7 @@ def main():
         print("\n[INFO] Launching Godot game window...")
         godot_proc = launch_godot_game()
         time.sleep(2.0)
-        connected = controller.connect(retries=20, retry_interval=0.5)
+        connected = controller.connect(retries=30, retry_interval=0.5)
     else:
         # Check if game is already running
         connected = controller.connect(retries=3, retry_interval=0.3)
@@ -711,7 +711,7 @@ def main():
             godot_proc = launch_godot_game()
             time.sleep(2.0)
             print("[INFO] Connecting to game window over UDP...")
-            connected = controller.connect(retries=20, retry_interval=0.5)
+            connected = controller.connect(retries=30, retry_interval=0.5)
 
     if not connected:
         print("[WARNING] Game not responding to UDP handshake on port {}.".format(args.port))

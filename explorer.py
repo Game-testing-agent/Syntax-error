@@ -1418,7 +1418,7 @@ def main():
             pass
 
     controller = GameController(port=args.port, fps=args.fps)
-    connected = controller.connect(retries=15, retry_interval=0.4)
+    connected = controller.connect(retries=30, retry_interval=0.5)
 
     if not connected:
         print("\n[NOTE] Game is not currently responding to UDP handshake.")
