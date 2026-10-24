@@ -12,8 +12,7 @@
         "runtime_error_observed"
       ],
       "extra": [
-        "map_loaded",
-        "bug_trigger"
+        "map_loaded"
       ],
       "missing": [
         "player_stuck_detected",
@@ -41,8 +40,7 @@
         "coin_removed"
       ],
       "extra": [
-        "map_loaded",
-        "bug_trigger"
+        "map_loaded"
       ],
       "missing": [],
       "missing_count": 0,
@@ -71,8 +69,7 @@
         "enemy_removed"
       ],
       "extra": [
-        "map_loaded",
-        "bug_trigger"
+        "map_loaded"
       ],
       "missing": [],
       "missing_count": 0,
@@ -104,12 +101,11 @@
         "main_menu_pressed"
       ],
       "extra": [
-        "map_loaded",
-        "bug_trigger"
+        "map_loaded"
       ],
       "missing": [
         "pause_pressed",
-        "retry_pressed",
+        "quit_pressed",
         "main_menu_pressed"
       ],
       "missing_count": 3,
@@ -120,7 +116,7 @@
         "move_right_released",
         "jump_pressed",
         "jump_released",
-        "quit_pressed"
+        "retry_pressed"
       ],
       "pass_count": 7
     },
@@ -132,8 +128,7 @@
         "death_counter_incremented"
       ],
       "extra": [
-        "map_loaded",
-        "bug_trigger"
+        "map_loaded"
       ],
       "missing": [],
       "missing_count": 0,
@@ -156,8 +151,7 @@
         "player_moved"
       ],
       "extra": [
-        "map_loaded",
-        "bug_trigger"
+        "map_loaded"
       ],
       "missing": [
         "fall_distance_threshold_reached"
@@ -185,8 +179,7 @@
         "scene_load_failed"
       ],
       "extra": [
-        "map_loaded",
-        "bug_trigger"
+        "map_loaded"
       ],
       "missing": [
         "portal_entered",
@@ -212,8 +205,7 @@
         "end_screen_loaded"
       ],
       "extra": [
-        "map_loaded",
-        "bug_trigger"
+        "map_loaded"
       ],
       "missing": [
         "main_screen_loaded",
@@ -233,8 +225,7 @@
         "state_snapshot"
       ],
       "extra": [
-        "map_loaded",
-        "bug_trigger"
+        "map_loaded"
       ],
       "missing": [],
       "missing_count": 0,
@@ -255,34 +246,33 @@
         "return_to_main_menu"
       ],
       "extra": [
-        "map_loaded",
-        "bug_trigger"
+        "map_loaded"
       ],
       "missing": [
         "pause_closed",
-        "retry_started",
         "global_state_reset",
         "return_to_main_menu"
       ],
-      "missing_count": 4,
+      "missing_count": 3,
       "observed": [
         "pause_opened",
         "death_overlay_shown",
         "death_menu_opened",
-        "score_label_updated"
+        "score_label_updated",
+        "retry_started"
       ],
-      "pass_count": 4
+      "pass_count": 5
     }
   },
-  "generated_at_unix_ms": 1792857725161,
+  "generated_at_unix_ms": 1792875254655,
   "schema_version": "1.0",
-  "session_duration_ms": 68912,
-  "session_id": "session_1792857656_89907",
+  "session_duration_ms": 43800,
+  "session_id": "session_1792875210_57123",
   "summary": {
-    "coverage_percent": 63.8,
+    "coverage_percent": 65.2,
     "total_expected": 69,
-    "total_missing": 25,
-    "total_observed_and_matched": 44
+    "total_missing": 24,
+    "total_observed_and_matched": 45
   },
-  "total_events_logged": 1270
+  "total_events_logged": 717
 }

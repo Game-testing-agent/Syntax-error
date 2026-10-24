@@ -38,7 +38,7 @@ limit_right = 18000
 limit_bottom = 10000000
 
 [node name="Portal2D" parent="." instance=ExtResource("5")]
-position = Vector2(17200, 640)
+position = Vector2(14638, 800)
 
 [node name="Coins" type="Node2D" parent="."]
 
@@ -142,10 +142,6 @@ position = Vector2(2400, 800)
 
 [node name="Enemy3" parent="Enemies" instance=ExtResource("8")]
 position = Vector2(4200, 800)
-
-[node name="Enemy4" parent="Enemies" instance=ExtResource("8")]
-position = Vector2(6200, 240)
-is_unstompable = true
 
 [node name="Enemy5" parent="Enemies" instance=ExtResource("8")]
 position = Vector2(7600, 800)

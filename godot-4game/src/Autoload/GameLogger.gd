@@ -10,7 +10,7 @@ extends Node
 @export var enable_logging: bool = true
 @export var enable_snapshots: bool = true
 @export var snapshot_interval_frames: int = 60 # ~1 second at 60 FPS
-@export var state_export_interval_frames: int = 4 # ~15 Hz at 60 FPS for latest_state.json
+@export var state_export_interval_frames: int = 12 # Exactly 5 logs every 1 second (5 Hz at 60 FPS)
 @export var max_recent_actions: int = 20
 
 const SCHEMA_VERSION: String = "1.0"
@@ -792,18 +792,13 @@ func _get_player_perception(player: CharacterBody2D) -> Dictionary:
 
 
 func _write_latest_state(data: Dictionary) -> void:
-	var json_str = JSON.stringify(data, "  ")
+	var json_str = JSON.stringify(data)
 	for dir in output_dirs:
 		var target_path = dir.path_join("latest_state.json")
-		var tmp_path = dir.path_join("latest_state.json.tmp")
-		var file = FileAccess.open(tmp_path, FileAccess.WRITE)
+		var file = FileAccess.open(target_path, FileAccess.WRITE)
 		if file:
 			file.store_string(json_str)
-			file.flush()
 			file.close()
-			if FileAccess.file_exists(target_path):
-				DirAccess.remove_absolute(target_path)
-			DirAccess.rename_absolute(tmp_path, target_path)
 
 
 func vec2_to_dict(v: Vector2) -> Dictionary:

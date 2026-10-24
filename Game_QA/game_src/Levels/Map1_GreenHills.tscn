@@ -38,7 +38,7 @@ limit_right = 18000
 limit_bottom = 10000000
 
 [node name="Portal2D" parent="." instance=ExtResource("5")]
-position = Vector2(17200, 640)
+position = Vector2(7342, 160)
 
 [node name="Coins" type="Node2D" parent="."]
 

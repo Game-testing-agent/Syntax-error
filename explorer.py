@@ -1325,7 +1325,15 @@ def launch_godot_game(level_path: Optional[str] = None) -> Optional[subprocess.P
         return None
 
     cmd = [exe, "--path", os.path.join(root_dir, "godot-4game")]
-    if level_path:
+    if level_path and ("Map3" in str(level_path) or "SkyCastle" in str(level_path)):
+        cmd.extend(["--", "--map=3"])
+    elif level_path and ("Map1" in str(level_path) or "GreenHills" in str(level_path)):
+        cmd.extend(["--", "--map=1"])
+    elif level_path and ("Map2" in str(level_path) or "UndergroundCaves" in str(level_path)):
+        cmd.extend(["--", "--map=2"])
+    elif level_path and ("Map4" in str(level_path) or "LavaFortress" in str(level_path)):
+        cmd.extend(["--", "--map=4"])
+    elif level_path:
         cmd.append(level_path)
 
     print(f"[LAUNCH] Starting Godot process: {exe}...")
@@ -1403,11 +1411,6 @@ def main():
 
     level_name, scene_path = normalize_level_name(args.level)
 
-    # Launch game if requested
-    godot_proc = None
-    if args.launch:
-        godot_proc = launch_godot_game(scene_path)
-
     # Clean up any stale state files from prior runs so fresh instance state is read
     root_dir = os.path.dirname(os.path.abspath(__file__))
     for st_path in [os.path.join(root_dir, STATE_FILE), os.path.join(root_dir, "godot-4game", STATE_FILE)]:
@@ -1418,11 +1421,21 @@ def main():
             pass
 
     controller = GameController(port=args.port, fps=args.fps)
-    connected = controller.connect(retries=30, retry_interval=0.5)
+    godot_proc = None
+
+    if args.launch:
+        godot_proc = launch_godot_game(scene_path)
+        connected = controller.connect(retries=30, retry_interval=0.5)
+    else:
+        # Check if game is already running
+        connected = controller.connect(retries=2, retry_interval=0.3)
+        if not connected:
+            print(f"[INFO] Game window not detected. Auto-launching Godot game window ({level_name})...")
+            godot_proc = launch_godot_game(scene_path)
+            connected = controller.connect(retries=30, retry_interval=0.5)
 
     if not connected:
         print("\n[NOTE] Game is not currently responding to UDP handshake.")
-        print("       Please run the game via 'run_game.bat' or use '--launch' flag.")
         print("       Continuing with file-based / fallback telemetry...\n")
 
     metadata = {
@@ -1450,8 +1463,8 @@ def main():
             )
             recorder.record()
         elif args.mode == "target_coord":
-            tx = args.target_coord[0] if args.target_coord else args.target_x
-            ty = args.target_coord[1] if args.target_coord else args.target_y
+            tx = args.target_coord[0] if args.target_coord else (7342.0 if level_name == "Level01" else (14638.0 if level_name == "Map3_SkyCastle" else args.target_x))
+            ty = args.target_coord[1] if args.target_coord else (160.0 if level_name == "Level01" else (800.0 if level_name == "Map3_SkyCastle" else args.target_y))
             explorer = TargetCoordinateExplorer(
                 controller=controller,
                 target_x=tx,

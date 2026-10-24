@@ -2,10 +2,10 @@
   "summary": {
     "run_id": "agentic_20261024_224353_4a923d",
     "start_time": "2026-10-24T22:43:53.197714",
-    "end_time": "2026-10-24T22:46:59.323644",
-    "total_cases": 2,
+    "end_time": "2026-10-24T23:07:10.230709",
+    "total_cases": 13,
     "outcomes": {
-      "step_budget": 2
+      "step_budget": 13
     },
     "successful_segments": [],
     "failed_segments": []
@@ -50,6 +50,226 @@
       "failure_reason": "Step budget (350) exhausted; closest=(3563,560); dist_x=3050",
       "events_count": 0,
       "timestamp": "2026-10-24T22:46:59.323644"
+    },
+    {
+      "case_id": 3,
+      "segment_id": 39,
+      "target": {
+        "x": 7143.0,
+        "y": -18.0
+      },
+      "outcome": "step_budget",
+      "attempts": 1,
+      "steps_used": 350,
+      "deaths_during": 0,
+      "final_pos": {
+        "x": 3563.26,
+        "y": 559.98
+      },
+      "selection_rationale": "Selected segment 39 at (7143, -18) | [elevated, span=164px, src=cleaned_coordinates] | strategy=coverage | prior_attempts=0 | untested_remaining=40 | very high elevation - tests complex jump sequence reliability",
+      "failure_reason": "Step budget (350) exhausted; closest=(3563,560); dist_x=3580",
+      "events_count": 0,
+      "timestamp": "2026-10-24T22:48:46.430476"
+    },
+    {
+      "case_id": 4,
+      "segment_id": 30,
+      "target": {
+        "x": 6345.0,
+        "y": 80.0
+      },
+      "outcome": "step_budget",
+      "attempts": 1,
+      "steps_used": 350,
+      "deaths_during": 0,
+      "final_pos": {
+        "x": 3563.26,
+        "y": 559.98
+      },
+      "selection_rationale": "Selected segment 30 at (6345, 80) | [elevated, span=362px, src=cleaned_coordinates] | strategy=coverage | prior_attempts=0 | untested_remaining=40 | very high elevation - tests complex jump sequence reliability",
+      "failure_reason": "Step budget (350) exhausted; closest=(3563,560); dist_x=2782",
+      "events_count": 0,
+      "timestamp": "2026-10-24T22:50:33.585162"
+    },
+    {
+      "case_id": 5,
+      "segment_id": 33,
+      "target": {
+        "x": 6625.0,
+        "y": 124.0
+      },
+      "outcome": "step_budget",
+      "attempts": 1,
+      "steps_used": 350,
+      "deaths_during": 0,
+      "final_pos": {
+        "x": 3563.26,
+        "y": 559.98
+      },
+      "selection_rationale": "Selected segment 33 at (6625, 124) | [elevated, span=65px, src=cleaned_coordinates] | strategy=coverage | prior_attempts=0 | untested_remaining=40 | very high elevation - tests complex jump sequence reliability",
+      "failure_reason": "Step budget (350) exhausted; closest=(3563,560); dist_x=3062",
+      "events_count": 0,
+      "timestamp": "2026-10-24T22:52:20.677754"
+    },
+    {
+      "case_id": 6,
+      "segment_id": 26,
+      "target": {
+        "x": 5948.0,
+        "y": 128.0
+      },
+      "outcome": "step_budget",
+      "attempts": 1,
+      "steps_used": 350,
+      "deaths_during": 0,
+      "final_pos": {
+        "x": 3563.26,
+        "y": 559.98
+      },
+      "selection_rationale": "Selected segment 26 at (5948, 128) | [elevated, span=46px, src=cleaned_coordinates] | strategy=coverage | prior_attempts=0 | untested_remaining=40 | very high elevation - tests complex jump sequence reliability",
+      "failure_reason": "Step budget (350) exhausted; closest=(3563,560); dist_x=2385",
+      "events_count": 0,
+      "timestamp": "2026-10-24T22:54:07.825565"
+    },
+    {
+      "case_id": 7,
+      "segment_id": 40,
+      "target": {
+        "x": 7237.0,
+        "y": 160.0
+      },
+      "outcome": "step_budget",
+      "attempts": 1,
+      "steps_used": 350,
+      "deaths_during": 0,
+      "final_pos": {
+        "x": 3563.26,
+        "y": 559.98
+      },
+      "selection_rationale": "Selected segment 40 at (7237, 160) | [elevated, span=163px, src=cleaned_coordinates] | strategy=coverage | prior_attempts=0 | untested_remaining=40 | near portal area - tests scene-transition boundary | very high elevation - tests complex jump sequence reliability",
+      "failure_reason": "Step budget (350) exhausted; closest=(3563,560); dist_x=3674",
+      "events_count": 0,
+      "timestamp": "2026-10-24T22:55:54.969526"
+    },
+    {
+      "case_id": 8,
+      "segment_id": 23,
+      "target": {
+        "x": 5545.0,
+        "y": 208.0
+      },
+      "outcome": "step_budget",
+      "attempts": 1,
+      "steps_used": 350,
+      "deaths_during": 0,
+      "final_pos": {
+        "x": 3563.26,
+        "y": 559.98
+      },
+      "selection_rationale": "Selected segment 23 at (5545, 208) | [elevated, span=47px, src=cleaned_coordinates] | strategy=coverage | prior_attempts=0 | untested_remaining=40 | very high elevation - tests complex jump sequence reliability",
+      "failure_reason": "Step budget (350) exhausted; closest=(3563,560); dist_x=1982",
+      "events_count": 0,
+      "timestamp": "2026-10-24T22:57:42.112865"
+    },
+    {
+      "case_id": 9,
+      "segment_id": 29,
+      "target": {
+        "x": 6105.0,
+        "y": 208.0
+      },
+      "outcome": "step_budget",
+      "attempts": 1,
+      "steps_used": 350,
+      "deaths_during": 0,
+      "final_pos": {
+        "x": 3563.26,
+        "y": 559.98
+      },
+      "selection_rationale": "Selected segment 29 at (6105, 208) | [elevated, span=47px, src=cleaned_coordinates] | strategy=coverage | prior_attempts=0 | untested_remaining=40 | very high elevation - tests complex jump sequence reliability",
+      "failure_reason": "Step budget (350) exhausted; closest=(3563,560); dist_x=2542",
+      "events_count": 0,
+      "timestamp": "2026-10-24T22:59:29.303484"
+    },
+    {
+      "case_id": 10,
+      "segment_id": 36,
+      "target": {
+        "x": 6905.0,
+        "y": 240.0
+      },
+      "outcome": "step_budget",
+      "attempts": 1,
+      "steps_used": 350,
+      "deaths_during": 0,
+      "final_pos": {
+        "x": 3563.26,
+        "y": 559.98
+      },
+      "selection_rationale": "Selected segment 36 at (6905, 240) | [elevated, span=297px, src=cleaned_coordinates] | strategy=coverage | prior_attempts=0 | untested_remaining=40 | very high elevation - tests complex jump sequence reliability",
+      "failure_reason": "Step budget (350) exhausted; closest=(3563,560); dist_x=3342",
+      "events_count": 0,
+      "timestamp": "2026-10-24T23:01:16.447974"
+    },
+    {
+      "case_id": 11,
+      "segment_id": 32,
+      "target": {
+        "x": 6543.0,
+        "y": 288.0
+      },
+      "outcome": "step_budget",
+      "attempts": 1,
+      "steps_used": 350,
+      "deaths_during": 0,
+      "final_pos": {
+        "x": 3563.26,
+        "y": 559.98
+      },
+      "selection_rationale": "Selected segment 32 at (6543, 288) | [elevated, span=112px, src=cleaned_coordinates] | strategy=coverage | prior_attempts=0 | untested_remaining=40 | very high elevation - tests complex jump sequence reliability",
+      "failure_reason": "Step budget (350) exhausted; closest=(3563,560); dist_x=2980",
+      "events_count": 0,
+      "timestamp": "2026-10-24T23:03:03.572152"
+    },
+    {
+      "case_id": 12,
+      "segment_id": 13,
+      "target": {
+        "x": 3680.0,
+        "y": 292.0
+      },
+      "outcome": "step_budget",
+      "attempts": 1,
+      "steps_used": 350,
+      "deaths_during": 0,
+      "final_pos": {
+        "x": 3563.26,
+        "y": 559.98
+      },
+      "selection_rationale": "Selected segment 13 at (3680, 292) | [elevated, span=47px, src=cleaned_coordinates] | strategy=coverage | prior_attempts=0 | untested_remaining=40 | very high elevation - tests complex jump sequence reliability",
+      "failure_reason": "Step budget (350) exhausted; closest=(3563,560); dist_x=117",
+      "events_count": 0,
+      "timestamp": "2026-10-24T23:05:23.105793"
+    },
+    {
+      "case_id": 13,
+      "segment_id": 10,
+      "target": {
+        "x": 3388.0,
+        "y": 294.0
+      },
+      "outcome": "step_budget",
+      "attempts": 1,
+      "steps_used": 350,
+      "deaths_during": 0,
+      "final_pos": {
+        "x": 3563.26,
+        "y": 559.98
+      },
+      "selection_rationale": "Selected segment 10 at (3388, 294) | [elevated, span=116px, src=cleaned_coordinates] | strategy=coverage | prior_attempts=0 | untested_remaining=40 | very high elevation - tests complex jump sequence reliability",
+      "failure_reason": "Step budget (350) exhausted; closest=(3563,560); dist_x=175",
+      "events_count": 0,
+      "timestamp": "2026-10-24T23:07:10.230709"
     }
   ]
 }

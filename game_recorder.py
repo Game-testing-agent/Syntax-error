@@ -26,8 +26,12 @@ def normalize_level_name(level_input: Any) -> Tuple[str, str]:
         return ("Level01", "res://src/Levels/Level01.tscn")
     elif s in ("2", "level2", "level_2", "Level02", "res://src/Levels/Level02.tscn"):
         return ("Level02", "res://src/Levels/Level02.tscn")
+    elif s in ("3", "level3", "map3", "map_3", "Map3", "Map3_SkyCastle", "map3_sky_castle", "res://src/Levels/Map3_SkyCastle.tscn"):
+        return ("Map3_SkyCastle", "res://src/Levels/Map3_SkyCastle.tscn")
     elif "Level02" in s:
         return ("Level02", s if s.startswith("res://") else f"res://src/Levels/{s}.tscn")
+    elif "Map3" in s or "SkyCastle" in s:
+        return ("Map3_SkyCastle", s if s.startswith("res://") else f"res://src/Levels/{s}.tscn")
     else:
         return ("Level01", s if s.startswith("res://") else "res://src/Levels/Level01.tscn")
 

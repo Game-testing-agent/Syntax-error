@@ -9,8 +9,12 @@
         "x": 200.0,
         "y": 760.0
       },
+      "target_position": {
+        "x": 7342.0,
+        "y": 160.0
+      },
       "portal_position": {
-        "x": 7410.0,
+        "x": 7342.0,
         "y": 160.0
       },
       "next_scene": "Level02",
@@ -227,7 +231,7 @@
         },
         {
           "id": "wp_17_enter_portal",
-          "x": 7410.0,
+          "x": 7342.0,
           "y": 160.0,
           "tolerance_x": 60.0,
           "jump": {
@@ -340,6 +344,262 @@
           "objective": "reach_portal",
           "expected_scene": "EndScreen",
           "description": "Enter Portal2D to complete the game and trigger EndScreen victory"
+        }
+      ]
+    },
+    "Map3_SkyCastle": {
+      "level_name": "Map3_SkyCastle",
+      "scene_file": "res://src/Levels/Map3_SkyCastle.tscn",
+      "start_position": {
+        "x": 200.0,
+        "y": 760.0
+      },
+      "target_position": {
+        "x": 14638.0,
+        "y": 800.0
+      },
+      "portal_position": {
+        "x": 14638.0,
+        "y": 800.0
+      },
+      "waypoints": [
+        {
+          "id": "wp_m3_01_start_run",
+          "x": 900.0,
+          "y": 800.0,
+          "tolerance_x": 60.0,
+          "objective": "navigate",
+          "description": "Run along starting ground toward Enemy 1"
+        },
+        {
+          "id": "wp_m3_02_leap_enemy1",
+          "x": 1500.0,
+          "y": 800.0,
+          "tolerance_x": 80.0,
+          "jump": {
+            "trigger_x": 1000.0,
+            "direction": "move_right",
+            "min_frames": 36
+          },
+          "objective": "navigate",
+          "description": "Leap over Enemy 1 at X=1200"
+        },
+        {
+          "id": "wp_m3_03_approach_enemy2",
+          "x": 2100.0,
+          "y": 800.0,
+          "tolerance_x": 60.0,
+          "objective": "navigate",
+          "description": "Advance along ground toward Enemy 2"
+        },
+        {
+          "id": "wp_m3_04_leap_enemy2",
+          "x": 2650.0,
+          "y": 800.0,
+          "tolerance_x": 80.0,
+          "jump": {
+            "trigger_x": 2200.0,
+            "direction": "move_right",
+            "min_frames": 36
+          },
+          "objective": "navigate",
+          "description": "Leap over Enemy 2 at X=2400"
+        },
+        {
+          "id": "wp_m3_05_jump_chasm1_platform",
+          "x": 3150.0,
+          "y": 560.0,
+          "tolerance_x": 80.0,
+          "jump": {
+            "trigger_x": 2750.0,
+            "direction": "move_right",
+            "min_frames": 38
+          },
+          "objective": "reach_platform",
+          "description": "Jump across first chasm onto floating island at Y=560"
+        },
+        {
+          "id": "wp_m3_06_exit_chasm1",
+          "x": 3650.0,
+          "y": 800.0,
+          "tolerance_x": 80.0,
+          "jump": {
+            "trigger_x": 3280.0,
+            "direction": "move_right",
+            "min_frames": 34
+          },
+          "objective": "navigate",
+          "description": "Leap from floating island onto mainland ground at Y=800"
+        },
+        {
+          "id": "wp_m3_07_leap_enemy3",
+          "x": 4500.0,
+          "y": 800.0,
+          "tolerance_x": 80.0,
+          "jump": {
+            "trigger_x": 4000.0,
+            "direction": "move_right",
+            "min_frames": 36
+          },
+          "objective": "navigate",
+          "description": "Leap over Enemy 3 at X=4200"
+        },
+        {
+          "id": "wp_m3_08_ascend_stairs",
+          "x": 5500.0,
+          "y": 480.0,
+          "tolerance_x": 80.0,
+          "jump": {
+            "trigger_x": 5180.0,
+            "direction": "move_right",
+            "min_frames": 40
+          },
+          "objective": "reach_platform",
+          "description": "Ascend grand staircase over sticky step edge"
+        },
+        {
+          "id": "wp_m3_09_reach_castle_rampart",
+          "x": 5900.0,
+          "y": 320.0,
+          "tolerance_x": 80.0,
+          "jump": {
+            "trigger_x": 5520.0,
+            "direction": "move_right",
+            "min_frames": 36
+          },
+          "objective": "reach_platform",
+          "description": "Jump onto high castle rampart at Y=320"
+        },
+        {
+          "id": "wp_m3_10_traverse_rampart",
+          "x": 6700.0,
+          "y": 320.0,
+          "tolerance_x": 80.0,
+          "objective": "navigate",
+          "description": "Run along unobstructed castle rampart"
+        },
+        {
+          "id": "wp_m3_11_cross_rampart",
+          "x": 7500.0,
+          "y": 320.0,
+          "tolerance_x": 80.0,
+          "objective": "navigate",
+          "description": "Traverse high rampart toward courtyard drop"
+        },
+        {
+          "id": "wp_m3_12_drop_to_courtyard",
+          "x": 8000.0,
+          "y": 800.0,
+          "tolerance_x": 80.0,
+          "objective": "navigate",
+          "description": "Drop off rampart edge at X=7680 into lower castle courtyard at Y=800"
+        },
+        {
+          "id": "wp_m3_13_leap_enemy6",
+          "x": 9100.0,
+          "y": 800.0,
+          "tolerance_x": 80.0,
+          "jump": {
+            "trigger_x": 8600.0,
+            "direction": "move_right",
+            "min_frames": 36
+          },
+          "objective": "navigate",
+          "description": "Leap over Enemy 6 at X=8800"
+        },
+        {
+          "id": "wp_m3_14_leap_enemy7",
+          "x": 10300.0,
+          "y": 800.0,
+          "tolerance_x": 80.0,
+          "jump": {
+            "trigger_x": 9800.0,
+            "direction": "move_right",
+            "min_frames": 36
+          },
+          "objective": "navigate",
+          "description": "Leap over Enemy 7 at X=10000"
+        },
+        {
+          "id": "wp_m3_15_approach_great_chasm",
+          "x": 11050.0,
+          "y": 800.0,
+          "tolerance_x": 60.0,
+          "objective": "navigate",
+          "description": "Advance toward edge of the Great Chasm and Enemy 8"
+        },
+        {
+          "id": "wp_m3_16_chasm_island1",
+          "x": 11600.0,
+          "y": 640.0,
+          "tolerance_x": 80.0,
+          "jump": {
+            "trigger_x": 11120.0,
+            "direction": "move_right",
+            "min_frames": 40
+          },
+          "objective": "reach_platform",
+          "description": "Leap past Enemy 8 onto Floating Island 1 at Y=640"
+        },
+        {
+          "id": "wp_m3_17_chasm_island2",
+          "x": 12160.0,
+          "y": 480.0,
+          "tolerance_x": 80.0,
+          "jump": {
+            "trigger_x": 11680.0,
+            "direction": "move_right",
+            "min_frames": 40
+          },
+          "objective": "reach_platform",
+          "description": "Leap from Island 1 onto elevated Island 2 at Y=480"
+        },
+        {
+          "id": "wp_m3_18_chasm_island3",
+          "x": 12800.0,
+          "y": 560.0,
+          "tolerance_x": 80.0,
+          "jump": {
+            "trigger_x": 12260.0,
+            "direction": "move_right",
+            "min_frames": 38
+          },
+          "objective": "reach_platform",
+          "description": "Leap from Island 2 onto Island 3 at Y=560"
+        },
+        {
+          "id": "wp_m3_19_land_mainland",
+          "x": 13450.0,
+          "y": 800.0,
+          "tolerance_x": 80.0,
+          "jump": {
+            "trigger_x": 12950.0,
+            "direction": "move_right",
+            "min_frames": 38
+          },
+          "objective": "navigate",
+          "description": "Leap from Island 3 to mainland ground at Y=800"
+        },
+        {
+          "id": "wp_m3_20_leap_enemy10",
+          "x": 14100.0,
+          "y": 800.0,
+          "tolerance_x": 80.0,
+          "jump": {
+            "trigger_x": 13600.0,
+            "direction": "move_right",
+            "min_frames": 36
+          },
+          "objective": "navigate",
+          "description": "Leap over Enemy 10 at X=13800"
+        },
+        {
+          "id": "wp_m3_21_reach_target",
+          "x": 14638.0,
+          "y": 800.0,
+          "tolerance_x": 60.0,
+          "objective": "reach_target",
+          "description": "Target endpoint reached at coordinate (14638, 800)"
         }
       ]
     }

@@ -52,7 +52,12 @@ class LevelRouteManager:
             self.set_target_coordinate(self.target_coord[0], self.target_coord[1])
 
     def get_route(self, level_name: str) -> Optional[Dict[str, Any]]:
-        return self.routes_data.get(level_name)
+        if level_name in self.routes_data:
+            return self.routes_data.get(level_name)
+        for k, v in self.routes_data.items():
+            if k.lower() == level_name.lower():
+                return v
+        return None
 
     def current_waypoint(self) -> Optional[Dict[str, Any]]:
         route = self.get_route(self.current_level)
@@ -70,6 +75,8 @@ class LevelRouteManager:
             clean_name = "Level01"
         elif "Level02" in scene_name:
             clean_name = "Level02"
+        elif "Map3" in scene_name or "SkyCastle" in scene_name:
+            clean_name = "Map3_SkyCastle"
         elif "EndScreen" in scene_name:
             clean_name = "EndScreen"
 
@@ -730,12 +737,28 @@ class HybridBotRunner:
                  coord_tolerance: float = 60.0):
         self.controller = controller
         self.target_level = target_level
-        self.target_coord = target_coord
         self.coord_tolerance = coord_tolerance
         self.route_manager = LevelRouteManager(routes_file)
         self.route_manager.current_level = target_level
-        if target_coord is not None:
-            self.route_manager.set_target_coordinate(target_coord[0], target_coord[1], tolerance_x=coord_tolerance)
+
+        # Default destinations: Map 1 -> (7342.0, 160.0), Map 3 -> (14638.0, 800.0)
+        if target_coord is None:
+            if (
+                target_level in ("Level01", "Level1", "1", "map1", "level1", "map1_green_hills")
+                or "greenhills" in str(target_level).lower()
+                or "level01" in str(target_level).lower()
+            ):
+                target_coord = (7342.0, 160.0)
+            elif (
+                target_level == "Map3_SkyCastle"
+                or "skycastle" in str(target_level).lower()
+                or str(target_level).strip() in ("3", "map3", "level3")
+            ):
+                target_coord = (14638.0, 800.0)
+
+        self.target_coord = target_coord
+        if self.target_coord is not None:
+            self.route_manager.set_target_coordinate(self.target_coord[0], self.target_coord[1], tolerance_x=coord_tolerance)
         self.bot = HybridBotController(self.route_manager, variation_mode=variation_mode, seed=seed)
         self.max_steps = max_steps
         self.tick_delay = tick_delay

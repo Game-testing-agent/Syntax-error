@@ -83,6 +83,9 @@ def main():
     parser.add_argument("--debug", action="store_true", help="Run with debug logging enabled")
     parser.add_argument("--headless", action="store_true", help="Run Godot in headless mode")
     parser.add_argument("--frames", type=int, default=None, help="Automatically exit after N frames")
+    parser.add_argument("--bot", action="store_true", help="Launch Hybrid Bot to traverse the map")
+    parser.add_argument("--target-coord", nargs=2, type=float, default=None, help="Target coordinate for Hybrid Bot")
+    parser.add_argument("--max-actions", type=int, default=600, help="Maximum steps for Hybrid Bot (default: 600)")
     parser.add_argument("-h", "--help", action="store_true", help="Show help message")
 
     args = parser.parse_args()
@@ -136,6 +139,48 @@ def main():
 
     print(f"Launching {map_info['title']}...")
     print(f"Logs destination: {log_dir}")
+
+    if args.bot:
+        import time
+        print("\n" + "=" * 80)
+        print("   [*] LAUNCHING HYBRID BOT ON " + map_info["title"].upper())
+        print("=" * 80 + "\n")
+        proc = subprocess.Popen(cmd)
+        try:
+            from explorer import GameController, ActionHistoryRecorder
+            from bot_controller import HybridBotRunner
+
+            controller = GameController()
+            connected = controller.connect(retries=30, retry_interval=0.5)
+            if not connected:
+                print("[WARNING] Game not responding to UDP handshake, proceeding with fallback telemetry...")
+
+            tx = args.target_coord[0] if args.target_coord else (7342.0 if map_num == 1 else (14638.0 if map_num == 3 else None))
+            ty = args.target_coord[1] if args.target_coord else (160.0 if map_num == 1 else (800.0 if map_num == 3 else None))
+            target = (tx, ty) if tx is not None else None
+
+            target_lvl = "Level01" if map_num == 1 else ("Map3_SkyCastle" if map_num == 3 else map_info["slug"])
+            runner = HybridBotRunner(
+                controller=controller,
+                target_level=target_lvl,
+                target_coord=target,
+                max_steps=args.max_actions
+            )
+            runner.route_manager.current_level = target_lvl
+            if target:
+                runner.route_manager.set_target_coordinate(target[0], target[1])
+
+            metadata = {"map": map_num, "target": target, "max_actions": args.max_actions}
+            history = ActionHistoryRecorder("hybrid_map", metadata)
+            runner.run(history)
+            out_file = history.finalize()
+            print(f"\n[OK] Run history saved to: {out_file}")
+        finally:
+            try:
+                proc.wait(timeout=1.0)
+            except Exception:
+                pass
+        sys.exit(0)
 
     try:
         proc = subprocess.run(cmd)
