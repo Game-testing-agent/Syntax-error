@@ -2,15 +2,24 @@
 title Godot 4 Editor - 2D Platformer
 cd /d "%~dp0godot-4game"
 
-set "GODOT_EXE=%~dp0engine\Godot_v4.3-stable_win64.exe"
-if not exist "%GODOT_EXE%" set "GODOT_EXE=%~dp0..\godot engine\Godot_v4.3-stable_win64.exe"
+set "GODOT_EXE="
+
+for %%F in (
+    "%~dp0engine\*.exe"
+    "%USERPROFILE%\Downloads\Godot_v4.7.2-stable_win64.exe\Godot_v4.7.2-stable_win64.exe"
+    "%USERPROFILE%\Downloads\Godot*\Godot*_win64.exe"
+    "%~dp0..\godot engine\*.exe"
+    "C:\Program Files\Godot\*.exe"
+) do (
+    if not defined GODOT_EXE (
+        echo %%~nxF | findstr /i /v "console" >nul && if exist "%%~F" set "GODOT_EXE=%%~F"
+    )
+)
 
 if exist "%GODOT_EXE%" (
-    start "" "%GODOT_EXE%" -e
+    echo [INFO] Found Godot: "%GODOT_EXE%"
+    start "" "%GODOT_EXE%" -e --path "%~dp0godot-4game"
 ) else (
     echo [ERROR] Godot 4 executable not found!
-    echo Checked:
-    echo   "%~dp0engine\Godot_v4.3-stable_win64.exe"
-    echo   "%~dp0..\godot engine\Godot_v4.3-stable_win64.exe"
     pause
 )

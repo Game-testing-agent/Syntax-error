@@ -4,6 +4,10 @@ extends Area2D
 @export var next_scene: PackedScene
 @onready var anim_player: AnimationPlayer = $AnimationPlayer
 var is_teleporting: bool = false
+@export var is_map4_portal: bool = false
+var portal_touch_count: int = 0
+# Unpaused physics fall during airborne portal transition
+@export var bug_airborne_portal_unpause: bool = false
 
 
 func _ready() -> void:
@@ -19,6 +23,24 @@ func _on_body_entered(_body: PhysicsBody2D) -> void:
 			"position": GameLogger.vec2_to_dict(global_position),
 			"target_scene": next_scene.resource_path if next_scene else ""
 		}, self)
+
+	if BugFlags and BugFlags.map4_portal_second_touch and is_map4_portal:
+		portal_touch_count += 1
+		if portal_touch_count < 2:
+			if GameLogger:
+				GameLogger.log_bug_trigger("4B", {
+					"touch_count": portal_touch_count,
+					"teleport_triggered": false,
+					"required_touches": 2
+				})
+			return
+		else:
+			if GameLogger:
+				GameLogger.log_bug_trigger("4B", {
+					"touch_count": portal_touch_count,
+					"teleport_triggered": true
+				})
+
 	teleport()
 
 
@@ -56,20 +78,51 @@ func teleport() -> void:
 			"target_scene": target_path
 		}, self)
 
-	get_tree().paused = true
+	# TRICKY  5: Airborne Portal Transition Fall-Through
+
+	# If the player touches the portal while airborne and moving downward, pausing
+
+	# the scene tree is skipped, allowing gravity to pull the player into the pit
+
+	# below the portal during the 0.5s fade-out sequence before the scene switch.
+
+	var should_pause = true
+
+	if bug_airborne_portal_unpause:
+
+		var player_nodes = get_tree().get_nodes_in_group("player")
+
+		if player_nodes.size() > 0 and not player_nodes[0].is_on_floor() and player_nodes[0].velocity.y > 0:
+
+			should_pause = false
+
+
+
+	if should_pause:
+
+		get_tree().paused = true
+
+
 
 	if GameLogger:
+
 		GameLogger.log_event("portal_fade_started", "portal", {
+
 			"animation": "fade_out"
+
 		}, self)
 
+
+
 	anim_player.play("fade_out")
+
 	await anim_player.animation_finished
 
-	if GameLogger:
-		GameLogger.log_event("portal_fade_completed", "portal", {}, self)
 
-	get_tree().paused = false
+
+	if should_pause:
+
+		get_tree().paused = false
 
 	if GameLogger:
 		GameLogger.log_event("scene_change_requested", "portal", {

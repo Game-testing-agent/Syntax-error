@@ -25,6 +25,8 @@ var frame_count: int = 0
 # Paths & File Output
 var output_dirs: Array[String] = []
 var log_file_paths: Array[String] = []
+var custom_log_dir: String = ""
+var human_log_path: String = ""
 
 # State Tracking & Entities
 var active_player: CharacterBody2D = null
@@ -58,7 +60,8 @@ func _ready() -> void:
 	session_id = "session_%d_%d" % [int(Time.get_unix_time_from_system()), randi() % 90000 + 10000]
 
 	_setup_output_paths()
-	_clear_logs_on_application_launch() # Clear once when the application starts.
+	if custom_log_dir == "":
+		_clear_logs_on_application_launch() # Clear once when the application starts.
 
 	if enable_agent_control:
 		_setup_agent_server()
@@ -96,6 +99,36 @@ func _notification(what: int) -> void:
 func _setup_output_paths() -> void:
 	output_dirs.clear()
 	log_file_paths.clear()
+
+	# Check for --log-dir CLI argument
+	var user_args = OS.get_cmdline_user_args()
+	for i in range(user_args.size()):
+		var arg = user_args[i]
+		if arg.begins_with("--log-dir="):
+			custom_log_dir = arg.substr(10).strip_edges().trim_prefix('\"').trim_suffix('\"')
+		elif arg == "--log-dir" and i + 1 < user_args.size():
+			custom_log_dir = user_args[i + 1].strip_edges().trim_prefix('\"').trim_suffix('\"')
+
+	if custom_log_dir != "":
+		if not custom_log_dir.is_absolute_path():
+			var base_dir = ProjectSettings.globalize_path("res://..")
+			custom_log_dir = base_dir.path_join(custom_log_dir)
+		if not DirAccess.dir_exists_absolute(custom_log_dir):
+			DirAccess.make_dir_recursive_absolute(custom_log_dir)
+		output_dirs.append(custom_log_dir)
+		log_file_paths.append(custom_log_dir.path_join("game_events.jsonl"))
+
+		var dt = Time.get_datetime_dict_from_system()
+		var ts = "%04d%02d%02d_%02d%02d%02d" % [dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second]
+		human_log_path = custom_log_dir.path_join("run_%s.log" % ts)
+		_write_human_log("=== RUN LOG STARTED [%s] ===" % ts)
+
+		# Also write directly to root workspace (Syntax-error/) for global log consolidation
+		var parent_dir = ProjectSettings.globalize_path("res://..")
+		if parent_dir != "" and not output_dirs.has(parent_dir):
+			output_dirs.append(parent_dir)
+			log_file_paths.append(parent_dir.path_join("game_events.jsonl"))
+		return
 
 	# 1. Primary writable Godot user-data directory (user://)
 	var user_dir = OS.get_user_data_dir()
@@ -401,7 +434,40 @@ func _build_record(event_name: String, category: String, data: Dictionary, entit
 	return record
 
 
+func _write_human_log(line: String) -> void:
+	if human_log_path == "":
+		return
+	var file = FileAccess.open(human_log_path, FileAccess.READ_WRITE)
+	if not file:
+		file = FileAccess.open(human_log_path, FileAccess.WRITE)
+	else:
+		file.seek_end()
+	if file:
+		file.store_line(line)
+		file.flush()
+		file.close()
+
+
+func log_bug_trigger(bug_id: String, details: Dictionary = {}) -> Dictionary:
+	var payload = {
+		"bug_id": bug_id,
+		"details": details
+	}
+	if human_log_path != "":
+		_write_human_log("[BUGTRIGGER] %s: %s" % [bug_id, JSON.stringify(details)])
+	print("[BUGTRIGGER] %s: %s" % [bug_id, JSON.stringify(details)])
+	return log_event("bug_trigger", "bug", payload)
+
+
 func _write_record(record: Dictionary) -> void:
+	if human_log_path != "":
+		var line = "[%06d] [%-16s] %s %s" % [
+			record.get("physics_frame", 0),
+			record.get("category", ""),
+			record.get("event_name", ""),
+			JSON.stringify(record.get("data", {}))
+		]
+		_write_human_log(line)
 	var json_line = JSON.stringify(record)
 	var write_failed = false
 
@@ -729,11 +795,15 @@ func _write_latest_state(data: Dictionary) -> void:
 	var json_str = JSON.stringify(data, "  ")
 	for dir in output_dirs:
 		var target_path = dir.path_join("latest_state.json")
-		var file = FileAccess.open(target_path, FileAccess.WRITE)
+		var tmp_path = dir.path_join("latest_state.json.tmp")
+		var file = FileAccess.open(tmp_path, FileAccess.WRITE)
 		if file:
 			file.store_string(json_str)
 			file.flush()
 			file.close()
+			if FileAccess.file_exists(target_path):
+				DirAccess.remove_absolute(target_path)
+			DirAccess.rename_absolute(tmp_path, target_path)
 
 
 func vec2_to_dict(v: Vector2) -> Dictionary:

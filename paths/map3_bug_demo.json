@@ -1,0 +1,57 @@
+{
+  "name": "map3_bug_demo",
+  "description": "Demonstration sequence for Map 3: Advance across floating sky castle platforms to staircase edge (Bug 3A)",
+  "steps": [
+    {
+      "action": "move_right",
+      "frames": 240,
+      "description": "Run across the initial sky rampart"
+    },
+    {
+      "action": "jump",
+      "frames": 1,
+      "description": "Jump over rampart gap"
+    },
+    {
+      "action": "move_right",
+      "frames": 300,
+      "description": "Sprint towards the central stone staircase"
+    },
+    {
+      "action": "jump",
+      "frames": 1,
+      "description": "Hop onto the lower stair riser"
+    },
+    {
+      "action": "move_right",
+      "frames": 120,
+      "description": "Step onto the stuck stair edge at tile (68, 7)"
+    },
+    {
+      "action": "move_left",
+      "frames": 10,
+      "description": "Press left (1st tap)"
+    },
+    {
+      "action": "wait",
+      "frames": 10,
+      "description": "Release"
+    },
+    {
+      "action": "move_left",
+      "frames": 10,
+      "description": "Press left (2nd tap)"
+    },
+    {
+      "action": "wait",
+      "frames": 10,
+      "description": "Release"
+    },
+    {
+      "action": "move_left",
+      "frames": 10,
+      "description": "Press left (3rd tap to recover)"
+    }
+  ]
+}
+

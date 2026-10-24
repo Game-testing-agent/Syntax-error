@@ -1,0 +1,32 @@
+{
+  "name": "map2_bug_demo",
+  "description": "Demonstration sequence for Map 2: Advance through underground caves towards narrow ceiling gap (Bug 2A)",
+  "steps": [
+    {
+      "action": "move_right",
+      "frames": 240,
+      "description": "Advance through the cave passage"
+    },
+    {
+      "action": "jump",
+      "frames": 1,
+      "description": "Jump over early obstacle"
+    },
+    {
+      "action": "move_right",
+      "frames": 360,
+      "description": "Continue running right towards the ceiling wedge at tile (55, 8)"
+    },
+    {
+      "action": "jump",
+      "frames": 1,
+      "description": "Jump into the narrow gap beneath ceiling blocks"
+    },
+    {
+      "action": "move_right",
+      "frames": 60,
+      "description": "Attempt to traverse the narrow gap where player becomes wedged"
+    }
+  ]
+}
+

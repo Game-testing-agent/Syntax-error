@@ -1,0 +1,22 @@
+{
+  "name": "map4_bug_demo",
+  "description": "Demonstration sequence for Map 4: Walk forward into Lava Pit 1 (Bug 4A)",
+  "steps": [
+    {
+      "action": "move_right",
+      "frames": 480,
+      "description": "Run across the fortress bridge directly into the first lava reservoir"
+    },
+    {
+      "action": "jump",
+      "frames": 1,
+      "description": "Demonstrate ability to still jump during 3-second delayed death period"
+    },
+    {
+      "action": "move_right",
+      "frames": 120,
+      "description": "Keep moving through lava until delayed countdown expires"
+    }
+  ]
+}
+

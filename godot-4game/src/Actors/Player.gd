@@ -1,6 +1,9 @@
 extends Actor
 
 @export var stomp_impulse: float = 600.0
+@export var is_invincible: bool = false  # TEMPORARY: God mode (set to false to re-enable death)
+# Wall-friction jump dampening
+@export var bug_wall_friction_jump: bool = false
 
 const MOVE_SAMPLE_DIST_THRESHOLD: float = 100.0
 const MOVE_SAMPLE_FRAME_INTERVAL: int = 30
@@ -14,6 +17,12 @@ var jump_start_pos: Vector2 = Vector2.ZERO
 var fall_start_pos: Vector2 = Vector2.ZERO
 var peak_jump_y: float = INF
 var fall_threshold_logged: bool = false
+var out_of_bounds_logged: bool = false
+var is_wall_stuck: bool = false
+var is_stair_stuck: bool = false
+var stair_escape_count: int = 0
+var tower_wall_jump_active: bool = false
+var lava_timer: float = -1.0
 var last_move_log_pos: Vector2 = Vector2.ZERO
 var last_move_log_frame: int = 0
 
@@ -68,6 +77,20 @@ func _on_StompDetector_area_entered(area: Area2D) -> void:
 
 
 func _on_EnemyDetector_body_entered(body: PhysicsBody2D) -> void:
+	if is_invincible:
+		return
+	var is_map1 = false
+	if get_tree() and get_tree().current_scene:
+		is_map1 = ("Map1" in get_tree().current_scene.name)
+	if BugFlags and BugFlags.map1_enemy4_no_kill and is_map1:
+		if body.name == "Enemy4" or ("can_kill_player" in body and not body.can_kill_player):
+			if GameLogger:
+				GameLogger.log_bug_trigger("1A", {
+					"enemy_name": body.name,
+					"player_position": GameLogger.vec2_to_dict(global_position),
+					"enemy_position": GameLogger.vec2_to_dict(body.global_position) if "global_position" in body else null
+				})
+			return
 	if GameLogger:
 		GameLogger.log_event("enemy_contact_started", "enemy", {
 			"contact_type": "body",
@@ -82,7 +105,67 @@ func _on_EnemyDetector_body_entered(body: PhysicsBody2D) -> void:
 	die()
 
 
+func trigger_lava_contact() -> void:
+	if is_invincible:
+		return
+	var is_map4 = false
+	if get_tree() and get_tree().current_scene:
+		is_map4 = ("Map4" in get_tree().current_scene.name)
+	if BugFlags and BugFlags.map4_delayed_lava_death and is_map4:
+		if lava_timer < 0.0:
+			lava_timer = 3.0
+			if GameLogger:
+				GameLogger.log_bug_trigger("4A", {
+					"delay_seconds": 3.0,
+					"position": GameLogger.vec2_to_dict(global_position)
+				})
+		return
+	die()
+
+
 func _physics_process(delta: float) -> void:
+	if lava_timer > 0.0:
+		lava_timer -= delta
+		if lava_timer <= 0.0:
+			lava_timer = -1.0
+			die()
+
+	var current_scene_name = get_tree().current_scene.name if (get_tree() and get_tree().current_scene) else ""
+
+	if BugFlags and BugFlags.map2_wall_stuck and ("Map2" in current_scene_name):
+		if not is_wall_stuck and global_position.x >= 4360.0 and global_position.x <= 4440.0 and global_position.y >= 600.0 and global_position.y <= 680.0:
+			is_wall_stuck = true
+			if GameLogger:
+				GameLogger.log_bug_trigger("2A", {
+					"tile_coords": [55, 8],
+					"position": GameLogger.vec2_to_dict(global_position),
+					"stuck": true
+				})
+		if is_wall_stuck:
+			velocity = Vector2.ZERO
+			move_and_slide()
+			return
+
+	if BugFlags and BugFlags.map3_stair_stick and ("Map3" in current_scene_name):
+		if not is_stair_stuck and is_on_floor() and global_position.x >= 5420.0 and global_position.x <= 5460.0 and global_position.y >= 540.0 and global_position.y <= 580.0:
+			is_stair_stuck = true
+			stair_escape_count = 0
+			if GameLogger:
+				GameLogger.log_bug_trigger("3A", {
+					"stair_coords": [68, 7],
+					"escape_presses_needed": 3,
+					"position": GameLogger.vec2_to_dict(global_position)
+				})
+		if is_stair_stuck:
+			if Input.is_action_just_pressed("move_left"):
+				stair_escape_count += 1
+				if stair_escape_count >= 3:
+					is_stair_stuck = false
+			if is_stair_stuck:
+				velocity = Vector2.ZERO
+				move_and_slide()
+				return
+
 	super._physics_process(delta)
 
 	var is_jump_interrupted: bool = Input.is_action_just_released("jump") and not Input.is_action_pressed("jump") and velocity.y < 0.0
@@ -147,28 +230,37 @@ func _physics_process(delta: float) -> void:
 			if cur_fall_dist >= FALL_DISTANCE_THRESHOLD and not fall_threshold_logged:
 				fall_threshold_logged = true
 				if GameLogger:
-					GameLogger.log_event("fall_distance_threshold_reached", "player_movement", {
+					GameLogger.log_event("player_fall_threshold_reached", "player_movement", {
+						"position": GameLogger.vec2_to_dict(global_position),
 						"fall_distance": round(cur_fall_dist * 10.0) / 10.0,
-						"threshold": FALL_DISTANCE_THRESHOLD,
-						"position": GameLogger.vec2_to_dict(global_position)
+						"threshold": FALL_DISTANCE_THRESHOLD
 					})
 
-	# Rate-limited / threshold-based movement sampling
-	var dist_moved = global_position.distance_to(last_move_log_pos)
+	# Periodic motion sample (distance-based or time-based)
 	var current_frame = Engine.get_physics_frames()
-	if dist_moved >= MOVE_SAMPLE_DIST_THRESHOLD or (dist_moved >= 25.0 and current_frame - last_move_log_frame >= MOVE_SAMPLE_FRAME_INTERVAL):
+	var dist_moved = global_position.distance_to(last_move_log_pos)
+	if dist_moved >= MOVE_SAMPLE_DIST_THRESHOLD or (current_frame - last_move_log_frame) >= MOVE_SAMPLE_FRAME_INTERVAL:
 		if GameLogger:
 			GameLogger.log_event("player_moved", "player_movement", {
-				"from_position": GameLogger.vec2_to_dict(last_move_log_pos),
-				"to_position": GameLogger.vec2_to_dict(global_position),
+				"position": GameLogger.vec2_to_dict(global_position),
 				"velocity": GameLogger.vec2_to_dict(velocity),
-				"distance": round(dist_moved * 10.0) / 10.0
+				"is_on_floor": current_on_floor,
+				"distance_from_last": round(dist_moved * 10.0) / 10.0
 			})
 		last_move_log_pos = global_position
 		last_move_log_frame = current_frame
 
 	# Out of bounds anomaly detection
-	if global_position.y > OUT_OF_BOUNDS_Y and GameLogger:
+	if global_position.y > OUT_OF_BOUNDS_Y and not out_of_bounds_logged and GameLogger:
+		out_of_bounds_logged = true
+		var is_map1 = false
+		if get_tree() and get_tree().current_scene:
+			is_map1 = ("Map1" in get_tree().current_scene.name)
+		if BugFlags and BugFlags.map1_floor_hole and is_map1:
+			GameLogger.log_bug_trigger("1B", {
+				"position": GameLogger.vec2_to_dict(global_position),
+				"threshold_y": OUT_OF_BOUNDS_Y
+			})
 		GameLogger.log_anomaly("player_out_of_bounds", {
 			"position": GameLogger.vec2_to_dict(global_position),
 			"threshold_y": OUT_OF_BOUNDS_Y,
@@ -181,22 +273,33 @@ func _physics_process(delta: float) -> void:
 
 func get_direction() -> Vector2:
 	var jump_pressed = is_on_floor() and Input.is_action_just_pressed("jump")
+	tower_wall_jump_active = false
+	var is_map3 = ("Map3" in get_tree().current_scene.name) if (get_tree() and get_tree().current_scene) else false
+	if BugFlags and BugFlags.map3_tower_wall_jump and is_map3 and is_on_wall() and Input.is_action_just_pressed("jump"):
+		if global_position.x >= 15550.0 and global_position.x <= 15650.0:
+			jump_pressed = true
+			tower_wall_jump_active = true
+			if GameLogger:
+				GameLogger.log_bug_trigger("3C", {
+					"wall_coords": [195, 8],
+					"jump_multiplier": 2.0,
+					"position": GameLogger.vec2_to_dict(global_position)
+				})
 	if jump_pressed:
 		is_jumping = true
 		is_falling = false
 		jump_start_pos = global_position
 		peak_jump_y = global_position.y
-		fall_threshold_logged = false
 		if GameLogger:
 			GameLogger.log_event("jump_started", "player_movement", {
-				"start_position": GameLogger.vec2_to_dict(global_position),
-				"initial_velocity": GameLogger.vec2_to_dict(Vector2(velocity.x, -speed.y)),
-				"speed": GameLogger.vec2_to_dict(speed)
+				"position": GameLogger.vec2_to_dict(global_position),
+				"jump_speed": speed.y,
+				"horizontal_velocity": velocity.x
 			})
 
 	return Vector2(
 		Input.get_action_strength("move_right") - Input.get_action_strength("move_left"),
-		-Input.get_action_strength("jump") if jump_pressed else 0.0
+		-1.0 if jump_pressed else 0.0
 	)
 
 
@@ -209,24 +312,31 @@ func calculate_move_velocity(
 	var _velocity: = linear_velocity
 	_velocity.x = _speed.x * direction.x
 	if direction.y != 0.0:
-		_velocity.y = _speed.y * direction.y
+		var mult = 2.0 if tower_wall_jump_active else 1.0
+		_velocity.y = _speed.y * direction.y * mult
 	if is_jump_interrupted:
 		_velocity.y = 0.0
+	elif bug_wall_friction_jump and is_on_wall() and _velocity.y < -50.0 and direction.x != 0.0:
+		_velocity.y *= 0.65
 	return _velocity
 
 
 func calculate_stomp_velocity(linear_velocity: Vector2, impulse: float) -> Vector2:
-	var stomp_jump: = -speed.y if Input.is_action_pressed("jump") else -impulse
+	var stomp_jump = -impulse
+	if Input.is_action_pressed("jump"):
+		stomp_jump = -speed.y
 	return Vector2(linear_velocity.x, stomp_jump)
 
 
-func die() -> void:
+func die(force: bool = false) -> void:
+	if is_invincible and not force:
+		return
 	if GameLogger:
 		GameLogger.expected_player_death = true
 		GameLogger.log_event("player_died", "player_lifecycle", {
 			"position": GameLogger.vec2_to_dict(global_position),
-			"score_at_death": PlayerData.score if PlayerData else 0,
-			"total_deaths_before": PlayerData.deaths if PlayerData else 0
+			"score": PlayerData.score if PlayerData else 0,
+			"deaths": PlayerData.deaths if PlayerData else 0
 		})
 	PlayerData.deaths += 1
 	queue_free()

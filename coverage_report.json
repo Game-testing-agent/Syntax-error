@@ -11,10 +11,13 @@
         "scene_transition_timeout",
         "runtime_error_observed"
       ],
-      "extra": [],
+      "extra": [
+        "map_loaded",
+        "bug_trigger",
+        "player_fall_threshold_reached"
+      ],
       "missing": [
         "player_stuck_detected",
-        "player_out_of_bounds",
         "unexpected_player_removal",
         "unexpected_score_change",
         "duplicate_pickup_attempt",
@@ -22,9 +25,11 @@
         "scene_transition_timeout",
         "runtime_error_observed"
       ],
-      "missing_count": 8,
-      "observed": [],
-      "pass_count": 0
+      "missing_count": 7,
+      "observed": [
+        "player_out_of_bounds"
+      ],
+      "pass_count": 1
     },
     "collectible": {
       "expected": [
@@ -36,7 +41,11 @@
         "coin_remaining_count_changed",
         "coin_removed"
       ],
-      "extra": [],
+      "extra": [
+        "map_loaded",
+        "bug_trigger",
+        "player_fall_threshold_reached"
+      ],
       "missing": [],
       "missing_count": 0,
       "observed": [
@@ -63,22 +72,27 @@
         "enemy_killed",
         "enemy_removed"
       ],
-      "extra": [],
-      "missing": [],
-      "missing_count": 0,
-      "observed": [
-        "enemy_spawned",
-        "enemy_started_moving",
+      "extra": [
+        "map_loaded",
+        "bug_trigger",
+        "player_fall_threshold_reached"
+      ],
+      "missing": [
         "enemy_reversed_at_wall",
         "stomp_attempted",
         "enemy_stomp_area_entered",
         "enemy_stomped",
         "enemy_contact_started",
         "enemy_contact_death",
-        "enemy_killed",
+        "enemy_killed"
+      ],
+      "missing_count": 7,
+      "observed": [
+        "enemy_spawned",
+        "enemy_started_moving",
         "enemy_removed"
       ],
-      "pass_count": 10
+      "pass_count": 3
     },
     "input": {
       "expected": [
@@ -93,23 +107,27 @@
         "quit_pressed",
         "main_menu_pressed"
       ],
-      "extra": [],
-      "missing": [
-        "quit_pressed",
-        "main_menu_pressed"
+      "extra": [
+        "map_loaded",
+        "bug_trigger",
+        "player_fall_threshold_reached"
       ],
-      "missing_count": 2,
-      "observed": [
+      "missing": [
         "move_left_pressed",
         "move_left_released",
+        "pause_pressed",
+        "retry_pressed",
+        "main_menu_pressed"
+      ],
+      "missing_count": 5,
+      "observed": [
         "move_right_pressed",
         "move_right_released",
         "jump_pressed",
         "jump_released",
-        "pause_pressed",
-        "retry_pressed"
+        "quit_pressed"
       ],
-      "pass_count": 8
+      "pass_count": 5
     },
     "player_lifecycle": {
       "expected": [
@@ -118,7 +136,11 @@
         "player_removed",
         "death_counter_incremented"
       ],
-      "extra": [],
+      "extra": [
+        "map_loaded",
+        "bug_trigger",
+        "player_fall_threshold_reached"
+      ],
       "missing": [],
       "missing_count": 0,
       "observed": [
@@ -139,19 +161,24 @@
         "player_left_floor",
         "player_moved"
       ],
-      "extra": [],
-      "missing": [],
-      "missing_count": 0,
+      "extra": [
+        "map_loaded",
+        "bug_trigger",
+        "player_fall_threshold_reached"
+      ],
+      "missing": [
+        "fall_distance_threshold_reached"
+      ],
+      "missing_count": 1,
       "observed": [
         "jump_started",
         "jump_interrupted",
         "fall_started",
-        "fall_distance_threshold_reached",
         "player_landed",
         "player_left_floor",
         "player_moved"
       ],
-      "pass_count": 7
+      "pass_count": 6
     },
     "portal": {
       "expected": [
@@ -164,7 +191,11 @@
         "portal_target_missing",
         "scene_load_failed"
       ],
-      "extra": [],
+      "extra": [
+        "map_loaded",
+        "bug_trigger",
+        "player_fall_threshold_reached"
+      ],
       "missing": [
         "portal_entered",
         "portal_transition_started",
@@ -188,25 +219,33 @@
         "main_screen_loaded",
         "end_screen_loaded"
       ],
-      "extra": [],
+      "extra": [
+        "map_loaded",
+        "bug_trigger",
+        "player_fall_threshold_reached"
+      ],
       "missing": [
+        "main_screen_loaded",
         "end_screen_loaded"
       ],
-      "missing_count": 1,
+      "missing_count": 2,
       "observed": [
         "session_start",
         "session_end",
         "scene_loaded",
-        "level_loaded",
-        "main_screen_loaded"
+        "level_loaded"
       ],
-      "pass_count": 5
+      "pass_count": 4
     },
     "state_snapshot": {
       "expected": [
         "state_snapshot"
       ],
-      "extra": [],
+      "extra": [
+        "map_loaded",
+        "bug_trigger",
+        "player_fall_threshold_reached"
+      ],
       "missing": [],
       "missing_count": 0,
       "observed": [
@@ -225,32 +264,36 @@
         "global_state_reset",
         "return_to_main_menu"
       ],
-      "extra": [],
+      "extra": [
+        "map_loaded",
+        "bug_trigger",
+        "player_fall_threshold_reached"
+      ],
       "missing": [
         "pause_closed",
+        "retry_started",
+        "global_state_reset",
         "return_to_main_menu"
       ],
-      "missing_count": 2,
+      "missing_count": 4,
       "observed": [
         "pause_opened",
         "death_overlay_shown",
         "death_menu_opened",
-        "score_label_updated",
-        "retry_started",
-        "global_state_reset"
+        "score_label_updated"
       ],
-      "pass_count": 6
+      "pass_count": 4
     }
   },
-  "generated_at_unix_ms": 1792862136486,
+  "generated_at_unix_ms": 1792870259899,
   "schema_version": "1.0",
-  "session_duration_ms": 104206,
-  "session_id": "session_1792862032_47982",
+  "session_duration_ms": 13141,
+  "session_id": "session_1792870246_65380",
   "summary": {
-    "coverage_percent": 69.6,
+    "coverage_percent": 50.7,
     "total_expected": 69,
-    "total_missing": 21,
-    "total_observed_and_matched": 48
+    "total_missing": 34,
+    "total_observed_and_matched": 35
   },
-  "total_events_logged": 2211
+  "total_events_logged": 337
 }
