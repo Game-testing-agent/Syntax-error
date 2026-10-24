@@ -25,6 +25,10 @@ import subprocess
 from datetime import datetime
 from typing import Optional, Dict, List, Any, Tuple, Union
 
+
+from bot_controller import LevelRouteManager, HybridBotController, HybridBotRunner
+from game_recorder import ManualGameplayRecorder, normalize_level_name
+
 if hasattr(sys.stdout, "reconfigure"):
     try:
         sys.stdout.reconfigure(encoding="utf-8", errors="replace")
@@ -100,16 +104,20 @@ class GameController:
         except OSError:
             pass
 
-        # Also write mailbox file if UDP might fail or for redundancy
-        try:
-            tmp_path = self.command_path + ".tmp"
-            with open(tmp_path, "w", encoding="utf-8") as f:
-                json.dump(cmd, f)
-            if os.path.exists(self.command_path):
-                os.remove(self.command_path)
-            os.replace(tmp_path, self.command_path)
-        except OSError:
-            pass
+        # Fallback to mailbox file only if UDP transmission failed
+        if not sent:
+            for c_dir in [self.workspace_dir, os.path.join(self.workspace_dir, "godot-4game")]:
+                if os.path.isdir(c_dir):
+                    target_cmd_path = os.path.join(c_dir, COMMAND_FILE)
+                    try:
+                        tmp_path = target_cmd_path + ".tmp"
+                        with open(tmp_path, "w", encoding="utf-8") as f:
+                            json.dump(cmd, f)
+                        if os.path.exists(target_cmd_path):
+                            os.remove(target_cmd_path)
+                        os.replace(tmp_path, target_cmd_path)
+                    except OSError:
+                        pass
 
         return sent
 
@@ -154,13 +162,27 @@ class GameController:
             if not os.path.exists(self.state_path):
                 return None
 
-        # Retry up to 3 times to prevent Windows file locking collisions
-        for _ in range(3):
+        # Retry up to 5 times to prevent Windows file locking collisions
+        for _ in range(5):
             try:
                 with open(self.state_path, "r", encoding="utf-8") as f:
-                    return json.load(f)
+                    content = f.read()
+                    if content and not content.startswith("\x00"):
+                        return json.loads(content)
             except (json.JSONDecodeError, OSError, PermissionError):
-                time.sleep(0.005)
+                time.sleep(0.008)
+
+        # Fallback check for .tmp file if atomic rename is in flight
+        tmp_path = self.state_path + ".tmp"
+        if os.path.exists(tmp_path):
+            try:
+                with open(tmp_path, "r", encoding="utf-8") as f:
+                    content = f.read()
+                    if content and not content.startswith("\x00"):
+                        return json.loads(content)
+            except (json.JSONDecodeError, OSError, PermissionError):
+                pass
+
         return None
 
     def get_latest_event_id(self) -> int:
@@ -187,12 +209,19 @@ class GameController:
         return 0
 
     def get_events_since(self, since_id: int) -> List[Dict[str, Any]]:
-        """Reads all events logged after since_id."""
+        """Reads all events logged after since_id from the recent tail of game_events.jsonl."""
         if not os.path.exists(self.events_path):
             return []
         events = []
         try:
             with open(self.events_path, "r", encoding="utf-8") as f:
+                f.seek(0, os.SEEK_END)
+                end_pos = f.tell()
+                # Fast seek to recent tail (128KB is plenty for hundreds of recent events)
+                read_pos = max(0, end_pos - 131072)
+                f.seek(read_pos, os.SEEK_SET)
+                if read_pos > 0:
+                    f.readline()  # Discard potentially partial line
                 for line in f:
                     line = line.strip()
                     if not line:
@@ -212,6 +241,15 @@ class GameController:
         cleaned = [a for a in actions if a in VALID_ACTIONS and a not in ("wait", "release_all")]
         self.active_actions = cleaned
         self.send_command({"actions": cleaned})
+
+    def release_actions(self, actions: List[str]) -> None:
+        """Releases specific actions in Godot."""
+        cleaned = [a for a in actions if a in VALID_ACTIONS]
+        if cleaned:
+            for a in cleaned:
+                if a in self.active_actions:
+                    self.active_actions.remove(a)
+            self.send_command({"release": cleaned})
 
     def release_all(self) -> None:
         """Releases all active inputs in Godot."""
@@ -964,6 +1002,304 @@ class CoverageGuidedExplorer:
 
 
 # ==============================================================================
+# MODE D: TARGET COORDINATE EXPLORER
+# ==============================================================================
+
+class TargetCoordinateExplorer:
+    """Navigates the player directly to a specific target (X, Y) coordinate rather than the end of the level."""
+
+    def __init__(self, controller: GameController, target_x: float = 3117.0, target_y: float = 560.0,
+                 routes_file: Optional[str] = None, tolerance: float = 60.0,
+                 max_steps: int = 350, target_level: str = "Level01"):
+        self.controller = controller
+        self.target_x = target_x
+        self.target_y = target_y
+        self.tolerance = tolerance
+        self.max_steps = max_steps
+        self.target_level = target_level
+        self.runner = HybridBotRunner(
+            controller=self.controller,
+            routes_file=routes_file,
+            max_steps=self.max_steps,
+            target_level=self.target_level,
+            target_coord=(self.target_x, self.target_y),
+            coord_tolerance=self.tolerance
+        )
+
+    def run(self, history_recorder: ActionHistoryRecorder) -> bool:
+        print("\n" + "=" * 80, flush=True)
+        print("   [*] RUNNING TARGET COORDINATE EXPLORER", flush=True)
+        print(f"     Target Coordinate : ({self.target_x}, {self.target_y})", flush=True)
+        print(f"     Tolerance Radius  : ±{self.tolerance}px", flush=True)
+        print(f"     Target Level      : {self.target_level}", flush=True)
+        print("=" * 80, flush=True)
+        success = self.runner.run(history_recorder)
+        if success or self.runner.target_reached:
+            self.controller.release_all()
+            if hasattr(self.controller, "pause"):
+                self.controller.pause(True)
+        return success
+
+
+# ==============================================================================
+# MODE E: INTERACTIVE WAYPOINTS EXPLORER (WAYPOINT 1 MODE)
+# ==============================================================================
+
+class InteractiveWaypointsExplorer:
+    """Navigates to coordinates given one-by-one interactively via the terminal.
+    
+    After reaching each coordinate, stops and pauses the game until the next
+    coordinate is entered. Full hybrid bot features (enemy stomping, obstacle
+    jumping, auto-retry on death) are active.
+    """
+
+    def __init__(self, controller: GameController, routes_file: Optional[str] = None,
+                 tolerance: float = 60.0, max_steps_per_point: int = 350,
+                 target_level: str = "Level01", input_fn: Optional[Any] = None):
+        self.controller = controller
+        self.tolerance = tolerance
+        self.max_steps_per_point = max_steps_per_point
+        self.target_level = target_level
+        self.input_fn = input_fn if input_fn is not None else input
+        self.visited_waypoints: List[Tuple[float, Optional[float]]] = []
+        self.runner = HybridBotRunner(
+            controller=self.controller,
+            routes_file=routes_file,
+            max_steps=self.max_steps_per_point,
+            target_level=self.target_level,
+            coord_tolerance=self.tolerance
+        )
+
+    def run(self, history_recorder: Optional[ActionHistoryRecorder] = None) -> bool:
+        print("\n" + "=" * 80, flush=True)
+        print("   [*] INTERACTIVE WAYPOINTS EXPLORER (MODE 1)", flush=True)
+        print("     - Full Hybrid Bot: Stomps enemies, jumps obstacles, reactive AI.", flush=True)
+        print("     - Auto-retry: Game automatically retries & resumes if player dies.", flush=True)
+        print("     - Give coordinates one by one in terminal (e.g. '2450 700' or '3117 560').", flush=True)
+        print("     - Bot will reach coordinate and pause until you give the next one.", flush=True)
+        print("     - Type 'quit', 'exit', or 'q' when finished.", flush=True)
+        print("=" * 80, flush=True)
+
+        wp_index = 0
+        while True:
+            wp_index += 1
+            try:
+                prompt_str = f"\n[Waypoint #{wp_index}] Enter target coordinate (X Y) or 'quit': "
+                raw_input = self.input_fn(prompt_str).strip()
+            except (EOFError, KeyboardInterrupt):
+                print("\n[INFO] Input ended. Stopping interactive waypoint explorer.", flush=True)
+                break
+
+            if not raw_input:
+                continue
+
+            clean_input = raw_input.lower()
+            if clean_input in ("quit", "exit", "q", "done", "stop"):
+                print("[INFO] User requested exit.", flush=True)
+                break
+
+            # Parse coordinates (supports "X Y", "X, Y", or just "X")
+            parts = clean_input.replace(",", " ").split()
+            try:
+                tx = float(parts[0])
+                ty = float(parts[1]) if len(parts) > 1 else None
+            except (ValueError, IndexError):
+                print(f"[ERROR] Invalid coordinate input: '{raw_input}'. Please enter numbers: X Y (e.g. 2450 700)", flush=True)
+                wp_index -= 1
+                continue
+
+            print(f"\n>>> Moving to Waypoint #{wp_index}: Target=({tx}, {ty})...", flush=True)
+            reached = self.runner.navigate_to(
+                tx=tx,
+                ty=ty,
+                tolerance=self.tolerance,
+                max_steps=self.max_steps_per_point,
+                history_recorder=history_recorder,
+                pause_on_reach=True
+            )
+
+            if reached:
+                self.visited_waypoints.append((tx, ty))
+                print("\n" + "-" * 70, flush=True)
+                print(f" [OK] Waypoint #{wp_index} REACHED at ({tx}, {ty})!", flush=True)
+                print("      Game is PAUSED. Ready for next coordinate in terminal.", flush=True)
+                print("-" * 70, flush=True)
+            else:
+                print(f"\n [!] Could not reach Waypoint #{wp_index} ({tx}, {ty}) within step limit.", flush=True)
+
+        # Upon exit, keep game paused
+        self.controller.release_all()
+        if hasattr(self.controller, "pause"):
+            self.controller.pause(True)
+
+        print("\n" + "=" * 80, flush=True)
+        print(f"   [DONE] INTERACTIVE WAYPOINTS FINISHED", flush=True)
+        print(f"     Waypoints Visited : {len(self.visited_waypoints)} {self.visited_waypoints}", flush=True)
+        print(f"     Stomp Successes   : {self.runner.bot.stomp_successes}", flush=True)
+        print("=" * 80, flush=True)
+        return len(self.visited_waypoints) > 0
+
+
+# ==============================================================================
+# MODE F: SEQUENTIAL WAYPOINTS EXPLORER (WAYPOINT 2 MODE)
+# ==============================================================================
+
+def parse_waypoints_arg(raw_args: Optional[List[float]]) -> List[Tuple[float, Optional[float]]]:
+    """Parses a flat list of floats [x1, y1, x2, y2, ...] into coordinate tuples [(x1, y1), (x2, y2), ...]."""
+    if not raw_args:
+        return []
+    wps: List[Tuple[float, Optional[float]]] = []
+    i = 0
+    while i < len(raw_args):
+        x = float(raw_args[i])
+        if i + 1 < len(raw_args):
+            y = float(raw_args[i + 1])
+            wps.append((x, y))
+            i += 2
+        else:
+            wps.append((x, None))
+            i += 1
+    return wps
+
+
+class SequentialWaypointsExplorer:
+    """Navigates through a sequential list of N (X, Y) coordinates provided at start.
+    
+    Pauses for 3 seconds upon reaching each intermediate waypoint before continuing
+    to the next. Remains paused at the final destination.
+    Full hybrid bot features (enemy stomping, obstacle jumping, auto-retry on death) are active.
+    """
+
+    def __init__(self, controller: GameController,
+                 waypoints: Optional[List[Tuple[float, Optional[float]]]] = None,
+                 routes_file: Optional[str] = None,
+                 tolerance: float = 60.0,
+                 wait_between: float = 3.0,
+                 max_steps_per_point: int = 350,
+                 target_level: str = "Level01",
+                 input_fn: Optional[Any] = None):
+        self.controller = controller
+        self.waypoints: List[Tuple[float, Optional[float]]] = list(waypoints) if waypoints else []
+        self.tolerance = tolerance
+        self.wait_between = wait_between
+        self.max_steps_per_point = max_steps_per_point
+        self.target_level = target_level
+        self.input_fn = input_fn if input_fn is not None else input
+        self.completed_waypoints: List[Tuple[float, Optional[float]]] = []
+        self.runner = HybridBotRunner(
+            controller=self.controller,
+            routes_file=routes_file,
+            max_steps=self.max_steps_per_point,
+            target_level=self.target_level,
+            coord_tolerance=self.tolerance
+        )
+
+    def prompt_for_waypoints(self) -> None:
+        """Prompts the user interactively at startup for N and N coordinates."""
+        print("\n" + "=" * 80, flush=True)
+        print("   [*] SEQUENTIAL WAYPOINTS SETUP (MODE 2)", flush=True)
+        print("   Specify number of waypoints N, followed by N (X, Y) coordinates.", flush=True)
+        print("=" * 80, flush=True)
+
+        n_pts = 0
+        while n_pts <= 0:
+            try:
+                raw_n = self.input_fn("Enter number of waypoints (N): ").strip()
+                if not raw_n:
+                    continue
+                tokens = raw_n.replace(",", " ").split()
+                if len(tokens) > 1:
+                    try:
+                        floats = [float(t) for t in tokens]
+                        self.waypoints = parse_waypoints_arg(floats)
+                        print(f"[INFO] Parsed {len(self.waypoints)} waypoints from input: {self.waypoints}", flush=True)
+                        return
+                    except ValueError:
+                        pass
+                n_pts = int(tokens[0])
+                if n_pts <= 0:
+                    print("[ERROR] Please enter a positive integer for N.", flush=True)
+            except (ValueError, IndexError, EOFError, KeyboardInterrupt):
+                print("[ERROR] Please enter a valid integer for N.", flush=True)
+
+        print(f"\nEntering {n_pts} waypoints (e.g. '1500 700' or '3117 560'):", flush=True)
+        for i in range(1, n_pts + 1):
+            while True:
+                try:
+                    raw_coord = self.input_fn(f"  Waypoint #{i}/{n_pts} (X Y): ").strip()
+                    parts = raw_coord.replace(",", " ").split()
+                    if not parts:
+                        continue
+                    tx = float(parts[0])
+                    ty = float(parts[1]) if len(parts) > 1 else None
+                    self.waypoints.append((tx, ty))
+                    break
+                except (ValueError, IndexError, EOFError, KeyboardInterrupt):
+                    print("  [ERROR] Invalid coordinate format. Please enter 'X Y' (e.g. 2450 700).", flush=True)
+
+    def run(self, history_recorder: Optional[ActionHistoryRecorder] = None) -> bool:
+        if not self.waypoints:
+            self.prompt_for_waypoints()
+
+        if not self.waypoints:
+            print("[WARN] No waypoints provided. Exiting Sequential Waypoints Explorer.", flush=True)
+            return False
+
+        n_total = len(self.waypoints)
+        print("\n" + "=" * 80, flush=True)
+        print(f"   [*] RUNNING SEQUENTIAL WAYPOINTS EXPLORER ({n_total} WAYPOINTS)", flush=True)
+        print(f"     Waypoints List     : {self.waypoints}", flush=True)
+        print(f"     Wait Between (sec) : {self.wait_between}s", flush=True)
+        print(f"     Tolerance Radius   : ±{self.tolerance}px", flush=True)
+        print(f"     Auto-retry on death: Enabled", flush=True)
+        print("=" * 80, flush=True)
+
+        for idx, (tx, ty) in enumerate(self.waypoints, start=1):
+            print("\n" + "=" * 70, flush=True)
+            print(f"   >>> [WAYPOINT {idx}/{n_total}] Navigating to Target: ({tx}, {ty})", flush=True)
+            print("=" * 70, flush=True)
+
+            reached = self.runner.navigate_to(
+                tx=tx,
+                ty=ty,
+                tolerance=self.tolerance,
+                max_steps=self.max_steps_per_point,
+                history_recorder=history_recorder,
+                pause_on_reach=True
+            )
+
+            if reached:
+                self.completed_waypoints.append((tx, ty))
+                print(f"\n[OK] Waypoint {idx}/{n_total} REACHED at ({tx}, {ty})!", flush=True)
+            else:
+                print(f"\n[!] Waypoint {idx}/{n_total} ({tx}, {ty}) was not reached within step limit.", flush=True)
+
+            # Wait 3 seconds between waypoints if not the final waypoint
+            if idx < n_total:
+                print(f"\n[PAUSE] Waiting for {self.wait_between} seconds before moving to next waypoint...", flush=True)
+                t_end = time.time() + self.wait_between
+                while time.time() < t_end:
+                    time.sleep(min(0.5, max(0.05, t_end - time.time())))
+                print(f"[RESUME] Continuing to Waypoint #{idx + 1}...", flush=True)
+                if hasattr(self.controller, "pause"):
+                    self.controller.pause(False)
+
+        # Final destination reached
+        self.controller.release_all()
+        if hasattr(self.controller, "pause"):
+            self.controller.pause(True)
+
+        print("\n" + "*" * 80, flush=True)
+        print(f"   [ALL WAYPOINTS COMPLETED] Successfully visited {len(self.completed_waypoints)}/{n_total} waypoints!", flush=True)
+        print(f"     Completed Waypoints : {self.completed_waypoints}", flush=True)
+        print(f"     Stomp Successes     : {self.runner.bot.stomp_successes}", flush=True)
+        print(f"     Game remains open and paused at destination.", flush=True)
+        print("*" * 80, flush=True)
+
+        return len(self.completed_waypoints) == n_total
+
+
+# ==============================================================================
 # GODOT LAUNCHER HELPER
 # ==============================================================================
 
@@ -1004,14 +1340,32 @@ def launch_godot_game(level_path: Optional[str] = None) -> Optional[subprocess.P
 
 def main():
     parser = argparse.ArgumentParser(description="AI Game Tester Explorer for GDQuest 2D Platformer")
-    parser.add_argument("--mode", choices=["scripted", "random", "coverage_guided"], default="scripted",
-                        help="Exploration mode (default: scripted)")
+    parser.add_argument("--mode", choices=[
+        "hybrid", "hybrid_variation", "target_coord",
+        "waypoints_interactive", "waypoints_sequential",
+        "waypoint_1", "waypoint_2",
+        "scripted", "random", "coverage_guided", "record"
+    ], default="hybrid", help="Exploration/execution mode (default: hybrid)")
+    parser.add_argument("--target-coord", nargs=2, type=float, metavar=("X", "Y"), default=None,
+                        help="Target (X, Y) coordinate for target_coord mode (e.g. --target-coord 3117 560)")
+    parser.add_argument("--target-x", type=float, default=3117.0,
+                        help="Target X coordinate (default: 3117.0)")
+    parser.add_argument("--target-y", type=float, default=560.0,
+                        help="Target Y coordinate (default: 560.0)")
+    parser.add_argument("--waypoints", nargs="*", type=float, default=None,
+                        help="List of coordinates X1 Y1 X2 Y2 ... for sequential waypoints mode")
+    parser.add_argument("--waypoint-wait", type=float, default=3.0,
+                        help="Seconds to wait at each waypoint in sequential mode (default: 3.0)")
+    parser.add_argument("--tolerance", type=float, default=60.0,
+                        help="Coordinate tolerance radius in pixels (default: 60.0)")
+    parser.add_argument("--routes", default="level_routes.json",
+                        help="Path to level_routes.json for hybrid/target_coord/waypoint modes (default: level_routes.json)")
     parser.add_argument("--path", default="paths/basic_platformer.json",
                         help="Path to JSON file for scripted mode (default: paths/basic_platformer.json)")
     parser.add_argument("--seed", type=int, default=42,
-                        help="Random seed for random mode (default: 42)")
-    parser.add_argument("--max-actions", type=int, default=100,
-                        help="Maximum actions for random or coverage_guided mode")
+                        help="Random seed for random and hybrid_variation mode (default: 42)")
+    parser.add_argument("--max-actions", type=int, default=350,
+                        help="Maximum actions/steps for exploration mode (default: 350)")
     parser.add_argument("--port", type=int, default=DEFAULT_UDP_PORT,
                         help="UDP control port (default: 4242)")
     parser.add_argument("--fps", type=int, default=DEFAULT_FPS,
@@ -1019,21 +1373,52 @@ def main():
     parser.add_argument("--launch", action="store_true",
                         help="Auto-launch Godot game process if not running")
     parser.add_argument("--level", default="res://src/Levels/Level01.tscn",
-                        help="Level scene path to launch (default: res://src/Levels/Level01.tscn)")
+                        help="Level to run or record: 1, 2, Level01, Level02, or scene path (default: res://src/Levels/Level01.tscn)")
+    parser.add_argument("--recordings-dir", default="recordings",
+                        help="Directory to save demonstration recordings (default: recordings)")
+    parser.add_argument("--max-attempts", type=int, default=5,
+                        help="Maximum recording attempts before stopping (default: 5)")
+    parser.add_argument("--no-auto-retry", action="store_true",
+                        help="Disable automatic retry on death during recording")
     parser.add_argument("--history-out", default=None,
                         help="Custom filename for saving action history JSON")
+    parser.add_argument("--close-on-exit", action="store_true",
+                        help="Close Godot game process on exit (by default game remains open and paused)")
     parser.add_argument("--verbose", action="store_true",
                         help="Print detailed execution traces")
 
     args = parser.parse_args()
 
+    # Normalize mode aliases
+    if args.mode in ("waypoint_1", "interactive_waypoints"):
+        args.mode = "waypoints_interactive"
+    elif args.mode in ("waypoint_2", "sequential_waypoints"):
+        args.mode = "waypoints_sequential"
+
+    # If target-coord is provided without explicit mode, default to target_coord mode
+    if args.target_coord is not None and args.mode == "hybrid":
+        args.mode = "target_coord"
+    elif args.waypoints is not None and args.mode == "hybrid":
+        args.mode = "waypoints_sequential"
+
+    level_name, scene_path = normalize_level_name(args.level)
+
     # Launch game if requested
     godot_proc = None
     if args.launch:
-        godot_proc = launch_godot_game(args.level)
+        godot_proc = launch_godot_game(scene_path)
+
+    # Clean up any stale state files from prior runs so fresh instance state is read
+    root_dir = os.path.dirname(os.path.abspath(__file__))
+    for st_path in [os.path.join(root_dir, STATE_FILE), os.path.join(root_dir, "godot-4game", STATE_FILE)]:
+        try:
+            if os.path.exists(st_path):
+                os.remove(st_path)
+        except OSError:
+            pass
 
     controller = GameController(port=args.port, fps=args.fps)
-    connected = controller.connect(retries=4, retry_interval=0.5)
+    connected = controller.connect(retries=15, retry_interval=0.4)
 
     if not connected:
         print("\n[NOTE] Game is not currently responding to UDP handshake.")
@@ -1042,16 +1427,70 @@ def main():
 
     metadata = {
         "mode": args.mode,
-        "seed": args.seed if args.mode == "random" else None,
+        "seed": args.seed if args.mode in ("random", "hybrid_variation") else None,
         "path_file": args.path if args.mode == "scripted" else None,
-        "max_actions": args.max_actions if args.mode != "scripted" else None,
+        "routes_file": args.routes if args.mode in ("hybrid", "hybrid_variation", "target_coord", "waypoints_interactive", "waypoints_sequential") else None,
+        "max_actions": args.max_actions,
+        "target_coord": args.target_coord if args.mode == "target_coord" else None,
+        "waypoints": args.waypoints if args.mode == "waypoints_sequential" else None,
         "udp_connected": connected
     }
 
     history_recorder = ActionHistoryRecorder(args.mode, metadata)
 
     try:
-        if args.mode == "scripted":
+        if args.mode == "record":
+            recorder = ManualGameplayRecorder(
+                controller=controller,
+                target_level=level_name,
+                recordings_dir=args.recordings_dir,
+                auto_retry=not args.no_auto_retry,
+                max_attempts=args.max_attempts,
+                verbose=args.verbose
+            )
+            recorder.record()
+        elif args.mode == "target_coord":
+            tx = args.target_coord[0] if args.target_coord else args.target_x
+            ty = args.target_coord[1] if args.target_coord else args.target_y
+            explorer = TargetCoordinateExplorer(
+                controller=controller,
+                target_x=tx,
+                target_y=ty,
+                routes_file=args.routes,
+                tolerance=args.tolerance,
+                max_steps=args.max_actions,
+                target_level=level_name
+            )
+            explorer.run(history_recorder)
+        elif args.mode == "waypoints_interactive":
+            explorer = InteractiveWaypointsExplorer(
+                controller=controller,
+                routes_file=args.routes,
+                tolerance=args.tolerance,
+                max_steps_per_point=args.max_actions,
+                target_level=level_name
+            )
+            explorer.run(history_recorder)
+        elif args.mode == "waypoints_sequential":
+            parsed_wps = parse_waypoints_arg(args.waypoints)
+            explorer = SequentialWaypointsExplorer(
+                controller=controller,
+                waypoints=parsed_wps,
+                routes_file=args.routes,
+                tolerance=args.tolerance,
+                wait_between=args.waypoint_wait,
+                max_steps_per_point=args.max_actions,
+                target_level=level_name
+            )
+            explorer.run(history_recorder)
+        elif args.mode in ("hybrid", "hybrid_variation"):
+            is_var = (args.mode == "hybrid_variation")
+            runner = HybridBotRunner(controller, routes_file=args.routes,
+                                     variation_mode=is_var, seed=args.seed,
+                                     max_steps=args.max_actions,
+                                     target_level=level_name)
+            runner.run(history_recorder)
+        elif args.mode == "scripted":
             executor = ScriptedExecutor(controller, verbose=args.verbose)
             executor.run(args.path, history_recorder)
         elif args.mode == "random":
@@ -1061,9 +1500,28 @@ def main():
             explorer = CoverageGuidedExplorer(controller, max_actions=args.max_actions)
             explorer.run(history_recorder)
     finally:
-        controller.close()
-        saved_history = history_recorder.finalize(args.history_out)
-        print(f"\n[ACTION HISTORY] Saved reproducibility history log to: {saved_history}")
+        if args.close_on_exit:
+            controller.close()
+        else:
+            # Release pressed actions while preserving pause state in game
+            controller.release_all()
+            if args.mode in ("target_coord", "waypoints_interactive", "waypoints_sequential"):
+                controller.pause(True)
+            try:
+                controller.sock.close()
+            except OSError:
+                pass
+        if args.mode != "record":
+            saved_history = history_recorder.finalize(args.history_out)
+            print(f"\n[ACTION HISTORY] Saved reproducibility history log to: {saved_history}")
+        if args.close_on_exit and godot_proc and godot_proc.poll() is None:
+            try:
+                godot_proc.terminate()
+            except Exception:
+                pass
+        elif godot_proc and godot_proc.poll() is None:
+            print("\n[INFO] Waypoint/Target exploration finished. Game remains open and paused at destination coordinate.")
+            print("       You can inspect the game window or close it when done.\n")
 
 
 if __name__ == "__main__":

@@ -15,3 +15,19 @@ __pycache__/
 # Binaries / Engine executables (Godot executable exceeds GitHub's 100MB file limit)
 engine/
 *.exe
+
+# Large generated explorer history logs, telemetry events, and temp files
+explorer_history_*.json
+agent_command.json
+game_events.jsonl
+godot-4game/game_events.jsonl
+latest_state.json
+godot-4game/latest_state.json
+recordings/attempts/*
+recordings/failed/*
+recordings/raw/*
+recordings/demonstrations/*
+*.log
+*.tmp
+
+

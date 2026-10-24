@@ -85,7 +85,9 @@ func _on_EnemyDetector_body_entered(body: PhysicsBody2D) -> void:
 func _physics_process(delta: float) -> void:
 	super._physics_process(delta)
 
-	var is_jump_interrupted: bool = Input.is_action_just_released("jump") and velocity.y < 0.0
+	var is_jump_interrupted: bool = Input.is_action_just_released("jump") and not Input.is_action_pressed("jump") and velocity.y < 0.0
+	if GameLogger and GameLogger.enable_agent_control and GameLogger._currently_pressed_agent_actions.has("jump"):
+		is_jump_interrupted = false
 	if is_jump_interrupted and GameLogger:
 		GameLogger.log_event("jump_interrupted", "player_movement", {
 			"position": GameLogger.vec2_to_dict(global_position),

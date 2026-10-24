@@ -9,32 +9,79 @@ echo ======================================================================
 echo.
 echo Select an exploration mode to run:
 echo.
-echo   [1] Scripted Mode: Basic Platformer (paths/basic_platformer.json)
-echo   [2] Scripted Mode: Coin ^& Jump Test (paths/coin_and_jump.json)
-echo   [3] Scripted Mode: Checkpoint Demo (paths/checkpoint_demo.json)
-echo   [4] Random Exploration Mode (Seed 42, 100 actions)
-echo   [5] Coverage-Guided Exploration Mode (150 actions)
-echo   [6] Run Explorer Test Suite (Validation Tests)
-echo   [7] Launch Godot Game Only
-echo   [8] Open Live Color Log Viewer
+echo   [1] Hybrid Bot: Baseline Mode (Completes Level01 + Level02 reliably)
+echo   [2] Hybrid Bot: Controlled Variation Mode (Exploration ^& Bug Hunting)
+echo   [3] Target Coordinate Explorer (Navigate directly to X=3117, Y=560)
+echo   [W1] Interactive Waypoints Mode (Enter coords one-by-one; pauses at each)
+echo   [W2] Sequential Waypoints Mode (Enter N coords at start; waits 3s at each)
+echo   [4] Scripted Mode: Basic Platformer (paths/basic_platformer.json)
+echo   [5] Scripted Mode: Coin ^& Jump Test (paths/coin_and_jump.json)
+echo   [6] Random Exploration Mode (Seed 42, 100 actions)
+echo   [7] Coverage-Guided Exploration Mode (150 actions)
+echo   [8] Run Hybrid Bot ^& Explorer Test Suite (Validation Tests)
+echo   [9] Launch Godot Game Only
+echo   [L] Open Live Color Log Viewer
 echo   [0] Exit
 echo.
 echo ======================================================================
-set /p CHOICE="Enter your choice (0-8) [default=1]: "
+set /p CHOICE="Enter your choice [default=1]: "
 if "%CHOICE%"=="" set CHOICE=1
 
-if "%CHOICE%"=="0" goto :exit
-if "%CHOICE%"=="1" goto :scripted_basic
-if "%CHOICE%"=="2" goto :scripted_coin
-if "%CHOICE%"=="3" goto :scripted_checkpoint
-if "%CHOICE%"=="4" goto :random
-if "%CHOICE%"=="5" goto :coverage
-if "%CHOICE%"=="6" goto :tests
-if "%CHOICE%"=="7" goto :launch_game
-if "%CHOICE%"=="8" goto :view_logs
+if /i "%CHOICE%"=="0" goto :exit
+if /i "%CHOICE%"=="1" goto :hybrid_baseline
+if /i "%CHOICE%"=="2" goto :hybrid_variation
+if /i "%CHOICE%"=="3" goto :target_coord
+if /i "%CHOICE%"=="T" goto :target_coord
+if /i "%CHOICE%"=="W1" goto :waypoints_interactive
+if /i "%CHOICE%"=="10" goto :waypoints_interactive
+if /i "%CHOICE%"=="W2" goto :waypoints_sequential
+if /i "%CHOICE%"=="11" goto :waypoints_sequential
+if /i "%CHOICE%"=="4" goto :scripted_basic
+if /i "%CHOICE%"=="5" goto :scripted_coin
+if /i "%CHOICE%"=="6" goto :random
+if /i "%CHOICE%"=="7" goto :coverage
+if /i "%CHOICE%"=="8" goto :tests
+if /i "%CHOICE%"=="9" goto :launch_game
+if /i "%CHOICE%"=="L" goto :view_logs
 
-echo [ERROR] Invalid choice. Defaulting to Scripted Mode...
-goto :scripted_basic
+echo [ERROR] Invalid choice. Defaulting to Hybrid Baseline Mode...
+goto :hybrid_baseline
+
+:waypoints_interactive
+echo.
+echo ======================================================================
+echo Running Interactive Waypoints Explorer (Mode 1) ...
+echo ======================================================================
+python explorer.py --mode waypoints_interactive --launch
+goto :end
+
+:waypoints_sequential
+echo.
+echo ======================================================================
+echo Running Sequential Waypoints Explorer (Mode 2) ...
+echo ======================================================================
+python explorer.py --mode waypoints_sequential --launch
+goto :end
+
+:target_coord
+echo.
+echo ======================================================================
+echo Running Target Coordinate Explorer (X=3117, Y=560) ...
+echo ======================================================================
+python explorer.py --mode target_coord --target-coord 3117 560 --launch
+goto :end
+
+:hybrid_baseline
+echo.
+echo Running Hybrid Bot Baseline Mode (Full Level01 + Level02 Route) ...
+python explorer.py --mode hybrid --routes level_routes.json --max-actions 350 --launch
+goto :end
+
+:hybrid_variation
+echo.
+echo Running Hybrid Bot Variation Mode (Seeded Exploratory Variations) ...
+python explorer.py --mode hybrid_variation --seed 42 --routes level_routes.json --max-actions 350 --launch
+goto :end
 
 :scripted_basic
 echo.
@@ -48,15 +95,9 @@ echo Running Scripted Path: paths/coin_and_jump.json ...
 python explorer.py --mode scripted --path paths/coin_and_jump.json --launch
 goto :end
 
-:scripted_checkpoint
-echo.
-echo Running Scripted Path: paths/checkpoint_demo.json ...
-python explorer.py --mode scripted --path paths/checkpoint_demo.json --launch
-goto :end
-
 :random
 echo.
-echo Running Random Exploration (seed=42, max_actions=100) ...
+echo Running Random Exploration (seed=42, max-actions=100) ...
 python explorer.py --mode random --seed 42 --max-actions 100 --launch
 goto :end
 
@@ -68,7 +109,8 @@ goto :end
 
 :tests
 echo.
-echo Running Explorer Test Suite ...
+echo Running Hybrid Bot & Explorer Test Suite ...
+python test_hybrid_bot.py
 python test_explorer.py
 goto :end
 

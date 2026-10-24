@@ -200,6 +200,10 @@ func _process(_delta: float) -> void:
 
 
 func _physics_process(_delta: float) -> void:
+	# Ensure agent held inputs stay asserted in physics across frames even if unfocused
+	for act in _currently_pressed_agent_actions:
+		Input.action_press(act, 1.0)
+
 	if not enable_logging:
 		return
 
@@ -415,6 +419,8 @@ func _write_record(record: Dictionary) -> void:
 
 func register_player(player: CharacterBody2D) -> void:
 	active_player = player
+	expected_player_death = false
+	is_scene_transitioning = false
 
 
 func unregister_player(player: CharacterBody2D) -> void:
@@ -498,13 +504,18 @@ func extract_game_state(current_event: String = "") -> Dictionary:
 		state_str = "main_menu"
 	elif scene_name == "EndScreen":
 		state_str = "victory"
+	elif is_scene_transitioning:
+		state_str = "scene_transitioning"
 	elif tree and tree.paused:
-		if active_player == null:
+		if expected_player_death or active_player == null:
 			state_str = "player_died"
 		else:
 			state_str = "paused"
 	elif active_player == null and (scene_name == "Level01" or scene_name == "Level02"):
-		state_str = "player_died"
+		if expected_player_death or (PlayerData and PlayerData.deaths > 0):
+			state_str = "player_died"
+		else:
+			state_str = "waiting_for_player"
 
 	# Resolve Player
 	var player = active_player
@@ -515,8 +526,10 @@ func extract_game_state(current_event: String = "") -> Dictionary:
 			if players.size() > 0 and is_instance_valid(players[0]):
 				player = players[0] as CharacterBody2D
 
+	var is_player_dead = expected_player_death or (player == null and tree and tree.paused) or (PlayerData and PlayerData.deaths > 0 and player == null)
 	var player_data: Dictionary = {
-		"alive": player != null and is_instance_valid(player)
+		"alive": player != null and is_instance_valid(player) and not expected_player_death and not is_player_dead,
+		"lifecycle_state": "alive" if (player != null and is_instance_valid(player) and not is_player_dead) else ("dead" if is_player_dead else ("transitioning" if is_scene_transitioning else "spawning"))
 	}
 
 	var player_pos = Vector2.ZERO
@@ -705,15 +718,11 @@ func _write_latest_state(data: Dictionary) -> void:
 	var json_str = JSON.stringify(data, "  ")
 	for dir in output_dirs:
 		var target_path = dir.path_join("latest_state.json")
-		var tmp_path = dir.path_join("latest_state.json.tmp")
-		var file = FileAccess.open(tmp_path, FileAccess.WRITE)
+		var file = FileAccess.open(target_path, FileAccess.WRITE)
 		if file:
 			file.store_string(json_str)
 			file.flush()
 			file.close()
-			if FileAccess.file_exists(target_path):
-				DirAccess.remove_absolute(target_path)
-			DirAccess.rename_absolute(tmp_path, target_path)
 
 
 func vec2_to_dict(v: Vector2) -> Dictionary:
@@ -923,15 +932,15 @@ func _execute_agent_command(cmd: Dictionary) -> Dictionary:
 	# Retry / Restart current level
 	if cmd_type == "retry":
 		_release_all_agent_actions()
+		expected_player_death = false
+		is_scene_transitioning = true
+		transition_start_time_ms = Time.get_ticks_msec()
 		if PlayerData:
-			PlayerData.score = 0
+			PlayerData.reset_data()
 		var tree = get_tree() if is_inside_tree() else null
 		if tree:
 			tree.paused = false
-			if tree.current_scene and tree.current_scene.scene_file_path != "":
-				tree.change_scene_to_file(tree.current_scene.scene_file_path)
-			else:
-				tree.reload_current_scene()
+			tree.reload_current_scene()
 		log_action("retry_pressed", {"source": "agent"})
 		log_event("retry_started", "ui", {"source": "agent"})
 		return {"status": "ok", "action": "retry"}
@@ -1026,22 +1035,24 @@ func _set_agent_action_state(action: String, is_pressed: bool) -> void:
 		return
 
 	var currently_pressed = _currently_pressed_agent_actions.has(action)
-	if is_pressed and not currently_pressed:
-		_currently_pressed_agent_actions.append(action)
-		Input.action_press(action, 1.0)
-		var ev = InputEventAction.new()
-		ev.action = action
-		ev.pressed = true
-		ev.strength = 1.0
-		Input.parse_input_event(ev)
-	elif not is_pressed and currently_pressed:
-		_currently_pressed_agent_actions.erase(action)
-		Input.action_release(action)
-		var ev = InputEventAction.new()
-		ev.action = action
-		ev.pressed = false
-		ev.strength = 0.0
-		Input.parse_input_event(ev)
+	if is_pressed:
+		if not currently_pressed:
+			_currently_pressed_agent_actions.append(action)
+			Input.action_press(action, 1.0)
+			var ev = InputEventAction.new()
+			ev.action = action
+			ev.pressed = true
+			ev.strength = 1.0
+			Input.parse_input_event(ev)
+	elif not is_pressed:
+		if currently_pressed:
+			_currently_pressed_agent_actions.erase(action)
+			Input.action_release(action)
+			var ev = InputEventAction.new()
+			ev.action = action
+			ev.pressed = false
+			ev.strength = 0.0
+			Input.parse_input_event(ev)
 
 
 func _release_all_agent_actions() -> void:

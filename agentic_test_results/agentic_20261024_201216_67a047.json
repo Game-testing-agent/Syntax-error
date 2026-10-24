@@ -1,0 +1,37 @@
+{
+  "summary": {
+    "run_id": "agentic_20261024_201216_67a047",
+    "start_time": "2026-10-24T20:12:16.743835",
+    "end_time": "2026-10-24T20:12:45.941447",
+    "total_cases": 1,
+    "outcomes": {
+      "success": 1
+    },
+    "successful_segments": [
+      37
+    ],
+    "failed_segments": []
+  },
+  "cases": [
+    {
+      "case_id": 1,
+      "segment_id": 37,
+      "target": {
+        "x": 6898.0,
+        "y": -112.0
+      },
+      "outcome": "success",
+      "attempts": 1,
+      "steps_used": 350,
+      "deaths_during": 0,
+      "final_pos": {
+        "x": 6851.58,
+        "y": -81.33
+      },
+      "selection_rationale": "Selected segment 37 at (6898, -112) | [elevated, span=46px, src=cleaned_coordinates] | strategy=coverage | prior_attempts=0 | untested_remaining=40 | very high elevation - tests complex jump sequence reliability",
+      "failure_reason": "Bot confirmed target reached within tolerance",
+      "events_count": 0,
+      "timestamp": "2026-10-24T20:12:45.941447"
+    }
+  ]
+}

@@ -55,4 +55,5 @@ func set_deaths(new_value: int) -> void:
 			"deaths_after": deaths
 		})
 
-	died.emit()
+	if not is_resetting and new_value > old_deaths:
+		died.emit()
