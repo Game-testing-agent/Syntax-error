@@ -19,6 +19,8 @@ config/icon="res://icon.png"
 
 PlayerData="*res://src/Autoload/PlayerData.tscn"
 GameLogger="*res://src/Autoload/GameLogger.gd"
+BugFlags="*res://src/Utils/BugFlags.gd"
+MapRunner="*res://src/Utils/MapRunner.gd"
 
 [display]
 

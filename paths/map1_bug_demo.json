@@ -1,0 +1,17 @@
+{
+  "name": "map1_bug_demo",
+  "description": "Demonstration sequence for Map 1: Walk right into floor hole at x=29..32 (Bug 1B)",
+  "steps": [
+    {
+      "action": "move_right",
+      "frames": 360,
+      "description": "Run right across the first platforms and fall into the void hole"
+    },
+    {
+      "action": "wait",
+      "frames": 60,
+      "description": "Fall indefinitely through the void"
+    }
+  ]
+}
+

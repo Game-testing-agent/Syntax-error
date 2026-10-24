@@ -2,8 +2,11 @@ extends Area2D
 
 @onready var anim_player: AnimationPlayer = $AnimationPlayer
 @export var score: int = 100
+# Deferred collision pickup race condition
+@export var bug_deferred_pickup_race: bool = false
 
 var is_collected: bool = false
+static var total_coins_collected: int = 0
 
 
 func _ready() -> void:
@@ -32,6 +35,14 @@ func _on_body_entered(body: PhysicsBody2D) -> void:
 			}, "warning")
 		return
 
+	# TRICKY  3: Sub-Frame Multi-Pickup Collision Race
+	# When moving through a coin at sprint speed (> 300 px/s), deferring the pickup flag
+	# by one frame permits an overlapping physics query to trigger a duplicate pickup attempt.
+	if bug_deferred_pickup_race and body and "velocity" in body and abs(body.velocity.x) > 300.0:
+		await get_tree().physics_frame
+		if is_collected:
+			return
+
 	picked()
 
 
@@ -40,6 +51,7 @@ func picked() -> void:
 		return
 	is_collected = true
 	remove_from_group("coins")
+	total_coins_collected += 1
 
 	if GameLogger:
 		GameLogger.log_event("coin_picked", "collectible", {
@@ -47,8 +59,23 @@ func picked() -> void:
 			"score": score
 		}, self)
 
+	var should_award_score = true
+	var is_map1 = false
+	if get_tree() and get_tree().current_scene:
+		is_map1 = ("Map1" in get_tree().current_scene.name)
+	if total_coins_collected == 7 and BugFlags and BugFlags.map1_seventh_coin_no_score and is_map1:
+		should_award_score = false
+		if GameLogger:
+			GameLogger.log_bug_trigger("1C", {
+				"coin_number": 7,
+				"coin_id": int(get_instance_id()),
+				"position": GameLogger.vec2_to_dict(global_position),
+				"score_awarded": 0
+			})
+
 	var score_before = PlayerData.score if PlayerData else 0
-	PlayerData.score += score
+	if should_award_score:
+		PlayerData.score += score
 
 	if GameLogger:
 		GameLogger.log_event("coin_score_awarded", "collectible", {
