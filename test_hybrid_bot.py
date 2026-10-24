@@ -442,7 +442,8 @@ class TestHybridBot(unittest.TestCase):
         success = explorer.run()
         self.assertTrue(success)
         self.assertEqual(len(explorer.completed_waypoints), 2)
-        self.assertEqual(mock_ctrl.state["game_state"], "paused")
+        # Verify game remains live (not paused) at final destination
+        self.assertEqual(mock_ctrl.state["game_state"], "playing")
 
     def test_sequential_waypoints_prompt_setup(self):
         """Simulates interactive startup prompt for N coordinates in Waypoint 2 mode."""

@@ -1255,6 +1255,7 @@ class SequentialWaypointsExplorer:
         print("=" * 80, flush=True)
 
         for idx, (tx, ty) in enumerate(self.waypoints, start=1):
+            is_final = (idx == n_total)
             print("\n" + "=" * 70, flush=True)
             print(f"   >>> [WAYPOINT {idx}/{n_total}] Navigating to Target: ({tx}, {ty})", flush=True)
             print("=" * 70, flush=True)
@@ -1265,7 +1266,7 @@ class SequentialWaypointsExplorer:
                 tolerance=self.tolerance,
                 max_steps=self.max_steps_per_point,
                 history_recorder=history_recorder,
-                pause_on_reach=True
+                pause_on_reach=(not is_final)
             )
 
             if reached:
@@ -1284,16 +1285,16 @@ class SequentialWaypointsExplorer:
                 if hasattr(self.controller, "pause"):
                     self.controller.pause(False)
 
-        # Final destination reached
+        # Final destination reached - game remains LIVE and unpaused
         self.controller.release_all()
         if hasattr(self.controller, "pause"):
-            self.controller.pause(True)
+            self.controller.pause(False)
 
         print("\n" + "*" * 80, flush=True)
         print(f"   [ALL WAYPOINTS COMPLETED] Successfully visited {len(self.completed_waypoints)}/{n_total} waypoints!", flush=True)
         print(f"     Completed Waypoints : {self.completed_waypoints}", flush=True)
         print(f"     Stomp Successes     : {self.runner.bot.stomp_successes}", flush=True)
-        print(f"     Game remains open and paused at destination.", flush=True)
+        print(f"     Game remains open and LIVE at destination (no pause).", flush=True)
         print("*" * 80, flush=True)
 
         return len(self.completed_waypoints) == n_total
@@ -1516,10 +1517,13 @@ def main():
         if args.close_on_exit:
             controller.close()
         else:
-            # Release pressed actions while preserving pause state in game
+            # Release pressed actions
             controller.release_all()
-            if args.mode in ("target_coord", "waypoints_interactive", "waypoints_sequential"):
-                controller.pause(True)
+            if hasattr(controller, "pause"):
+                if args.mode in ("waypoints_sequential", "waypoint_2"):
+                    controller.pause(False)
+                elif args.mode in ("target_coord", "waypoints_interactive", "waypoint_1"):
+                    controller.pause(True)
             try:
                 controller.sock.close()
             except OSError:
@@ -1533,7 +1537,10 @@ def main():
             except Exception:
                 pass
         elif godot_proc and godot_proc.poll() is None:
-            print("\n[INFO] Waypoint/Target exploration finished. Game remains open and paused at destination coordinate.")
+            if args.mode in ("waypoints_sequential", "waypoint_2"):
+                print("\n[INFO] Sequential Waypoints exploration finished. Game remains open and LIVE at destination coordinate.")
+            else:
+                print("\n[INFO] Waypoint/Target exploration finished. Game remains open and paused at destination coordinate.")
             print("       You can inspect the game window or close it when done.\n")
 
 

@@ -841,9 +841,10 @@ class HybridBotRunner:
                 print("*" * 80, flush=True)
                 self.victory = True
                 self.target_reached = True
-                self.controller.release_all()
                 if pause_on_reach and hasattr(self.controller, "pause"):
                     self.controller.pause(True)
+                elif not pause_on_reach and hasattr(self.controller, "pause"):
+                    self.controller.pause(False)
                 break
 
             # Automatic retry on death before deciding action
@@ -967,12 +968,16 @@ class HybridBotRunner:
                 self.controller.release_all()
                 if pause_on_reach and hasattr(self.controller, "pause"):
                     self.controller.pause(True)
+                elif not pause_on_reach and hasattr(self.controller, "pause"):
+                    self.controller.pause(False)
                 break
 
         if self.target_reached or self.victory:
             self.controller.release_all()
             if pause_on_reach and hasattr(self.controller, "pause"):
                 self.controller.pause(True)
+            elif not pause_on_reach and hasattr(self.controller, "pause"):
+                self.controller.pause(False)
 
         return self.target_reached
 

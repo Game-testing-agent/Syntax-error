@@ -258,12 +258,13 @@ function setupExplorerModeChange() {
     const scriptedPanel = document.getElementById("exp-scripted-config");
     const seedPanel = document.getElementById("exp-seed-config");
 
-    // Waypoints mode W1 & W2
-    if (mode === "waypoints_sequential" || mode === "waypoints_interactive") {
+    // Waypoints mode W2 (Sequential Waypoints)
+    if (mode === "waypoints_sequential") {
       waypointPanel.style.display = "block";
-      const isSequential = mode === "waypoints_sequential";
-      document.getElementById("wp-sequential-details").style.display = isSequential ? "block" : "none";
-      document.getElementById("wp-mode-badge").innerText = isSequential ? "W2: Sequential Mode" : "W1: Interactive Mode";
+      const seqDetails = document.getElementById("wp-sequential-details");
+      if (seqDetails) seqDetails.style.display = "block";
+      const badge = document.getElementById("wp-mode-badge");
+      if (badge) badge.innerText = "W2: Sequential Mode";
     } else {
       waypointPanel.style.display = "none";
     }

@@ -50,21 +50,18 @@ python server.py --port 8080 --open
 
 ### 4. Normal Explorer Control Hub (`explorer.py`)
 - **Exposes all terminal exploration modes**:
-  - `[1] Hybrid Bot Baseline Mode`
-  - `[2] Hybrid Bot Controlled Variation Mode` (with seed)
-  - `[3] Target Coordinate Explorer` (with custom X, Y)
-  - `[W2] Sequential Waypoints Mode`
-  - `[W1] Interactive Waypoints Mode`
-  - `[4] Scripted Replay Mode` (selects paths from `paths/*.json`)
-  - `[6] Random Exploration Mode`
-  - `[7] Coverage-Guided Exploration Mode`
-  - `[8] Run Explorer & Bot Test Suite`
-- **Dynamic Waypoint Configuration (W1 & W2)**:
-  - Dynamically configured within this workflow (not a separate top-level explorer).
+  - `[W2] Sequential Waypoints Mode` (Enter N coordinates at start; visits each with wait time, stays live at destination)
+  - `[1] Complete Hybrid Game Bot` (Full Level01 + Level02 route)
+  - `[2] Bot Random Explorer` (Seeded exploratory variations)
+  - `[4] Trained Path` (Predefined trained action paths from `paths/*.json`)
+  - `[6] Random Explorer` (Seeded random exploration)
+- **Dynamic Waypoint Configuration (W2)**:
+  - Dynamically configured within this workflow.
   - Waypoint count indicator.
   - Dynamic table to add, remove, and edit (X, Y) pixel coordinates.
   - Quick-load presets: *Level 1 Intro*, *Full Level 1 Route*, *Sky Castle Stairs*, *Bug Hunt Points*.
-  - Configurable wait time at each waypoint (`--waypoint-wait`, default 3s).
+  - Configurable wait time at intermediate waypoints (`--waypoint-wait`, default 3s).
+  - Remains live (unpaused) at destination point.
   - Coordinate arrival tolerance radius (`--tolerance`, default 60px).
 
 ### 5. Execution Monitoring & Live Terminal
