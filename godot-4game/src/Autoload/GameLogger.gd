@@ -58,6 +58,7 @@ func _ready() -> void:
 	session_id = "session_%d_%d" % [int(Time.get_unix_time_from_system()), randi() % 90000 + 10000]
 
 	_setup_output_paths()
+	_clear_logs_on_application_launch() # Clear once when the application starts.
 
 	if enable_agent_control:
 		_setup_agent_server()
@@ -117,6 +118,16 @@ func _setup_output_paths() -> void:
 	for dir in output_dirs:
 		log_file_paths.append(dir.path_join("game_events.jsonl"))
 
+
+## Clear logs from the previous application run, once at startup.
+## Subsequent events and gameplay sessions append to these files.
+func _clear_logs_on_application_launch() -> void:
+	for path in log_file_paths:
+		var file = FileAccess.open(path, FileAccess.WRITE)
+		if file:
+			file.close()
+		else:
+			push_warning("[GameLogger] Could not clear log file at startup: %s" % path)
 
 func get_log_paths() -> Array[String]:
 	return log_file_paths.duplicate()
