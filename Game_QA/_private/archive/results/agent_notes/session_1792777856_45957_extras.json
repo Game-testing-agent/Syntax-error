@@ -1,0 +1,18 @@
+{
+  "dismissed_candidates": [
+    {
+      "frame": 1156,
+      "lead": "Score reset from 570 to 0",
+      "reason": "Player died and PlayerData.gd:L14 reset_data() intentionally resets score upon respawn; confirmed by player_died and global_state_reset events."
+    },
+    {
+      "frame": 5737,
+      "lead": "jump_interrupted logged with vertical velocity clamp",
+      "reason": "Player.gd:L97-103 implements platformer variable jump height upon releasing jump button; benign standard control design."
+    }
+  ],
+  "unobservable_areas": [
+    "Audio playback and visual particle effect presentation (not logged to structured telemetry stream)",
+    "Sub-frame physics penetration vectors between discrete physics ticks"
+  ]
+}

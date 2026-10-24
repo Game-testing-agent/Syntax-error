@@ -1,0 +1,16 @@
+{
+  "verdict": "bug",
+  "severity": "critical",
+  "confidence": 0.90,
+  "category": "lifecycle",
+  "title": "Level Completion Softlock Due to Unresponsive Portal Transition",
+  "explanation": "Between frames 1440 and 1554, the player entered the level terminus at (7410, 160) and overlapped the portal collision shape across 46 frames, but no portal_entered or scene transition was triggered. Traced to Portal2D.gd:L14 / Portal2D.tscn where collision_layer is 0 and the node failed to register in the portals group, soft-locking progression.",
+  "evidence_frames": [1443, 1518, 1525, 1530, 1554, 1670],
+  "suspected_code": "Objects/Portal2D.gd:L14 (_on_body_entered)",
+  "dedupe_key": "Portal2D.gd:L14:portal_transition_softlock",
+  "repro_hint": "Navigate to the portal at the end of Level01; entering the portal fails to trigger scene change.",
+  "path": "path2",
+  "source": "agent",
+  "needs_human_review": false
+}
+

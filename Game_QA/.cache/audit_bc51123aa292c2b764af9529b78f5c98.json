@@ -1,0 +1,15 @@
+{
+  "verdict": "bug",
+  "severity": "medium",
+  "confidence": 0.95,
+  "title": "Duplicate Coin Pickup Attempt Due to Missing Collision Disabling",
+  "explanation": "At frame 940, Coin5 triggered duplicate_pickup_attempt anomaly when the player re-entered its collision area during its picked animation. Traced to Coin.gd:L19-L35 (_on_body_entered) where picked() does not disable CollisionShape2D or disconnect body_entered, violating uniqueness and idempotent collectible pickup invariants.",
+  "evidence_frames": [
+    923,
+    940,
+    947
+  ],
+  "suspected_code": "Coin.gd:L19-L35 (_on_body_entered)",
+  "path": "path2",
+  "needs_human_review": false
+}

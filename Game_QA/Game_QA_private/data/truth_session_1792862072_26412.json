@@ -1,0 +1,47 @@
+{
+  "session_1792862072_26412": {
+    "session_id": "session_1792862072_26412",
+    "expected_bugs": [
+      {
+        "bug_id": "1A",
+        "title": "Enemy4 non-lethal collision exemption",
+        "category": "enemy",
+        "evidence_frames": [597, 653, 689],
+        "suspected_code": "Actors/Player.gd:_on_EnemyDetector_body_entered",
+        "sanitized_line": 79,
+        "should_be_caught_by": "path2",
+        "details": {
+          "enemy_name": "Enemy4",
+          "mechanism": "body contact bypasses player death and damage handler"
+        }
+      },
+      {
+        "bug_id": "1C",
+        "title": "Seventh coin zero score awarded",
+        "category": "collectible",
+        "evidence_frames": [934],
+        "suspected_code": "Objects/Coin.gd:_on_body_entered",
+        "sanitized_line": 60,
+        "should_be_caught_by": "path2",
+        "details": {
+          "coin_number": 7,
+          "mechanism": "seventh coin pickup suppresses score increment"
+        }
+      },
+      {
+        "bug_id": "1B",
+        "title": "Floor hole void boundary fall",
+        "category": "player",
+        "evidence_frames": [1820],
+        "suspected_code": "Actors/Player.gd:_physics_process",
+        "sanitized_line": 218,
+        "should_be_caught_by": "any",
+        "details": {
+          "threshold_y": 1400.0,
+          "mechanism": "player falls through gap in terrain past level boundary"
+        }
+      }
+    ]
+  }
+}
+

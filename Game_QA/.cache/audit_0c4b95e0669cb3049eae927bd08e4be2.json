@@ -1,0 +1,13 @@
+{
+  "verdict": "bug",
+  "severity": "high",
+  "confidence": 0.95,
+  "title": "Seventh Coin Collection Suppresses Score Award",
+  "explanation": "At frame 469, Coin7 (Coin8 in scene) was collected triggering coin_picked with score 100, but coin_score_awarded logged score_before: 490 and score_after: 490. Traced to Coin.gd:L58-L63 (picked) where total_coins_collected == 7 forcibly sets should_award_score = false, violating the design contract that collecting a collectible awards score.",
+  "evidence_frames": [
+    469
+  ],
+  "suspected_code": "Coin.gd:L58-L63 (picked)",
+  "path": "path2",
+  "needs_human_review": false
+}

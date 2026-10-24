@@ -1,0 +1,14 @@
+{
+  "verdict": "bug",
+  "severity": "medium",
+  "confidence": 0.68,
+  "title": "Player removed without death event after session end",
+  "explanation": "At frame 575 an event \"session_end\" is logged, indicating the gameplay session should have finished. However, at the next frame (576) a \"player_removed\" event occurs (frame 576, event \"player_removed\", category \"player_lifecycle\") with no preceding death or respawn event, and many enemies and coins are also removed in the same frame. This suggests the player disappeared unexpectedly, likely due to an unintended scene reset or cleanup after the session had already been marked as ended.",
+  "evidence_frames": [
+    575,
+    576
+  ],
+  "suspected_code": "Player.gd",
+  "path": "path2",
+  "needs_human_review": true
+}

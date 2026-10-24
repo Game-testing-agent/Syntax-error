@@ -1,0 +1,17 @@
+{
+  "verdict": "bug",
+  "severity": "critical",
+  "confidence": 0.95,
+  "title": "Player Out of Bounds Void Fall Without Death",
+  "explanation": "At frame 1820, player exceeded the level threshold (OUT_OF_BOUNDS_Y = 1400.0) reaching Y=1412.4, triggering player_out_of_bounds anomaly. In Player.gd:L214-L222, the anomaly is logged but die() is never called, causing the player to fall continuously past Y=290,889 without death or respawn.",
+  "evidence_frames": [
+    1820,
+    1821,
+    1824,
+    1827,
+    2557
+  ],
+  "suspected_code": "Player.gd:L214-L222 (_physics_process)",
+  "path": "path2",
+  "needs_human_review": false
+}

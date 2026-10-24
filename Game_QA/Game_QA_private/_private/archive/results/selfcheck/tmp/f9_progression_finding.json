@@ -1,0 +1,20 @@
+[
+  {
+    "verdict": "bug",
+    "severity": "critical",
+    "confidence": 0.98,
+    "title": "Level Completion Softlock Due to Missing Portal Trigger / Registration",
+    "explanation": "Player traversed Level01 to its terminus at coordinates (X: 7316.61, Y: 159.96) across snapshots up to physics frame 5818. However, goal.found remained false throughout all snapshots and no portal_entered event fired, causing a progression softlock.",
+    "evidence_frames": [
+      5700,
+      5705,
+      5755,
+      5760,
+      5817,
+      5818
+    ],
+    "suspected_code": "Portal2D.gd:11",
+    "path": "path2",
+    "needs_human_review": false
+  }
+]

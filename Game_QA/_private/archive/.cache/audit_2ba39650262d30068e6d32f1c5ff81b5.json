@@ -1,0 +1,14 @@
+{
+  "verdict": "bug",
+  "severity": "medium",
+  "confidence": 0.95,
+  "title": "Player Stuck on Staircase Step Edge Requiring Triple Jump Escape",
+  "explanation": "At frames 1461 and 1639, entering the stair step at coordinates (5433, 560) (tile [68, 7]) caused horizontal movement to seize. Traced to Player.gd:L141-L155 where is_stair_stuck zeroes horizontal velocity until 3 jump inputs are pressed, violating fluid platform movement contracts.",
+  "evidence_frames": [
+    1461,
+    1639
+  ],
+  "suspected_code": "Actors/Player.gd:L141-L155 (_physics_process)",
+  "path": "path2",
+  "needs_human_review": false
+}

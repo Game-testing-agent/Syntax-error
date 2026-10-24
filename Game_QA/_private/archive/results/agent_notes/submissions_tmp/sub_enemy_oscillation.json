@@ -1,0 +1,13 @@
+{
+  "verdict": "bug",
+  "severity": "medium",
+  "confidence": 0.85,
+  "category": "ai",
+  "title": "Trapped Enemy Rapidly Oscillates Between Collision Boundaries",
+  "explanation": "Enemy2 triggered 14 wall reversals ping-ponging back and forth between X=3640 and X=4360 every 108 frames across frames 400, 508, 1551, 1659, 1767, and 1875. Violates AI exploration contract (Enemy.gd:L31-L33), trapping the entity in an infinite oscillation loop.",
+  "evidence_frames": [400, 508, 1551, 1659, 1767, 1875],
+  "suspected_code": "Enemy.gd:L31-L33 (_physics_process: is_on_wall)",
+  "path": "path2",
+  "needs_human_review": false
+}
+

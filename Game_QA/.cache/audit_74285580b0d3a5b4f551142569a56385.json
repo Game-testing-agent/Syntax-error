@@ -1,0 +1,13 @@
+{
+  "verdict": "bug",
+  "severity": "high",
+  "confidence": 0.75,
+  "title": "Semantic Anomaly: player_out_of_bounds",
+  "explanation": "White-box audit verified 'player_out_of_bounds' at frame 337. Expected: Player position Y <= 1400.0 | Observed: Player position Y exceeded limit: 1412.4. Traced to logic in Player.gd (OUT_OF_BOUNDS_Y).",
+  "evidence_frames": [
+    337
+  ],
+  "suspected_code": "Player.gd (OUT_OF_BOUNDS_Y)",
+  "path": "path2",
+  "needs_human_review": true
+}

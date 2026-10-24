@@ -1,0 +1,24 @@
+[
+  {
+    "session_id": "session_1792777856_45957",
+    "total_events": 176,
+    "total_snapshots": 8,
+    "findings": [],
+    "score": {
+      "matched": [],
+      "false_positives": [],
+      "n_findings": 0
+    }
+  },
+  {
+    "session_id": "session_1792785118_99684",
+    "total_events": 148,
+    "total_snapshots": 8,
+    "findings": [],
+    "score": {
+      "matched": [],
+      "false_positives": [],
+      "n_findings": 0
+    }
+  }
+]

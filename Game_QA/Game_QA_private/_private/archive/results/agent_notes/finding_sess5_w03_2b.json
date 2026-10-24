@@ -1,0 +1,16 @@
+{
+  "verdict": "bug",
+  "severity": "medium",
+  "confidence": 0.95,
+  "category": "ai",
+  "title": "Enemy Horizontal Motion Floating in Mid-Air Past Platform Edge",
+  "explanation": "At frame 952 (t=16.32s), enemy FloatingEnemy traversed past the platform edge at (7200, 550) and continued moving horizontally while suspended in mid-air without falling. Traced to Enemy.gd:L35-L48 where is_floating_bug overrides vertical velocity to 0.0 when not on floor, violating physical gravity and actor kinematics.",
+  "evidence_frames": [952],
+  "suspected_code": "Actors/Enemy.gd:L35-L48 (_physics_process)",
+  "dedupe_key": "Enemy.gd:L35:platform_edge_float",
+  "repro_hint": "Observe FloatingEnemy on Map2 when it reaches the platform edge; it floats forward horizontally.",
+  "path": "path2",
+  "source": "agent",
+  "needs_human_review": false
+}
+

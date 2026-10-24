@@ -1,0 +1,23 @@
+{
+  "verdict": "bug",
+  "severity": "critical",
+  "confidence": 0.98,
+  "title": "Player Wedged and Permanently Trapped in Ceiling Gap (Tile 55, 8)",
+  "explanation": "At frame 462 (t=7.70s), entering the narrow gap at coordinates (4365.01, 633.12) caused the player to become completely immobile. Despite over 40 subsequent directional and jump inputs across frames 462 to 990 (nearly 9 seconds), player displacement remained 0.0px. Traced to Player.gd:L127-L140 where is_wall_stuck forcibly overrides velocity to Vector2.ZERO.",
+  "evidence_frames": [
+    462,
+    480,
+    540,
+    600,
+    660,
+    720,
+    780,
+    840,
+    900,
+    960,
+    989
+  ],
+  "suspected_code": "Actors/Player.gd:L127-L140 (_physics_process)",
+  "path": "path2",
+  "needs_human_review": false
+}

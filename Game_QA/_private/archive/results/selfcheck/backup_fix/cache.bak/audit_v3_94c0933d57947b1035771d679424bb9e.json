@@ -1,0 +1,13 @@
+{
+  "verdict": "bug",
+  "severity": "critical",
+  "confidence": 0.92,
+  "title": "Level Not Completed (Player Reached End Without Portal Trigger)",
+  "explanation": "Player navigated to the end of Level01 (coordinates X=7458.2, Y=159.9) at frame(s) [13285], reaching the expected end-of-level portal destination (Portal2D at X\u22487410, Y\u2248160). However, no 'portal_entered', 'portal_transition_started', or 'level_completed' event was dispatched, and goal.found remained false. The player remained stranded at the level exit, blocking game progression.",
+  "evidence_frames": [
+    13285
+  ],
+  "suspected_code": "Portal2D.gd:L14 (_on_body_entered) / Portal2D.gd:L29 (teleport)",
+  "path": "path2",
+  "needs_human_review": true
+}

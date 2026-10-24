@@ -1,0 +1,13 @@
+{
+  "verdict": "bug",
+  "severity": "high",
+  "confidence": 0.95,
+  "title": "Platform Edge Floating Enemy Continues Horizontal Motion Without Falling",
+  "explanation": "At frame 1222 (t=21.50s), FloatingEnemy moved off the platform ledge at (7200, 550) and continued horizontal motion in mid-air without falling. Traced to Enemy.gd:L36-L47 where BugFlags.map2_floating_enemy forces velocity.y = 0.0 when not is_on_floor(), suppressing gravity and violating physical kinematics.",
+  "evidence_frames": [
+    1222
+  ],
+  "suspected_code": "Actors/Enemy.gd:L36-L47 (_physics_process)",
+  "path": "path2",
+  "needs_human_review": false
+}

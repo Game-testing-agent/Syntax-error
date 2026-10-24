@@ -1,0 +1,53 @@
+{
+  "checks": [
+    {
+      "id": "c_player_out_of_bounds",
+      "source": "Player.gd:physics_process",
+      "description": "Player vertical position Y must stay within level bounds (Y <= 1400)",
+      "predicate": "player.y <= 1400.0",
+      "severity_if_violated": "critical",
+      "evidence_fields": ["player.position", "player.y"]
+    },
+    {
+      "id": "c_score_non_negative",
+      "source": "PlayerData.gd:set_score",
+      "description": "Score must never drop below zero",
+      "predicate": "stats.score >= 0",
+      "severity_if_violated": "high",
+      "evidence_fields": ["stats.score"]
+    },
+    {
+      "id": "c_deaths_nonnegative",
+      "source": "PlayerData.gd:set_deaths",
+      "description": "Deaths counter must be non-negative",
+      "predicate": "stats.deaths >= 0",
+      "severity_if_violated": "high",
+      "evidence_fields": ["stats.deaths"]
+    },
+   
+    {
+      "id": "c_player_velocity_limit",
+      "source": "Player.gd:calculate_move_velocity",
+      "description": "Player velocity must stay within physical bounds (|vel_x| <= 2500, |vel_y| <= 3000)",
+      "predicate": "abs(player.vel_x) <= 2500 and abs(player.vel_y) <= 3000",
+      "severity_if_violated": "high",
+      "evidence_fields": ["player.velocity", "player.vel_x", "player.vel_y"]
+    },
+    {
+      "id": "c_fps_healthy",
+      "source": "Main.gd",
+      "description": "Framerate must maintain at least 15 FPS",
+      "predicate": "fps >= 15.0",
+      "severity_if_violated": "medium",
+      "evidence_fields": ["fps"]
+    },
+    {
+      "id": "c_coins_remaining_nonnegative",
+      "source": "Coin.gd",
+      "description": "Coins remaining count must not be negative",
+      "predicate": "coins.coins_remaining >= 0",
+      "severity_if_violated": "medium",
+      "evidence_fields": ["coins.coins_remaining"]
+    }
+  ]
+}

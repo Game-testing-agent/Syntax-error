@@ -1,0 +1,13 @@
+{
+  "verdict": "bug",
+  "severity": "medium",
+  "confidence": 0.7,
+  "title": "Coins disappear without being collected",
+  "explanation": "At frame 576 a large batch of coin_removed events occurs (e.g., {\"frame\":576,\"event\":\"coin_removed\",\"data\":{\"position\":{\"x\":6320.0,\"y\":-80.0},\"was_collected\":false}} and many others). All these coins are marked as not collected, yet they are removed from the scene simultaneously, indicating they vanish unexpectedly rather than being collected by the player. This pattern is not covered by the active checks (which only ensure non\u2011negative coin counts).",
+  "evidence_frames": [
+    576
+  ],
+  "suspected_code": "Coin.gd",
+  "path": "path2",
+  "needs_human_review": true
+}

@@ -1,0 +1,13 @@
+{
+  "verdict": "bug",
+  "severity": "high",
+  "confidence": 0.75,
+  "title": "Semantic Anomaly: duplicate_pickup_attempt",
+  "explanation": "White-box audit verified 'duplicate_pickup_attempt' at frame 1181. Expected: Coin body_entered should not trigger after collection | Observed: Duplicate body_entered on collected coin. Traced to logic in Coin.gd:L27 (_on_body_entered).",
+  "evidence_frames": [
+    1181
+  ],
+  "suspected_code": "Coin.gd:L27 (_on_body_entered)",
+  "path": "path2",
+  "needs_human_review": true
+}

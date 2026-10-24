@@ -1,0 +1,13 @@
+{
+  "verdict": "bug",
+  "severity": "medium",
+  "confidence": 0.68,
+  "title": "Uncollected coins removed on level completion",
+  "explanation": "At frame 7650 the game fires a level_completed event followed immediately by several coin_removed events (e.g., frame 7650 coin_removed for position {\"x\":3330.0,\"y\":-50.0} with was_collected false, and similar events for the other seven remaining coins). The state_snapshot at frame 17945 shows 8 coins_remaining, yet none of these are collected before the level ends and the score stays at 3600. This indicates that remaining coins are discarded without awarding their points, a behavior not covered by the active checks.",
+  "evidence_frames": [
+    7650
+  ],
+  "suspected_code": "Coin.gd / Level02.gd",
+  "path": "path2",
+  "needs_human_review": true
+}

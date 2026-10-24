@@ -1,0 +1,150 @@
+# Telemetry Orientation Sessions Report
+
+## Session: session_1792777856_45957
+- **Scenes**: ['Level01', 'MainScreen', 'res://src/Levels/Level01.tscn', 'res://src/Screens/MainScreen.tscn']
+- **Duration**: 0.00s to 98.34s (Total: 98.33s)
+- **Frame Span**: 0 to 13300 (13300 frames)
+- **Event Count**: 1680
+- **Snapshot Count**: 96
+- **Anomaly Category Events**: 25
+  - Frame 578: unexpected_score_change -> {'anomaly_type': 'unexpected_score_change', 'details': {'delta': -10, 'expected': 'Score should only increase or reset to 0', 'new_score': 600, 'observed': 'Score decreased by 10', 'old_score': 500}, 'expected': 'Score should only increase or reset to 0', 'observed': 'Score decreased by 10', 'severity': 'warning', 'player': {'grounded': False, 'instance_id': 79658223269, 'position': {'x': 5146.67, 'y': 528.4}, 'velocity': {'x': 700.0, 'y': -66.67}}, 'entity': None, 'game_state': {'deaths': 0, 'paused': False, 'score': 490}}
+  - Frame 861: unexpected_score_change -> {'anomaly_type': 'unexpected_score_change', 'details': {'delta': -10, 'expected': 'Score should only increase or reset to 0', 'new_score': 690, 'observed': 'Score decreased by 10', 'old_score': 590}, 'expected': 'Score should only increase or reset to 0', 'observed': 'Score decreased by 10', 'severity': 'warning', 'player': {'grounded': False, 'instance_id': 79658223269, 'position': {'x': 6594.91, 'y': 543.67}, 'velocity': {'x': 700.0, 'y': -358.33}}, 'entity': None, 'game_state': {'deaths': 0, 'paused': False, 'score': 580}}
+  - Frame 964: unexpected_score_change -> {'anomaly_type': 'unexpected_score_change', 'details': {'delta': -10, 'expected': 'Score should only increase or reset to 0', 'new_score': 680, 'observed': 'Score decreased by 10', 'old_score': 580}, 'expected': 'Score should only increase or reset to 0', 'observed': 'Score decreased by 10', 'severity': 'warning', 'player': {'grounded': True, 'instance_id': 79658223269, 'position': {'x': 6478.25, 'y': 399.93}, 'velocity': {'x': 700.0, 'y': 0.0}}, 'entity': None, 'game_state': {'deaths': 0, 'paused': False, 'score': 570}}
+  - Frame 1156: unexpected_score_change -> {'anomaly_type': 'unexpected_score_change', 'details': {'delta': -570, 'expected': 'Score should only increase or reset to 0', 'new_score': 0, 'observed': 'Score decreased by 570', 'old_score': 570}, 'expected': 'Score should only increase or reset to 0', 'observed': 'Score decreased by 570', 'severity': 'warning', 'player': None, 'entity': None, 'game_state': {'deaths': 1, 'paused': True, 'score': 0}}
+  - Frame 1714: unexpected_score_change -> {'anomaly_type': 'unexpected_score_change', 'details': {'delta': -10, 'expected': 'Score should only increase or reset to 0', 'new_score': 600, 'observed': 'Score decreased by 10', 'old_score': 500}, 'expected': 'Score should only increase or reset to 0', 'observed': 'Score decreased by 10', 'severity': 'warning', 'player': {'grounded': False, 'instance_id': 368612214637, 'position': {'x': 3936.59, 'y': 530.9}, 'velocity': {'x': 700.0, 'y': 108.33}}, 'entity': None, 'game_state': {'deaths': 1, 'paused': False, 'score': 490}}
+  - Frame 1887: unexpected_score_change -> {'anomaly_type': 'unexpected_score_change', 'details': {'delta': -10, 'expected': 'Score should only increase or reset to 0', 'new_score': 690, 'observed': 'Score decreased by 10', 'old_score': 590}, 'expected': 'Score should only increase or reset to 0', 'observed': 'Score decreased by 10', 'severity': 'warning', 'player': {'grounded': False, 'instance_id': 368612214637, 'position': {'x': 5199.91, 'y': 531.59}, 'velocity': {'x': 700.0, 'y': -183.33}}, 'entity': None, 'game_state': {'deaths': 1, 'paused': False, 'score': 580}}
+  - Frame 2270: unexpected_score_change -> {'anomaly_type': 'unexpected_score_change', 'details': {'delta': -580, 'expected': 'Score should only increase or reset to 0', 'new_score': 0, 'observed': 'Score decreased by 580', 'old_score': 580}, 'expected': 'Score should only increase or reset to 0', 'observed': 'Score decreased by 580', 'severity': 'warning', 'player': None, 'entity': None, 'game_state': {'deaths': 2, 'paused': True, 'score': 0}}
+  - Frame 3805: unexpected_score_change -> {'anomaly_type': 'unexpected_score_change', 'details': {'delta': -10, 'expected': 'Score should only increase or reset to 0', 'new_score': 600, 'observed': 'Score decreased by 10', 'old_score': 500}, 'expected': 'Score should only increase or reset to 0', 'observed': 'Score decreased by 10', 'severity': 'warning', 'player': {'grounded': True, 'instance_id': 675987588760, 'position': {'x': 6770.01, 'y': 239.93}, 'velocity': {'x': 0.0, 'y': 0.0}}, 'entity': None, 'game_state': {'deaths': 2, 'paused': False, 'score': 490}}
+  - Frame 3970: unexpected_score_change -> {'anomaly_type': 'unexpected_score_change', 'details': {'delta': -10, 'expected': 'Score should only increase or reset to 0', 'new_score': 690, 'observed': 'Score decreased by 10', 'old_score': 590}, 'expected': 'Score should only increase or reset to 0', 'observed': 'Score decreased by 10', 'severity': 'warning', 'player': {'grounded': False, 'instance_id': 675987588760, 'position': {'x': 6315.01, 'y': -87.58}, 'velocity': {'x': 0.0, 'y': -883.33}}, 'entity': None, 'game_state': {'deaths': 2, 'paused': False, 'score': 580}}
+  - Frame 3985: unexpected_score_change -> {'anomaly_type': 'unexpected_score_change', 'details': {'delta': -10, 'expected': 'Score should only increase or reset to 0', 'new_score': 680, 'observed': 'Score decreased by 10', 'old_score': 580}, 'expected': 'Score should only increase or reset to 0', 'observed': 'Score decreased by 10', 'severity': 'warning', 'player': {'grounded': False, 'instance_id': 675987588760, 'position': {'x': 6268.35, 'y': -171.6}, 'velocity': {'x': -700.0, 'y': 233.33}}, 'entity': None, 'game_state': {'deaths': 2, 'paused': False, 'score': 570}}
+  - Frame 3994: unexpected_score_change -> {'anomaly_type': 'unexpected_score_change', 'details': {'delta': -10, 'expected': 'Score should only increase or reset to 0', 'new_score': 670, 'observed': 'Score decreased by 10', 'old_score': 570}, 'expected': 'Score should only increase or reset to 0', 'observed': 'Score decreased by 10', 'severity': 'warning', 'player': {'grounded': False, 'instance_id': 675987588760, 'position': {'x': 6186.68, 'y': -92.85}, 'velocity': {'x': 0.0, 'y': 758.33}}, 'entity': None, 'game_state': {'deaths': 2, 'paused': False, 'score': 560}}
+  - Frame 4046: unexpected_score_change -> {'anomaly_type': 'unexpected_score_change', 'details': {'delta': -10, 'expected': 'Score should only increase or reset to 0', 'new_score': 660, 'observed': 'Score decreased by 10', 'old_score': 560}, 'expected': 'Score should only increase or reset to 0', 'observed': 'Score decreased by 10', 'severity': 'warning', 'player': {'grounded': True, 'instance_id': 675987588760, 'position': {'x': 6513.34, 'y': 79.93}, 'velocity': {'x': 700.0, 'y': 0.0}}, 'entity': None, 'game_state': {'deaths': 2, 'paused': False, 'score': 550}}
+  - Frame 4130: unexpected_score_change -> {'anomaly_type': 'unexpected_score_change', 'details': {'delta': -10, 'expected': 'Score should only increase or reset to 0', 'new_score': 650, 'observed': 'Score decreased by 10', 'old_score': 550}, 'expected': 'Score should only increase or reset to 0', 'observed': 'Score decreased by 10', 'severity': 'warning', 'player': {'grounded': False, 'instance_id': 675987588760, 'position': {'x': 6595.01, 'y': 529.51}, 'velocity': {'x': 700.0, 'y': -125.0}}, 'entity': None, 'game_state': {'deaths': 2, 'paused': False, 'score': 540}}
+  - Frame 4500: unexpected_score_change -> {'anomaly_type': 'unexpected_score_change', 'details': {'delta': -540, 'expected': 'Score should only increase or reset to 0', 'new_score': 0, 'observed': 'Score decreased by 540', 'old_score': 540}, 'expected': 'Score should only increase or reset to 0', 'observed': 'Score decreased by 540', 'severity': 'warning', 'player': None, 'entity': None, 'game_state': {'deaths': 3, 'paused': True, 'score': 0}}
+  - Frame 4889: unexpected_score_change -> {'anomaly_type': 'unexpected_score_change', 'details': {'delta': -10, 'expected': 'Score should only increase or reset to 0', 'new_score': 600, 'observed': 'Score decreased by 10', 'old_score': 500}, 'expected': 'Score should only increase or reset to 0', 'observed': 'Score decreased by 10', 'severity': 'warning', 'player': {'grounded': False, 'instance_id': 1285554177771, 'position': {'x': 3105.01, 'y': 378.68}, 'velocity': {'x': 700.0, 'y': -825.0}}, 'entity': None, 'game_state': {'deaths': 3, 'paused': False, 'score': 490}}
+  - Frame 4985: unexpected_score_change -> {'anomaly_type': 'unexpected_score_change', 'details': {'delta': -10, 'expected': 'Score should only increase or reset to 0', 'new_score': 690, 'observed': 'Score decreased by 10', 'old_score': 590}, 'expected': 'Score should only increase or reset to 0', 'observed': 'Score decreased by 10', 'severity': 'warning', 'player': {'grounded': False, 'instance_id': 1285554177771, 'position': {'x': 3466.68, 'y': 333.4}, 'velocity': {'x': 700.0, 'y': -591.67}}, 'entity': None, 'game_state': {'deaths': 3, 'paused': False, 'score': 580}}
+  - Frame 5064: unexpected_score_change -> {'anomaly_type': 'unexpected_score_change', 'details': {'delta': -10, 'expected': 'Score should only increase or reset to 0', 'new_score': 680, 'observed': 'Score decreased by 10', 'old_score': 580}, 'expected': 'Score should only increase or reset to 0', 'observed': 'Score decreased by 10', 'severity': 'warning', 'player': {'grounded': False, 'instance_id': 1285554177771, 'position': {'x': 3933.35, 'y': 488.4}, 'velocity': {'x': 700.0, 'y': 1108.33}}, 'entity': None, 'game_state': {'deaths': 3, 'paused': False, 'score': 570}}
+  - Frame 5154: unexpected_score_change -> {'anomaly_type': 'unexpected_score_change', 'details': {'delta': -10, 'expected': 'Score should only increase or reset to 0', 'new_score': 670, 'observed': 'Score decreased by 10', 'old_score': 570}, 'expected': 'Score should only increase or reset to 0', 'observed': 'Score decreased by 10', 'severity': 'warning', 'player': {'grounded': False, 'instance_id': 1285554177771, 'position': {'x': 4341.65, 'y': 472.44}, 'velocity': {'x': -700.0, 'y': -883.33}}, 'entity': None, 'game_state': {'deaths': 3, 'paused': False, 'score': 560}}
+  - Frame 5158: unexpected_score_change -> {'anomaly_type': 'unexpected_score_change', 'details': {'delta': -10, 'expected': 'Score should only increase or reset to 0', 'new_score': 660, 'observed': 'Score decreased by 10', 'old_score': 560}, 'expected': 'Score should only increase or reset to 0', 'observed': 'Score decreased by 10', 'severity': 'warning', 'player': {'grounded': False, 'instance_id': 1285554177771, 'position': {'x': 4294.98, 'y': 423.27}, 'velocity': {'x': -700.0, 'y': -650.0}}, 'entity': None, 'game_state': {'deaths': 3, 'paused': False, 'score': 550}}
+  - Frame 5174: unexpected_score_change -> {'anomaly_type': 'unexpected_score_change', 'details': {'delta': -10, 'expected': 'Score should only increase or reset to 0', 'new_score': 650, 'observed': 'Score decreased by 10', 'old_score': 550}, 'expected': 'Score should only increase or reset to 0', 'observed': 'Score decreased by 10', 'severity': 'warning', 'player': {'grounded': False, 'instance_id': 1285554177771, 'position': {'x': 4108.32, 'y': 382.16}, 'velocity': {'x': -700.0, 'y': 283.33}}, 'entity': None, 'game_state': {'deaths': 3, 'paused': False, 'score': 540}}
+  - Frame 5324: unexpected_score_change -> {'anomaly_type': 'unexpected_score_change', 'details': {'delta': -10, 'expected': 'Score should only increase or reset to 0', 'new_score': 640, 'observed': 'Score decreased by 10', 'old_score': 540}, 'expected': 'Score should only increase or reset to 0', 'observed': 'Score decreased by 10', 'severity': 'warning', 'player': {'grounded': False, 'instance_id': 1285554177771, 'position': {'x': 5146.64, 'y': 605.9}, 'velocity': {'x': 700.0, 'y': -766.67}}, 'entity': None, 'game_state': {'deaths': 3, 'paused': False, 'score': 530}}
+  - Frame 5324: unexpected_score_change -> {'anomaly_type': 'unexpected_score_change', 'details': {'delta': -10, 'expected': 'Score should only increase or reset to 0', 'new_score': 630, 'observed': 'Score decreased by 10', 'old_score': 530}, 'expected': 'Score should only increase or reset to 0', 'observed': 'Score decreased by 10', 'severity': 'warning', 'player': {'grounded': False, 'instance_id': 1285554177771, 'position': {'x': 5146.64, 'y': 605.9}, 'velocity': {'x': 700.0, 'y': -766.67}}, 'entity': None, 'game_state': {'deaths': 3, 'paused': False, 'score': 520}}
+  - Frame 5396: unexpected_score_change -> {'anomaly_type': 'unexpected_score_change', 'details': {'delta': -10, 'expected': 'Score should only increase or reset to 0', 'new_score': 620, 'observed': 'Score decreased by 10', 'old_score': 520}, 'expected': 'Score should only increase or reset to 0', 'observed': 'Score decreased by 10', 'severity': 'warning', 'player': {'grounded': False, 'instance_id': 1285554177771, 'position': {'x': 5158.31, 'y': 531.59}, 'velocity': {'x': -700.0, 'y': -183.33}}, 'entity': None, 'game_state': {'deaths': 3, 'paused': False, 'score': 510}}
+  - Frame 5609: unexpected_score_change -> {'anomaly_type': 'unexpected_score_change', 'details': {'delta': -10, 'expected': 'Score should only increase or reset to 0', 'new_score': 610, 'observed': 'Score decreased by 10', 'old_score': 510}, 'expected': 'Score should only increase or reset to 0', 'observed': 'Score decreased by 10', 'severity': 'warning', 'player': {'grounded': False, 'instance_id': 1285554177771, 'position': {'x': 6511.62, 'y': 129.51}, 'velocity': {'x': 700.0, 'y': -125.0}}, 'entity': None, 'game_state': {'deaths': 3, 'paused': False, 'score': 500}}
+  - Frame 5620: unexpected_score_change -> {'anomaly_type': 'unexpected_score_change', 'details': {'delta': -10, 'expected': 'Score should only increase or reset to 0', 'new_score': 600, 'observed': 'Score decreased by 10', 'old_score': 500}, 'expected': 'Score should only increase or reset to 0', 'observed': 'Score decreased by 10', 'severity': 'warning', 'player': {'grounded': False, 'instance_id': 1285554177771, 'position': {'x': 6639.95, 'y': 170.76}, 'velocity': {'x': 700.0, 'y': 516.67}}, 'entity': None, 'game_state': {'deaths': 3, 'paused': False, 'score': 490}}
+
+### Event Frequencies:
+- player_moved: 476
+- coin_spawned: 96
+- coin_removed: 96
+- fall_started: 88
+- player_landed: 87
+- jump_pressed: 77
+- jump_released: 77
+- jump_started: 72
+- score_label_updated: 53
+- move_right_pressed: 52
+- move_right_released: 52
+- coin_overlap_started: 46
+- coin_picked: 46
+- coin_score_awarded: 46
+- coin_animation_started: 46
+- coin_remaining_count_changed: 46
+- unexpected_score_change: 25
+- jump_interrupted: 22
+- enemy_reversed_at_wall: 22
+- enemy_spawned: 20
+- enemy_started_moving: 20
+- enemy_removed: 20
+- move_left_pressed: 14
+- move_left_released: 14
+- player_left_floor: 12
+- fall_distance_threshold_reached: 8
+- player_spawned: 4
+- player_removed: 4
+- enemy_contact_started: 3
+- enemy_contact_death: 3
+- player_died: 3
+- death_counter_incremented: 3
+- pause_opened: 3
+- death_overlay_shown: 3
+- death_menu_opened: 3
+- retry_pressed: 3
+- retry_started: 3
+- scene_loaded: 2
+- session_end: 2
+- session_start: 1
+- main_screen_loaded: 1
+- scene_change_pressed: 1
+- global_state_reset: 1
+- level_loaded: 1
+- enemy_stomp_area_entered: 1
+- stomp_attempted: 1
+- enemy_stomped: 1
+
+==================================================
+
+## Session: session_1792785118_99684
+- **Scenes**: ['Level01', 'MainScreen', 'res://src/Levels/Level01.tscn', 'res://src/Screens/MainScreen.tscn']
+- **Duration**: 0.00s to 56.47s (Total: 56.47s)
+- **Frame Span**: 0 to 7848 (7848 frames)
+- **Event Count**: 874
+- **Snapshot Count**: 56
+- **Anomaly Category Events**: 14
+  - Frame 754: unexpected_score_change -> {'anomaly_type': 'unexpected_score_change', 'details': {'delta': -10, 'expected': 'Score should only increase or reset to 0', 'new_score': 600, 'observed': 'Score decreased by 10', 'old_score': 500}, 'expected': 'Score should only increase or reset to 0', 'observed': 'Score decreased by 10', 'severity': 'warning', 'player': {'grounded': False, 'instance_id': 84020299428, 'position': {'x': 3294.92, 'y': 378.67}, 'velocity': {'x': 700.0, 'y': -825.0}}, 'entity': None, 'game_state': {'deaths': 0, 'paused': False, 'score': 490}}
+  - Frame 834: unexpected_score_change -> {'anomaly_type': 'unexpected_score_change', 'details': {'delta': -10, 'expected': 'Score should only increase or reset to 0', 'new_score': 690, 'observed': 'Score decreased by 10', 'old_score': 590}, 'expected': 'Score should only increase or reset to 0', 'observed': 'Score decreased by 10', 'severity': 'warning', 'player': {'grounded': True, 'instance_id': 84020299428, 'position': {'x': 4228.26, 'y': 731.85}, 'velocity': {'x': 700.0, 'y': -1600.0}}, 'entity': None, 'game_state': {'deaths': 0, 'paused': False, 'score': 580}}
+  - Frame 847: unexpected_score_change -> {'anomaly_type': 'unexpected_score_change', 'details': {'delta': -10, 'expected': 'Score should only increase or reset to 0', 'new_score': 680, 'observed': 'Score decreased by 10', 'old_score': 580}, 'expected': 'Score should only increase or reset to 0', 'observed': 'Score decreased by 10', 'severity': 'warning', 'player': {'grounded': False, 'instance_id': 84020299428, 'position': {'x': 4386.59, 'y': 473.65}, 'velocity': {'x': 700.0, 'y': -841.67}}, 'entity': None, 'game_state': {'deaths': 0, 'paused': False, 'score': 570}}
+  - Frame 912: unexpected_score_change -> {'anomaly_type': 'unexpected_score_change', 'details': {'delta': -10, 'expected': 'Score should only increase or reset to 0', 'new_score': 670, 'observed': 'Score decreased by 10', 'old_score': 570}, 'expected': 'Score should only increase or reset to 0', 'observed': 'Score decreased by 10', 'severity': 'warning', 'player': {'grounded': False, 'instance_id': 84020299428, 'position': {'x': 5144.92, 'y': 543.67}, 'velocity': {'x': 700.0, 'y': -358.33}}, 'entity': None, 'game_state': {'deaths': 0, 'paused': False, 'score': 560}}
+  - Frame 915: unexpected_score_change -> {'anomaly_type': 'unexpected_score_change', 'details': {'delta': -10, 'expected': 'Score should only increase or reset to 0', 'new_score': 660, 'observed': 'Score decreased by 10', 'old_score': 560}, 'expected': 'Score should only increase or reset to 0', 'observed': 'Score decreased by 10', 'severity': 'warning', 'player': {'grounded': False, 'instance_id': 84020299428, 'position': {'x': 5179.92, 'y': 531.59}, 'velocity': {'x': 700.0, 'y': -183.33}}, 'entity': None, 'game_state': {'deaths': 0, 'paused': False, 'score': 550}}
+  - Frame 1165: unexpected_score_change -> {'anomaly_type': 'unexpected_score_change', 'details': {'delta': -10, 'expected': 'Score should only increase or reset to 0', 'new_score': 650, 'observed': 'Score decreased by 10', 'old_score': 550}, 'expected': 'Score should only increase or reset to 0', 'observed': 'Score decreased by 10', 'severity': 'warning', 'player': {'grounded': False, 'instance_id': 84020299428, 'position': {'x': 6528.24, 'y': 149.65}, 'velocity': {'x': 700.0, 'y': -416.67}}, 'entity': None, 'game_state': {'deaths': 0, 'paused': False, 'score': 540}}
+  - Frame 1177: unexpected_score_change -> {'anomaly_type': 'unexpected_score_change', 'details': {'delta': -10, 'expected': 'Score should only increase or reset to 0', 'new_score': 640, 'observed': 'Score decreased by 10', 'old_score': 540}, 'expected': 'Score should only increase or reset to 0', 'observed': 'Score decreased by 10', 'severity': 'warning', 'player': {'grounded': False, 'instance_id': 84020299428, 'position': {'x': 6668.24, 'y': 142.15}, 'velocity': {'x': 700.0, 'y': 283.33}}, 'entity': None, 'game_state': {'deaths': 0, 'paused': False, 'score': 530}}
+  - Frame 1179: unexpected_score_change -> {'anomaly_type': 'unexpected_score_change', 'details': {'delta': -10, 'expected': 'Score should only increase or reset to 0', 'new_score': 630, 'observed': 'Score decreased by 10', 'old_score': 530}, 'expected': 'Score should only increase or reset to 0', 'observed': 'Score decreased by 10', 'severity': 'warning', 'player': {'grounded': False, 'instance_id': 84020299428, 'position': {'x': 6691.58, 'y': 154.51}, 'velocity': {'x': 700.0, 'y': -1350.0}}, 'entity': None, 'game_state': {'deaths': 0, 'paused': False, 'score': 520}}
+  - Frame 2060: unexpected_score_change -> {'anomaly_type': 'unexpected_score_change', 'details': {'delta': -10, 'expected': 'Score should only increase or reset to 0', 'new_score': 620, 'observed': 'Score decreased by 10', 'old_score': 520}, 'expected': 'Score should only increase or reset to 0', 'observed': 'Score decreased by 10', 'severity': 'warning', 'player': {'grounded': False, 'instance_id': 84020299428, 'position': {'x': 6633.26, 'y': 464.51}, 'velocity': {'x': 0.0, 'y': 1225.0}}, 'entity': None, 'game_state': {'deaths': 0, 'paused': False, 'score': 510}}
+  - Frame 2251: unexpected_score_change -> {'anomaly_type': 'unexpected_score_change', 'details': {'delta': -10, 'expected': 'Score should only increase or reset to 0', 'new_score': 610, 'observed': 'Score decreased by 10', 'old_score': 510}, 'expected': 'Score should only increase or reset to 0', 'observed': 'Score decreased by 10', 'severity': 'warning', 'player': {'grounded': False, 'instance_id': 84020299428, 'position': {'x': 6154.93, 'y': 713.26}, 'velocity': {'x': 700.0, 'y': -1600.0}}, 'entity': None, 'game_state': {'deaths': 0, 'paused': False, 'score': 500}}
+  - Frame 2307: unexpected_score_change -> {'anomaly_type': 'unexpected_score_change', 'details': {'delta': -10, 'expected': 'Score should only increase or reset to 0', 'new_score': 600, 'observed': 'Score decreased by 10', 'old_score': 500}, 'expected': 'Score should only increase or reset to 0', 'observed': 'Score decreased by 10', 'severity': 'warning', 'player': {'grounded': True, 'instance_id': 84020299428, 'position': {'x': 6469.93, 'y': 399.93}, 'velocity': {'x': 700.0, 'y': 0.0}}, 'entity': None, 'game_state': {'deaths': 0, 'paused': False, 'score': 490}}
+  - Frame 2539: unexpected_score_change -> {'anomaly_type': 'unexpected_score_change', 'details': {'delta': -10, 'expected': 'Score should only increase or reset to 0', 'new_score': 690, 'observed': 'Score decreased by 10', 'old_score': 590}, 'expected': 'Score should only increase or reset to 0', 'observed': 'Score decreased by 10', 'severity': 'warning', 'player': {'grounded': False, 'instance_id': 84020299428, 'position': {'x': 6189.93, 'y': -4.24}, 'velocity': {'x': 0.0, 'y': -1175.0}}, 'entity': None, 'game_state': {'deaths': 0, 'paused': False, 'score': 580}}
+  - Frame 2544: unexpected_score_change -> {'anomaly_type': 'unexpected_score_change', 'details': {'delta': -10, 'expected': 'Score should only increase or reset to 0', 'new_score': 680, 'observed': 'Score decreased by 10', 'old_score': 580}, 'expected': 'Score should only increase or reset to 0', 'observed': 'Score decreased by 10', 'severity': 'warning', 'player': {'grounded': False, 'instance_id': 84020299428, 'position': {'x': 6189.93, 'y': -87.58}, 'velocity': {'x': 0.0, 'y': -883.33}}, 'entity': None, 'game_state': {'deaths': 0, 'paused': False, 'score': 570}}
+  - Frame 2556: unexpected_score_change -> {'anomaly_type': 'unexpected_score_change', 'details': {'delta': -10, 'expected': 'Score should only increase or reset to 0', 'new_score': 670, 'observed': 'Score decreased by 10', 'old_score': 570}, 'expected': 'Score should only increase or reset to 0', 'observed': 'Score decreased by 10', 'severity': 'warning', 'player': {'grounded': False, 'instance_id': 84020299428, 'position': {'x': 6259.93, 'y': -164.52}, 'velocity': {'x': 700.0, 'y': 175.0}}, 'entity': None, 'game_state': {'deaths': 0, 'paused': False, 'score': 560}}
+
+### Event Frequencies:
+- player_moved: 260
+- jump_pressed: 53
+- jump_released: 53
+- fall_started: 50
+- player_landed: 50
+- jump_started: 44
+- move_right_pressed: 31
+- move_right_released: 31
+- move_left_pressed: 26
+- move_left_released: 26
+- coin_spawned: 24
+- coin_removed: 24
+- jump_interrupted: 24
+- score_label_updated: 22
+- coin_overlap_started: 18
+- coin_picked: 18
+- coin_score_awarded: 18
+- coin_animation_started: 18
+- coin_remaining_count_changed: 18
+- unexpected_score_change: 14
+- fall_distance_threshold_reached: 7
+- enemy_spawned: 5
+- enemy_started_moving: 5
+- player_left_floor: 5
+- enemy_removed: 5
+- stomp_attempted: 3
+- enemy_stomped: 3
+- enemy_stomp_area_entered: 3
+- enemy_killed: 3
+- scene_loaded: 2
+- enemy_reversed_at_wall: 2
+- session_end: 2
+- session_start: 1
+- main_screen_loaded: 1
+- scene_change_pressed: 1
+- global_state_reset: 1
+- player_spawned: 1
+- level_loaded: 1
+- player_removed: 1
+
+==================================================

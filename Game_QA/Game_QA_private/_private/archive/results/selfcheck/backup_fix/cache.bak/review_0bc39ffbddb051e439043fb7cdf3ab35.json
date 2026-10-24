@@ -1,0 +1,15 @@
+{
+  "verdict": "bug",
+  "severity": "high",
+  "confidence": 0.68,
+  "title": "Player receives no damage from threat enemy contact (enemy frozen)",
+  "explanation": "At frame 726 an enemy_reversed_at_wall event reports old_direction=0.0 and new_direction=0.0, and the next snapshot (frame 780) shows Enemy5 vel_x=0.0, indicating the enemy is frozen. At frame 1767 a state_snapshot shows Enemy5 (is_threat=true) at distance 80.0 from the player, satisfying the contact definition, yet stats.deaths remains 0. A later snapshot at frame 1909 still shows the same contact and deaths unchanged, and no player_died/player_hurt events occur in the window, confirming missing damage.",
+  "evidence_frames": [
+    726,
+    1767,
+    1909
+  ],
+  "suspected_code": "Enemy.gd:reverse_at_wall",
+  "path": "path2",
+  "needs_human_review": true
+}

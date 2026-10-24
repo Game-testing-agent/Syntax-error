@@ -1,0 +1,12 @@
+{
+  "verdict": "bug",
+  "severity": "critical",
+  "confidence": 0.95,
+  "title": "Player Becomes Permanently Stuck in Wall Geometry",
+  "explanation": "At frame 1285 (t=22.09s), the player entered coordinates (4438.26, 602.42) and was permanently frozen with zero velocity, unable to move despite movement inputs until quitting at frame 1781. Traced to Player.gd:L127-L140 where BugFlags.map2_wall_stuck forcibly overrides velocity to Vector2.ZERO without checking active map context, creating an unrecoverable softlock.",
+  "evidence_frames": [1285, 1740, 1781],
+  "suspected_code": "Actors/Player.gd:L127-L140 (_physics_process)",
+  "path": "path2",
+  "needs_human_review": false
+}
+

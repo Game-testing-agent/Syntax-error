@@ -1,0 +1,13 @@
+{
+  "verdict": "bug",
+  "severity": "high",
+  "confidence": 0.90,
+  "category": "interaction",
+  "title": "Stomp Detection Tunneling Allows Enemy to Survive Stomp Attack",
+  "explanation": "At frame 3244, stomp_attempted and enemy_stomped registered bounce velocity -1600 on Enemy4, but no enemy_killed event was emitted and Enemy4 survived. Violates combat resolution contract (Enemy.gd:L57-L63), permitting enemies to survive valid stomp attacks at high fall speeds.",
+  "evidence_frames": [3244],
+  "suspected_code": "Enemy.gd:L57-L63 (_on_StompArea2D_area_entered)",
+  "path": "path2",
+  "needs_human_review": false
+}
+

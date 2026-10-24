@@ -1,0 +1,13 @@
+{
+  "verdict": "bug",
+  "severity": "critical",
+  "confidence": 0.75,
+  "title": "Player Survived Sideways Enemy Contact",
+  "explanation": "Player triggered 'enemy_contact_started' at frame 301 but did not take damage or die. Root cause in Player.gd:_on_EnemyDetector_body_entered (line L73 is_invincible check or line L76 Enemy4 exemption).",
+  "evidence_frames": [
+    301
+  ],
+  "suspected_code": "Player.gd:L73-L77 (_on_EnemyDetector_body_entered)",
+  "path": "path2",
+  "needs_human_review": true
+}

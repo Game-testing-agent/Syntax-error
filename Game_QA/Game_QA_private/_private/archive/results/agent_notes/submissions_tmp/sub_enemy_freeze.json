@@ -1,0 +1,13 @@
+{
+  "verdict": "bug",
+  "severity": "high",
+  "confidence": 0.90,
+  "category": "ai",
+  "title": "Zero-Velocity Wall Collision Freezes Enemy AI Movement",
+  "explanation": "At frames 3241 and 3242, enemy_reversed_at_wall recorded old_direction 0.0 and new_direction 0.0 for Enemy4. Multiplying zero velocity by -1.0 in Enemy.gd:L33 left Enemy4 permanently immobilized at (6563.42, 424.65), violating autonomous patrol kinematics.",
+  "evidence_frames": [3241, 3242],
+  "suspected_code": "Enemy.gd:L31-L33 (_physics_process: is_on_wall)",
+  "path": "path2",
+  "needs_human_review": false
+}
+

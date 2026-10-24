@@ -1,0 +1,17 @@
+{
+  "verdict": "bug",
+  "severity": "critical",
+  "confidence": 0.75,
+  "title": "Player Out of Bounds (Void Fall Without Death)",
+  "explanation": "Player exceeded level boundary threshold (OUT_OF_BOUNDS_Y = 1400.0), reaching Y=95473.7 across frames 3575\u20139026 without dying, resetting, or respawning. Violates death pit invariant.",
+  "evidence_frames": [
+    3575,
+    3576,
+    3577,
+    3578,
+    3579
+  ],
+  "suspected_code": "Player.gd (_physics_process: boundary_check)",
+  "path": "path2",
+  "needs_human_review": true
+}

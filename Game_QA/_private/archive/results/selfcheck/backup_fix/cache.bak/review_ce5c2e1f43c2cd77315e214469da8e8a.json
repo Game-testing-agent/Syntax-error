@@ -1,0 +1,14 @@
+{
+  "verdict": "bug",
+  "severity": "high",
+  "confidence": 0.7,
+  "title": "Threat enemy contact does not trigger player death",
+  "explanation": "State snapshot at frame 2040 shows Enemy5 (is_threat=true) at x=6826.5,y=800.0 with player at x=6746.54,y=799.98, distance 80.0 (contact) and stats.deaths=0. No player_died, player_hurt or player_damaged events appear after this contact; stats.deaths remains 0 through the rest of the window. The later player_removed event at frame 914 occurs without any death increment, confirming the missing damage.",
+  "evidence_frames": [
+    2040,
+    914
+  ],
+  "suspected_code": "Player.gd:_on_body_entered",
+  "path": "path2",
+  "needs_human_review": true
+}

@@ -1,0 +1,16 @@
+{
+  "verdict": "bug",
+  "severity": "high",
+  "confidence": 0.95,
+  "category": "state",
+  "title": "Milestone Score Deduction on Collectible Pickup",
+  "explanation": "At frame 810 (t=13.66s), collecting a coin while score >= 500 caused score to drop from 500 to 490 instead of increasing to 600. Traced to PlayerData.gd:L40-L41 where an erroneous milestone tax deducts 10 points on subsequent score gains, violating monotonic score progression.",
+  "evidence_frames": [810, 908, 1039, 1050, 1056, 1364, 1377],
+  "suspected_code": "PlayerData.gd:L40-L41 (set_score)",
+  "dedupe_key": "PlayerData.gd:L40:milestone_score_tax",
+  "repro_hint": "Accumulate 500 points and collect any coin or stomp an enemy to observe -10 score deduction.",
+  "path": "path2",
+  "source": "agent",
+  "needs_human_review": false
+}
+

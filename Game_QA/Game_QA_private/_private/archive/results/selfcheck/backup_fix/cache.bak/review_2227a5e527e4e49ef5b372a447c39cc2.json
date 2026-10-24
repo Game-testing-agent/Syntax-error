@@ -1,0 +1,13 @@
+{
+  "verdict": "bug",
+  "severity": "medium",
+  "confidence": 0.6,
+  "title": "Enemy reversal produces zero-direction freeze",
+  "explanation": "At frame 262 an enemy_reversed_at_wall event reports old_direction=0.0 and new_direction=0.0, which should never occur for a legitimate wall hit. No later state_snapshot shows the enemy moving, indicating it remains frozen (vel_x stays 0.0). This contradicts the intended reversal behavior where direction must change. The freeze persists through subsequent frames (e.g., player_moved at frame 287 shows no enemy movement).",
+  "evidence_frames": [
+    262
+  ],
+  "suspected_code": "Enemy.gd:reverse_at_wall",
+  "path": "path2",
+  "needs_human_review": true
+}

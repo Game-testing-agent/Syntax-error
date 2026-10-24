@@ -1,0 +1,12 @@
+{
+  "verdict": "bug",
+  "severity": "high",
+  "confidence": 0.95,
+  "title": "Score Decrements When Earning Points Above 500 Threshold",
+  "explanation": "At frame 424, PlayerData.set_score dropped score from 500 to 490 (-10) after collecting Coin8, triggering an unexpected_score_change anomaly. Repeated across frames 834, 880, 1003, 1124, 1206, and 1706. Violates monotonicity and design contract that score only increases from play.",
+  "evidence_frames": [424, 834, 880, 1003, 1124, 1206, 1706],
+  "suspected_code": "PlayerData.gd:L33-L35 (set_score)",
+  "path": "path2",
+  "needs_human_review": false
+}
+

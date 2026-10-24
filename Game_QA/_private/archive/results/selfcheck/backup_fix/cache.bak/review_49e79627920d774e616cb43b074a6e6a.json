@@ -1,0 +1,14 @@
+{
+  "verdict": "bug",
+  "severity": "medium",
+  "confidence": 0.7,
+  "title": "Jump input ignored",
+  "explanation": "The player pressed jump at frame 419 (event \"jump_pressed\"), but the next state snapshot at frame 420 still shows the player on the floor with zero vertical velocity and no \"player_jumped\" event, indicating the jump input was not processed. This pattern repeats with no later jump-related events despite the input being true, suggesting a missing or faulty jump handling in the player script.",
+  "evidence_frames": [
+    419,
+    420
+  ],
+  "suspected_code": "Player.gd",
+  "path": "path2",
+  "needs_human_review": true
+}

@@ -1,0 +1,15 @@
+[
+  {
+    "verdict": "bug",
+    "severity": "high",
+    "confidence": 0.98,
+    "title": "Tool Submission Integrity Test",
+    "explanation": "Verified tool-based handoff through content-addressed cache.",
+    "evidence_frames": [
+      100
+    ],
+    "suspected_code": "Test.gd:L10",
+    "path": "path2",
+    "needs_human_review": false
+  }
+]

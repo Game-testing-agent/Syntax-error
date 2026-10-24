@@ -1,0 +1,41 @@
+[
+  {
+    "session_id": "session_1792777856_45957",
+    "total_events": 64,
+    "total_snapshots": 3,
+    "findings": [
+      {
+        "verdict": "bug",
+        "severity": "high",
+        "confidence": 0.95,
+        "title": "Engine Anomaly: unexpected_score_change",
+        "explanation": "Expected: Score should only increase or reset to 0 | Observed: Score decreased by 10 across frame(s) [5609, 5620].",
+        "evidence_frames": [
+          5609,
+          5620
+        ],
+        "suspected_code": "GameLogger.gd / res://src/Levels/Level01.tscn",
+        "path": "path1",
+        "needs_human_review": false
+      },
+      {
+        "verdict": "bug",
+        "severity": "high",
+        "confidence": 0.75,
+        "title": "Semantic Anomaly: unexpected_score_change",
+        "explanation": "White-box audit verified 'unexpected_score_change' at frame 5609. Expected: Score should only increase or reset to 0 | Observed: Score decreased by 10. Traced to logic in PlayerData.gd:L36 (set_score).",
+        "evidence_frames": [
+          5609
+        ],
+        "suspected_code": "PlayerData.gd:L36 (set_score)",
+        "path": "path2",
+        "needs_human_review": true
+      }
+    ],
+    "score": {
+      "matched": [],
+      "false_positives": [],
+      "n_findings": 2
+    }
+  }
+]

@@ -1,0 +1,16 @@
+{
+  "verdict": "bug",
+  "severity": "critical",
+  "confidence": 0.95,
+  "category": "lifecycle",
+  "title": "Enemy Positions Retained Across Level Retry",
+  "explanation": "At frame 316, player clicked retry. RetryButton.gd:L12-L21 cached 12 enemy positions into BugFlags.retained_enemy_transforms and Enemy.gd:L19-L21 restored them at reload instead of resetting to initial positions, causing an immediate spawn-kill death loop at frame 349.",
+  "evidence_frames": [316, 349, 408, 448],
+  "suspected_code": "UserInterface/RetryButton.gd:L12-L21 (_on_button_up)",
+  "dedupe_key": "RetryButton.gd:L12:retained_enemies_retry",
+  "repro_hint": "Allow enemies to advance toward spawn, die, and press Retry; enemies remain at advanced positions.",
+  "path": "path2",
+  "source": "agent",
+  "needs_human_review": false
+}
+

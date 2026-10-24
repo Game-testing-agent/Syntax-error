@@ -1,0 +1,14 @@
+{
+  "verdict": "bug",
+  "severity": "medium",
+  "confidence": 0.7,
+  "title": "Jump input ignored, no upward movement detected",
+  "explanation": "Frame 302 records a jump_pressed event. The next player_moved events (e.g., frame 344) show velocity.y = 1041.67, which is positive (downward). No player_moved with velocity.y < 0 or jump_started event occurs within frames 302\u2011305, so the jump never succeeded.",
+  "evidence_frames": [
+    302,
+    344
+  ],
+  "suspected_code": "Player.gd:jump",
+  "path": "path2",
+  "needs_human_review": true
+}

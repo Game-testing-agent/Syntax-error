@@ -1,0 +1,12 @@
+{
+  "verdict": "not_a_bug",
+  "severity": "low",
+  "confidence": 0.95,
+  "title": "Player Removal on Intentional User Quit",
+  "explanation": "At frame 1781 (t=30.38s), the player opened the menu and clicked QuitButton (quit_pressed event). The subsequent unexpected_player_removal is a benign engine logging artifact caused by exiting the scene tree back to the menu upon player command.",
+  "evidence_frames": [1781],
+  "suspected_code": "UserInterface/QuitButton.gd",
+  "path": "path2",
+  "needs_human_review": false
+}
+

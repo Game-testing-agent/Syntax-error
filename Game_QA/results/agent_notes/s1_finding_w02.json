@@ -1,0 +1,12 @@
+{
+  "verdict": "bug",
+  "severity": "high",
+  "confidence": 0.95,
+  "title": "Score Decrements When Earning Points Above 500 Threshold",
+  "explanation": "At frame 417, PlayerData.set_score dropped score from 500 to 490 (-10) after collecting a coin, triggering unexpected_score_change. Defect repeatedly manifested across window w02 at frames 613, 664, 702, and 763. Traced to PlayerData.gd:L33-L35 where gaining score when old_score >= 500 calculates final_score = old_score - 10, violating score monotonicity and core reward contracts.",
+  "evidence_frames": [417, 613, 664, 702, 763],
+  "suspected_code": "PlayerData.gd:L33-L35 (set_score)",
+  "path": "path2",
+  "needs_human_review": false
+}
+

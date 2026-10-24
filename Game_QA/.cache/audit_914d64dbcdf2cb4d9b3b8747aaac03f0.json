@@ -1,0 +1,17 @@
+{
+  "verdict": "bug",
+  "severity": "critical",
+  "confidence": 0.95,
+  "title": "Player Out of Bounds Void Fall Without Death",
+  "explanation": "At frame 826, player exceeded boundary (OUT_OF_BOUNDS_Y = 1400.0) reaching Y=1431.17, triggering player_out_of_bounds anomaly. In Player.gd:L214-L223 (_physics_process), the anomaly is logged but die() is never invoked, causing the player to fall continuously across window w03 from Y=1472.01 past Y=70,000 without death or respawn, resulting in an unrecoverable soft-lock.",
+  "evidence_frames": [
+    826,
+    827,
+    830,
+    1150,
+    1190
+  ],
+  "suspected_code": "Player.gd:L214-L223 (_physics_process)",
+  "path": "path2",
+  "needs_human_review": false
+}

@@ -1,0 +1,13 @@
+{
+  "verdict": "bug",
+  "severity": "high",
+  "confidence": 0.75,
+  "title": "Semantic Anomaly: unexpected_score_change",
+  "explanation": "White-box audit verified 'unexpected_score_change' at frame 962. Expected: Score should only increase or reset to 0 | Observed: Score decreased by 700. Traced to logic in PlayerData.gd:L36 (set_score).",
+  "evidence_frames": [
+    962
+  ],
+  "suspected_code": "PlayerData.gd:L36 (set_score)",
+  "path": "path2",
+  "needs_human_review": true
+}

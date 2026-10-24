@@ -1,0 +1,13 @@
+{
+  "verdict": "bug",
+  "severity": "high",
+  "confidence": 0.95,
+  "category": "state",
+  "title": "Score Monotonicity Anomaly: Erroneous Score Deductions on Pickups",
+  "explanation": "At frames 810, 908, 1039, and 1050, collecting collectibles after reaching 500 points triggered unexpected_score_change anomalies decrementing score by 10 instead of adding points. Violates state monotonicity invariant (PlayerData.gd:L36-L43 set_score), corrupting cumulative player score.",
+  "evidence_frames": [810, 908, 1039, 1050],
+  "suspected_code": "PlayerData.gd:L36-L43 (set_score)",
+  "path": "path2",
+  "needs_human_review": false
+}
+

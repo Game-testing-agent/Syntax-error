@@ -1,0 +1,14 @@
+{
+  "verdict": "not_a_bug",
+  "severity": null,
+  "confidence": 1.0,
+  "title": "Window w04 void fall continuation merged into primary finding in w03",
+  "explanation": "Void fall continuation frames 1175-1190 share the single root cause with frame 826 in Player.gd:L214-L223, already captured in w03.",
+  "evidence_frames": [
+    1175,
+    1190
+  ],
+  "suspected_code": null,
+  "path": "path2",
+  "needs_human_review": false
+}

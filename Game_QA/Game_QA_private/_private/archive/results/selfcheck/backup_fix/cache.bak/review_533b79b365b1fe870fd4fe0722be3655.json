@@ -1,0 +1,14 @@
+{
+  "verdict": "bug",
+  "severity": "medium",
+  "confidence": 0.7,
+  "title": "Player removed without death count increment",
+  "explanation": "A state_snapshot at frame 665 (event: state_snapshot) shows the player alive with stats.deaths = 0. Later, at frame 351 (event: player_removed) the player is removed, implying death or exit, yet there is no corresponding increment of stats.deaths or a player_died/hurt event. This contradicts the expectation that player removal should be reflected in the death counter.",
+  "evidence_frames": [
+    665,
+    351
+  ],
+  "suspected_code": "player_lifecycle handling \u2013 missing update of stats.deaths on player_removed",
+  "path": "path2",
+  "needs_human_review": true
+}

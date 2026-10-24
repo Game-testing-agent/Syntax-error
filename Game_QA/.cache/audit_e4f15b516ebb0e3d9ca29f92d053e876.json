@@ -1,0 +1,13 @@
+{
+  "verdict": "bug",
+  "severity": "high",
+  "confidence": 0.95,
+  "title": "Seventh Coin Collection Suppresses Score Award",
+  "explanation": "At frame 934, Coin11 was picked (total_coins_collected == 7) but PlayerData.score remained 570 despite coin_score_awarded logging a score gain of 100. In Coin.gd:L58-L59, should_award_score is explicitly disabled for the 7th coin, violating collectible reward contracts.",
+  "evidence_frames": [
+    934
+  ],
+  "suspected_code": "Coin.gd:L58-L59 (picked)",
+  "path": "path2",
+  "needs_human_review": false
+}

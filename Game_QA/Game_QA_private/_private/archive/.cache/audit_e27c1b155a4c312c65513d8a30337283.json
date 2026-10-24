@@ -1,0 +1,13 @@
+{
+  "verdict": "bug",
+  "severity": "high",
+  "confidence": 0.95,
+  "title": "Milestone Score Tax Causes Score Deduction on Pickup",
+  "explanation": "At frame 761 (t=13.38s), collecting the 6th coin at (3160, 370) with an existing score of 500 caused score to decrease from 500 to 490 instead of incrementing to 600. Traced to PlayerData.gd:L40-L41 where bug_milestone_score_tax subtracts 10 points on subsequent pickups when score >= 500, violating the design contract that collectibles monotonically increment score.",
+  "evidence_frames": [
+    761
+  ],
+  "suspected_code": "Autoload/PlayerData.gd:L40-L41 (set_score)",
+  "path": "path2",
+  "needs_human_review": false
+}

@@ -1,0 +1,19 @@
+{
+  "dismissed_candidates": [
+    {
+      "frame": 902,
+      "lead": "Score dropped from 590 to 0",
+      "reason": "Player pressed retry button (retry_started) triggering PlayerData.gd:reset_data() intentional reset."
+    },
+    {
+      "frame": 2032,
+      "lead": "Score dropped from 530 to 0",
+      "reason": "Player pressed retry button (retry_started) triggering PlayerData.gd:reset_data() intentional reset."
+    }
+  ],
+  "unobservable_areas": [
+    "Audio playback and visual particle effect presentation (not logged to structured telemetry stream)",
+    "Sub-frame physics penetration vectors between discrete physics ticks"
+  ]
+}
+

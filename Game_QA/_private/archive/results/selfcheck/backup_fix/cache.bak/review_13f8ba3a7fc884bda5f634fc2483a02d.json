@@ -1,0 +1,15 @@
+{
+  "verdict": "bug",
+  "severity": "medium",
+  "confidence": 0.7,
+  "title": "Enemy reversal logic produces zero-direction freeze",
+  "explanation": "At frame 726 an enemy_reversed_at_wall event occurs with old_direction=0.0 and new_direction=0.0 (enemy_reversed_at_wall). The next state_snapshot at frame 780 shows Enemy5 vel_x=0.0 and still at distance 80.0, confirming the enemy is frozen. A later snapshot at frame 840 shows the same frozen state, indicating the reversal did not change direction.",
+  "evidence_frames": [
+    726,
+    780,
+    840
+  ],
+  "suspected_code": "Enemy.gd:reverse_at_wall",
+  "path": "path2",
+  "needs_human_review": true
+}

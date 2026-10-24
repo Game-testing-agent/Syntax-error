@@ -1,0 +1,13 @@
+{
+  "verdict": "bug",
+  "severity": "medium",
+  "confidence": 0.92,
+  "title": "Duplicate Coin Pickup Collision Query at High Horizontal Velocity",
+  "explanation": "At frame 1061 (t=17.83s), collecting coin 84188071670 while sprinting horizontally at vx=700.0 px/s triggered a duplicate pickup attempt anomaly. Traced to Coin.gd:L40-L45 where await get_tree().physics_frame delays setting is_collected, violating the unique collectible consumption contract.",
+  "evidence_frames": [
+    1061
+  ],
+  "suspected_code": "Objects/Coin.gd:L40-L45 (_on_body_entered)",
+  "path": "path2",
+  "needs_human_review": false
+}

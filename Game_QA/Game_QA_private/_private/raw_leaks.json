@@ -1,0 +1,1157 @@
+[
+  {
+    "path": "real_src/Actors\\Enemy.gd:6",
+    "line": "@export var is_floating_bug: bool = false",
+    "match": "is_floating_bug"
+  },
+  {
+    "path": "real_src/Actors\\Enemy.gd:8",
+    "line": "var has_triggered_floating: bool = false",
+    "match": "has_triggered_floating"
+  },
+  {
+    "path": "real_src/Actors\\Enemy.gd:19",
+    "line": "if BugFlags and BugFlags.map4_retry_retains_enemies:",
+    "match": "BugFlags"
+  },
+  {
+    "path": "real_src/Actors\\Enemy.gd:20",
+    "line": "if BugFlags.retained_enemy_transforms.has(name):",
+    "match": "BugFlags"
+  },
+  {
+    "path": "real_src/Actors\\Enemy.gd:21",
+    "line": "global_position = BugFlags.retained_enemy_transforms[name]",
+    "match": "BugFlags"
+  },
+  {
+    "path": "real_src/Actors\\Enemy.gd:36",
+    "line": "if BugFlags and BugFlags.map2_floating_enemy and is_floating_bug:",
+    "match": "BugFlags"
+  },
+  {
+    "path": "real_src/Actors\\Enemy.gd:39",
+    "line": "if not has_triggered_floating:",
+    "match": "has_triggered_floating"
+  },
+  {
+    "path": "real_src/Actors\\Enemy.gd:40",
+    "line": "has_triggered_floating = true",
+    "match": "has_triggered_floating"
+  },
+  {
+    "path": "real_src/Actors\\Enemy.gd:71",
+    "line": "# TRICKY  1: Stomp Tunneling Miss on Fast Descent",
+    "match": "TRICKY  1"
+  },
+  {
+    "path": "real_src/Actors\\Player.gd:21",
+    "line": "var is_wall_stuck: bool = false",
+    "match": "is_wall_stuck"
+  },
+  {
+    "path": "real_src/Actors\\Player.gd:22",
+    "line": "var is_stair_stuck: bool = false",
+    "match": "is_stair_stuck"
+  },
+  {
+    "path": "real_src/Actors\\Player.gd:23",
+    "line": "var stair_escape_count: int = 0",
+    "match": "stair_escape_count"
+  },
+  {
+    "path": "real_src/Actors\\Player.gd:25",
+    "line": "var lava_timer: float = -1.0",
+    "match": "lava_timer"
+  },
+  {
+    "path": "real_src/Actors\\Player.gd:82",
+    "line": "if BugFlags and BugFlags.map1_enemy4_no_kill:",
+    "match": "BugFlags"
+  },
+  {
+    "path": "real_src/Actors\\Player.gd:108",
+    "line": "if BugFlags and BugFlags.map4_delayed_lava_death:",
+    "match": "BugFlags"
+  },
+  {
+    "path": "real_src/Actors\\Player.gd:109",
+    "line": "if lava_timer < 0.0:",
+    "match": "lava_timer"
+  },
+  {
+    "path": "real_src/Actors\\Player.gd:110",
+    "line": "lava_timer = 3.0",
+    "match": "lava_timer"
+  },
+  {
+    "path": "real_src/Actors\\Player.gd:121",
+    "line": "if lava_timer > 0.0:",
+    "match": "lava_timer"
+  },
+  {
+    "path": "real_src/Actors\\Player.gd:122",
+    "line": "lava_timer -= delta",
+    "match": "lava_timer"
+  },
+  {
+    "path": "real_src/Actors\\Player.gd:123",
+    "line": "if lava_timer <= 0.0:",
+    "match": "lava_timer"
+  },
+  {
+    "path": "real_src/Actors\\Player.gd:124",
+    "line": "lava_timer = -1.0",
+    "match": "lava_timer"
+  },
+  {
+    "path": "real_src/Actors\\Player.gd:127",
+    "line": "if BugFlags and BugFlags.map2_wall_stuck:",
+    "match": "BugFlags"
+  },
+  {
+    "path": "real_src/Actors\\Player.gd:128",
+    "line": "if not is_wall_stuck and global_position.x >= 4360.0 and global_position.x <= 4440.0 and global_position.y >= 600.0 and global_position.y <= 680.0:",
+    "match": "is_wall_stuck"
+  },
+  {
+    "path": "real_src/Actors\\Player.gd:129",
+    "line": "is_wall_stuck = true",
+    "match": "is_wall_stuck"
+  },
+  {
+    "path": "real_src/Actors\\Player.gd:136",
+    "line": "if is_wall_stuck:",
+    "match": "is_wall_stuck"
+  },
+  {
+    "path": "real_src/Actors\\Player.gd:141",
+    "line": "if BugFlags and BugFlags.map3_stair_stick:",
+    "match": "BugFlags"
+  },
+  {
+    "path": "real_src/Actors\\Player.gd:142",
+    "line": "if not is_stair_stuck and is_on_floor() and global_position.x >= 5420.0 and global_position.x <= 5460.0 and global_position.y >= 540.0 and global_position.y <= 580.0:",
+    "match": "is_stair_stuck"
+  },
+  {
+    "path": "real_src/Actors\\Player.gd:143",
+    "line": "is_stair_stuck = true",
+    "match": "is_stair_stuck"
+  },
+  {
+    "path": "real_src/Actors\\Player.gd:144",
+    "line": "stair_escape_count = 0",
+    "match": "stair_escape_count"
+  },
+  {
+    "path": "real_src/Actors\\Player.gd:151",
+    "line": "if is_stair_stuck:",
+    "match": "is_stair_stuck"
+  },
+  {
+    "path": "real_src/Actors\\Player.gd:153",
+    "line": "stair_escape_count += 1",
+    "match": "stair_escape_count"
+  },
+  {
+    "path": "real_src/Actors\\Player.gd:154",
+    "line": "if stair_escape_count >= 3:",
+    "match": "stair_escape_count"
+  },
+  {
+    "path": "real_src/Actors\\Player.gd:155",
+    "line": "is_stair_stuck = false",
+    "match": "is_stair_stuck"
+  },
+  {
+    "path": "real_src/Actors\\Player.gd:156",
+    "line": "if is_stair_stuck:",
+    "match": "is_stair_stuck"
+  },
+  {
+    "path": "real_src/Actors\\Player.gd:246",
+    "line": "if BugFlags and BugFlags.map1_floor_hole:",
+    "match": "BugFlags"
+  },
+  {
+    "path": "real_src/Actors\\Player.gd:264",
+    "line": "if BugFlags and BugFlags.map3_tower_wall_jump and is_on_wall() and Input.is_action_just_pressed(\"jump\"):",
+    "match": "BugFlags"
+  },
+  {
+    "path": "real_src/Actors\\Player.gd:307",
+    "line": "# TRICKY  2: Wall-Friction Jump Dampening",
+    "match": "TRICKY  2"
+  },
+  {
+    "path": "real_src/Autoload\\GameLogger.gd:1007",
+    "line": "# Pause toggle / set",
+    "match": "toggle"
+  },
+  {
+    "path": "real_src/Autoload\\PlayerData.gd:11",
+    "line": "var bug_milestone_score_tax: bool = true",
+    "match": "bug_milestone_score_tax"
+  },
+  {
+    "path": "real_src/Autoload\\PlayerData.gd:36",
+    "line": "# TRICKY  4: Milestone Score Regression",
+    "match": "TRICKY  4"
+  },
+  {
+    "path": "real_src/Autoload\\PlayerData.gd:40",
+    "line": "if bug_milestone_score_tax and not is_resetting and old_score >= 500 and new_score > old_score:",
+    "match": "bug_milestone_score_tax"
+  },
+  {
+    "path": "real_src/Levels\\Map2_UndergroundCaves.tscn:139",
+    "line": "is_floating_bug = true",
+    "match": "is_floating_bug"
+  },
+  {
+    "path": "real_src/Objects\\Coin.gd:38",
+    "line": "# TRICKY  3: Sub-Frame Multi-Pickup Collision Race",
+    "match": "TRICKY  3"
+  },
+  {
+    "path": "real_src/Objects\\Coin.gd:63",
+    "line": "if total_coins_collected == 7 and BugFlags and BugFlags.map1_seventh_coin_no_score:",
+    "match": "BugFlags"
+  },
+  {
+    "path": "real_src/Objects\\Portal2D.gd:27",
+    "line": "if BugFlags and BugFlags.map4_portal_second_touch and is_map4_portal:",
+    "match": "BugFlags"
+  },
+  {
+    "path": "real_src/Objects\\Portal2D.gd:81",
+    "line": "# TRICKY  5: Airborne Portal Transition Fall-Through",
+    "match": "TRICKY  5"
+  },
+  {
+    "path": "real_src/Tests\\test_bugs.gd:8",
+    "line": "print(\"  BENCHMARK VERIFICATION TEST SUITE\")",
+    "match": "BENCHMARK"
+  },
+  {
+    "path": "real_src/Tests\\test_bugs.gd:14",
+    "line": "var bug_flags = root.get_node_or_null(\"BugFlags\")",
+    "match": "bug_flags"
+  },
+  {
+    "path": "real_src/Tests\\test_bugs.gd:18",
+    "line": "_assert(bug_flags != null, \"BugFlags available\")",
+    "match": "bug_flags"
+  },
+  {
+    "path": "real_src/Tests\\test_bugs.gd:39",
+    "line": "if coin_script.total_coins_collected == 7 and bug_flags.map1_seventh_coin_no_score:",
+    "match": "bug_flags"
+  },
+  {
+    "path": "real_src/Tests\\test_bugs.gd:83",
+    "line": "if touch_count < 2 and bug_flags.map4_portal_second_touch:",
+    "match": "bug_flags"
+  },
+  {
+    "path": "real_src/Tests\\test_bugs.gd:90",
+    "line": "bug_flags.retained_enemy_transforms[\"Enemy1\"] = Vector2(100.0, 200.0)",
+    "match": "bug_flags"
+  },
+  {
+    "path": "real_src/Tests\\test_bugs.gd:91",
+    "line": "logger.log_bug_trigger(\"4C\", {\"description\": \"Retry triggered without resetting enemy positions\", \"enemy_count\": bug_flags.retained_enemy_transforms.size()})",
+    "match": "bug_flags"
+  },
+  {
+    "path": "real_src/Tests\\test_fault_injection.gd:3",
+    "line": "## Controlled Fault-Injection Test Suite for AI Game Tester Logger",
+    "match": "Injection"
+  },
+  {
+    "path": "real_src/Tests\\test_fault_injection.gd:5",
+    "line": "## Run via: godot --headless --script res://src/Tests/test_fault_injection.gd",
+    "match": "test_fault_injection"
+  },
+  {
+    "path": "real_src/Tests\\test_fault_injection.gd:13",
+    "line": "print(\"  FAULT INJECTION TEST SUITE - AI GAME TESTER LOGGER\")",
+    "match": "INJECTION"
+  },
+  {
+    "path": "real_src/Tests\\test_fault_injection.gd:165",
+    "line": "print(\"  FAULT INJECTION RESULTS:\")",
+    "match": "INJECTION"
+  },
+  {
+    "path": "real_src/Tests\\test_fault_injection.gd:171",
+    "line": "print(\">>> ALL FAULT INJECTION TESTS PASSED! <<<\\n\")",
+    "match": "INJECTION"
+  },
+  {
+    "path": "real_src/Tests\\test_fault_injection.gd:174",
+    "line": "print(\">>> SOME FAULT INJECTION TESTS FAILED! <<<\\n\")",
+    "match": "INJECTION"
+  },
+  {
+    "path": "real_src/UserInterface\\RetryButton.gd:12",
+    "line": "if BugFlags and BugFlags.map4_retry_retains_enemies:",
+    "match": "BugFlags"
+  },
+  {
+    "path": "real_src/UserInterface\\RetryButton.gd:14",
+    "line": "BugFlags.retained_enemy_transforms.clear()",
+    "match": "BugFlags"
+  },
+  {
+    "path": "real_src/UserInterface\\RetryButton.gd:17",
+    "line": "BugFlags.retained_enemy_transforms[e.name] = e.global_position",
+    "match": "BugFlags"
+  },
+  {
+    "path": "real_src/Utils\\BugFlags.gd:3",
+    "line": "# Central toggle registry for intentional QA benchmark bugs",
+    "match": "toggle"
+  },
+  {
+    "path": "real_src/Utils\\BugFlags.gd:7",
+    "line": "var map1_enemy4_no_kill: bool = true",
+    "match": "map1_enemy4_no_kill"
+  },
+  {
+    "path": "real_src/Utils\\BugFlags.gd:8",
+    "line": "var map1_floor_hole: bool = true",
+    "match": "map1_floor_hole"
+  },
+  {
+    "path": "real_src/Utils\\BugFlags.gd:9",
+    "line": "var map1_seventh_coin_no_score: bool = true",
+    "match": "map1_seventh_coin_no_score"
+  },
+  {
+    "path": "real_src/Utils\\BugFlags.gd:12",
+    "line": "var map2_wall_stuck: bool = true",
+    "match": "map2_wall_stuck"
+  },
+  {
+    "path": "real_src/Utils\\BugFlags.gd:13",
+    "line": "var map2_floating_enemy: bool = true",
+    "match": "map2_floating_enemy"
+  },
+  {
+    "path": "real_src/Utils\\BugFlags.gd:16",
+    "line": "var map3_stair_stick: bool = true",
+    "match": "map3_stair_stick"
+  },
+  {
+    "path": "real_src/Utils\\BugFlags.gd:17",
+    "line": "var map3_fourth_enemy_unstompable: bool = true",
+    "match": "map3_fourth_enemy_unstompable"
+  },
+  {
+    "path": "real_src/Utils\\BugFlags.gd:18",
+    "line": "var map3_tower_wall_jump: bool = true",
+    "match": "map3_tower_wall_jump"
+  },
+  {
+    "path": "real_src/Utils\\BugFlags.gd:21",
+    "line": "var map4_delayed_lava_death: bool = true",
+    "match": "map4_delayed_lava_death"
+  },
+  {
+    "path": "real_src/Utils\\BugFlags.gd:22",
+    "line": "var map4_portal_second_touch: bool = true",
+    "match": "map4_portal_second_touch"
+  },
+  {
+    "path": "real_src/Utils\\BugFlags.gd:23",
+    "line": "var map4_retry_retains_enemies: bool = true",
+    "match": "map4_retry_retains_enemies"
+  },
+  {
+    "path": "real_src/Utils\\BugFlags.gd:26",
+    "line": "var retained_enemy_transforms: Dictionary = {}",
+    "match": "retained_enemy_transforms"
+  },
+  {
+    "path": "real_src/Utils\\MapRunner.gd:3",
+    "line": "# MapRunner.gd \u2014 Headless & CLI dispatcher for QA benchmark maps",
+    "match": "benchmark"
+  },
+  {
+    "path": "real_src/project.godot:22",
+    "line": "BugFlags=\"*res://src/Utils/BugFlags.gd\"",
+    "match": "BugFlags"
+  },
+  {
+    "path": "game_src/Actors\\Enemy.gd:6",
+    "line": "@export var is_floating_bug: bool = false",
+    "match": "is_floating_bug"
+  },
+  {
+    "path": "game_src/Actors\\Enemy.gd:8",
+    "line": "var has_triggered_floating: bool = false",
+    "match": "has_triggered_floating"
+  },
+  {
+    "path": "game_src/Actors\\Enemy.gd:19",
+    "line": "if BugFlags and BugFlags.map4_retry_retains_enemies:",
+    "match": "BugFlags"
+  },
+  {
+    "path": "game_src/Actors\\Enemy.gd:20",
+    "line": "if BugFlags.retained_enemy_transforms.has(name):",
+    "match": "BugFlags"
+  },
+  {
+    "path": "game_src/Actors\\Enemy.gd:21",
+    "line": "global_position = BugFlags.retained_enemy_transforms[name]",
+    "match": "BugFlags"
+  },
+  {
+    "path": "game_src/Actors\\Enemy.gd:36",
+    "line": "if BugFlags and BugFlags.map2_floating_enemy and is_floating_bug:",
+    "match": "BugFlags"
+  },
+  {
+    "path": "game_src/Actors\\Enemy.gd:39",
+    "line": "if not has_triggered_floating:",
+    "match": "has_triggered_floating"
+  },
+  {
+    "path": "game_src/Actors\\Enemy.gd:40",
+    "line": "has_triggered_floating = true",
+    "match": "has_triggered_floating"
+  },
+  {
+    "path": "game_src/Actors\\Enemy.gd:71",
+    "line": "# TRICKY  1: Stomp Tunneling Miss on Fast Descent",
+    "match": "TRICKY  1"
+  },
+  {
+    "path": "game_src/Actors\\Player.gd:21",
+    "line": "var is_wall_stuck: bool = false",
+    "match": "is_wall_stuck"
+  },
+  {
+    "path": "game_src/Actors\\Player.gd:22",
+    "line": "var is_stair_stuck: bool = false",
+    "match": "is_stair_stuck"
+  },
+  {
+    "path": "game_src/Actors\\Player.gd:23",
+    "line": "var stair_escape_count: int = 0",
+    "match": "stair_escape_count"
+  },
+  {
+    "path": "game_src/Actors\\Player.gd:25",
+    "line": "var lava_timer: float = -1.0",
+    "match": "lava_timer"
+  },
+  {
+    "path": "game_src/Actors\\Player.gd:82",
+    "line": "if BugFlags and BugFlags.map1_enemy4_no_kill:",
+    "match": "BugFlags"
+  },
+  {
+    "path": "game_src/Actors\\Player.gd:108",
+    "line": "if BugFlags and BugFlags.map4_delayed_lava_death:",
+    "match": "BugFlags"
+  },
+  {
+    "path": "game_src/Actors\\Player.gd:109",
+    "line": "if lava_timer < 0.0:",
+    "match": "lava_timer"
+  },
+  {
+    "path": "game_src/Actors\\Player.gd:110",
+    "line": "lava_timer = 3.0",
+    "match": "lava_timer"
+  },
+  {
+    "path": "game_src/Actors\\Player.gd:121",
+    "line": "if lava_timer > 0.0:",
+    "match": "lava_timer"
+  },
+  {
+    "path": "game_src/Actors\\Player.gd:122",
+    "line": "lava_timer -= delta",
+    "match": "lava_timer"
+  },
+  {
+    "path": "game_src/Actors\\Player.gd:123",
+    "line": "if lava_timer <= 0.0:",
+    "match": "lava_timer"
+  },
+  {
+    "path": "game_src/Actors\\Player.gd:124",
+    "line": "lava_timer = -1.0",
+    "match": "lava_timer"
+  },
+  {
+    "path": "game_src/Actors\\Player.gd:127",
+    "line": "if BugFlags and BugFlags.map2_wall_stuck:",
+    "match": "BugFlags"
+  },
+  {
+    "path": "game_src/Actors\\Player.gd:128",
+    "line": "if not is_wall_stuck and global_position.x >= 4360.0 and global_position.x <= 4440.0 and global_position.y >= 600.0 and global_position.y <= 680.0:",
+    "match": "is_wall_stuck"
+  },
+  {
+    "path": "game_src/Actors\\Player.gd:129",
+    "line": "is_wall_stuck = true",
+    "match": "is_wall_stuck"
+  },
+  {
+    "path": "game_src/Actors\\Player.gd:136",
+    "line": "if is_wall_stuck:",
+    "match": "is_wall_stuck"
+  },
+  {
+    "path": "game_src/Actors\\Player.gd:141",
+    "line": "if BugFlags and BugFlags.map3_stair_stick:",
+    "match": "BugFlags"
+  },
+  {
+    "path": "game_src/Actors\\Player.gd:142",
+    "line": "if not is_stair_stuck and is_on_floor() and global_position.x >= 5420.0 and global_position.x <= 5460.0 and global_position.y >= 540.0 and global_position.y <= 580.0:",
+    "match": "is_stair_stuck"
+  },
+  {
+    "path": "game_src/Actors\\Player.gd:143",
+    "line": "is_stair_stuck = true",
+    "match": "is_stair_stuck"
+  },
+  {
+    "path": "game_src/Actors\\Player.gd:144",
+    "line": "stair_escape_count = 0",
+    "match": "stair_escape_count"
+  },
+  {
+    "path": "game_src/Actors\\Player.gd:151",
+    "line": "if is_stair_stuck:",
+    "match": "is_stair_stuck"
+  },
+  {
+    "path": "game_src/Actors\\Player.gd:153",
+    "line": "stair_escape_count += 1",
+    "match": "stair_escape_count"
+  },
+  {
+    "path": "game_src/Actors\\Player.gd:154",
+    "line": "if stair_escape_count >= 3:",
+    "match": "stair_escape_count"
+  },
+  {
+    "path": "game_src/Actors\\Player.gd:155",
+    "line": "is_stair_stuck = false",
+    "match": "is_stair_stuck"
+  },
+  {
+    "path": "game_src/Actors\\Player.gd:156",
+    "line": "if is_stair_stuck:",
+    "match": "is_stair_stuck"
+  },
+  {
+    "path": "game_src/Actors\\Player.gd:246",
+    "line": "if BugFlags and BugFlags.map1_floor_hole:",
+    "match": "BugFlags"
+  },
+  {
+    "path": "game_src/Actors\\Player.gd:264",
+    "line": "if BugFlags and BugFlags.map3_tower_wall_jump and is_on_wall() and Input.is_action_just_pressed(\"jump\"):",
+    "match": "BugFlags"
+  },
+  {
+    "path": "game_src/Actors\\Player.gd:307",
+    "line": "# TRICKY  2: Wall-Friction Jump Dampening",
+    "match": "TRICKY  2"
+  },
+  {
+    "path": "game_src/Autoload\\GameLogger.gd:1013",
+    "line": "# Pause toggle / set",
+    "match": "toggle"
+  },
+  {
+    "path": "game_src/Autoload\\PlayerData.gd:11",
+    "line": "var bug_milestone_score_tax: bool = true",
+    "match": "bug_milestone_score_tax"
+  },
+  {
+    "path": "game_src/Autoload\\PlayerData.gd:36",
+    "line": "# TRICKY  4: Milestone Score Regression",
+    "match": "TRICKY  4"
+  },
+  {
+    "path": "game_src/Autoload\\PlayerData.gd:40",
+    "line": "if bug_milestone_score_tax and not is_resetting and old_score >= 500 and new_score > old_score:",
+    "match": "bug_milestone_score_tax"
+  },
+  {
+    "path": "game_src/Levels\\Map2_UndergroundCaves.tscn:139",
+    "line": "is_floating_bug = true",
+    "match": "is_floating_bug"
+  },
+  {
+    "path": "game_src/Objects\\Coin.gd:38",
+    "line": "# TRICKY  3: Sub-Frame Multi-Pickup Collision Race",
+    "match": "TRICKY  3"
+  },
+  {
+    "path": "game_src/Objects\\Coin.gd:63",
+    "line": "if total_coins_collected == 7 and BugFlags and BugFlags.map1_seventh_coin_no_score:",
+    "match": "BugFlags"
+  },
+  {
+    "path": "game_src/Objects\\Portal2D.gd:27",
+    "line": "if BugFlags and BugFlags.map4_portal_second_touch and is_map4_portal:",
+    "match": "BugFlags"
+  },
+  {
+    "path": "game_src/Objects\\Portal2D.gd:81",
+    "line": "# TRICKY  5: Airborne Portal Transition Fall-Through",
+    "match": "TRICKY  5"
+  },
+  {
+    "path": "game_src/Tests\\test_bugs.gd:8",
+    "line": "print(\"  BENCHMARK VERIFICATION TEST SUITE\")",
+    "match": "BENCHMARK"
+  },
+  {
+    "path": "game_src/Tests\\test_bugs.gd:14",
+    "line": "var bug_flags = root.get_node_or_null(\"BugFlags\")",
+    "match": "bug_flags"
+  },
+  {
+    "path": "game_src/Tests\\test_bugs.gd:18",
+    "line": "_assert(bug_flags != null, \"BugFlags available\")",
+    "match": "bug_flags"
+  },
+  {
+    "path": "game_src/Tests\\test_bugs.gd:39",
+    "line": "if coin_script.total_coins_collected == 7 and bug_flags.map1_seventh_coin_no_score:",
+    "match": "bug_flags"
+  },
+  {
+    "path": "game_src/Tests\\test_bugs.gd:83",
+    "line": "if touch_count < 2 and bug_flags.map4_portal_second_touch:",
+    "match": "bug_flags"
+  },
+  {
+    "path": "game_src/Tests\\test_bugs.gd:90",
+    "line": "bug_flags.retained_enemy_transforms[\"Enemy1\"] = Vector2(100.0, 200.0)",
+    "match": "bug_flags"
+  },
+  {
+    "path": "game_src/Tests\\test_bugs.gd:91",
+    "line": "logger.log_bug_trigger(\"4C\", {\"description\": \"Retry triggered without resetting enemy positions\", \"enemy_count\": bug_flags.retained_enemy_transforms.size()})",
+    "match": "bug_flags"
+  },
+  {
+    "path": "game_src/Tests\\test_fault_injection.gd:3",
+    "line": "## Controlled Fault-Injection Test Suite for AI Game Tester Logger",
+    "match": "Injection"
+  },
+  {
+    "path": "game_src/Tests\\test_fault_injection.gd:5",
+    "line": "## Run via: godot --headless --script res://src/Tests/test_fault_injection.gd",
+    "match": "test_fault_injection"
+  },
+  {
+    "path": "game_src/Tests\\test_fault_injection.gd:13",
+    "line": "print(\"  FAULT INJECTION TEST SUITE - AI GAME TESTER LOGGER\")",
+    "match": "INJECTION"
+  },
+  {
+    "path": "game_src/Tests\\test_fault_injection.gd:165",
+    "line": "print(\"  FAULT INJECTION RESULTS:\")",
+    "match": "INJECTION"
+  },
+  {
+    "path": "game_src/Tests\\test_fault_injection.gd:171",
+    "line": "print(\">>> ALL FAULT INJECTION TESTS PASSED! <<<\\n\")",
+    "match": "INJECTION"
+  },
+  {
+    "path": "game_src/Tests\\test_fault_injection.gd:174",
+    "line": "print(\">>> SOME FAULT INJECTION TESTS FAILED! <<<\\n\")",
+    "match": "INJECTION"
+  },
+  {
+    "path": "game_src/UserInterface\\RetryButton.gd:12",
+    "line": "if BugFlags and BugFlags.map4_retry_retains_enemies:",
+    "match": "BugFlags"
+  },
+  {
+    "path": "game_src/UserInterface\\RetryButton.gd:14",
+    "line": "BugFlags.retained_enemy_transforms.clear()",
+    "match": "BugFlags"
+  },
+  {
+    "path": "game_src/UserInterface\\RetryButton.gd:17",
+    "line": "BugFlags.retained_enemy_transforms[e.name] = e.global_position",
+    "match": "BugFlags"
+  },
+  {
+    "path": "game_src/Utils\\BugFlags.gd:3",
+    "line": "# Central toggle registry for intentional QA benchmark bugs",
+    "match": "toggle"
+  },
+  {
+    "path": "game_src/Utils\\BugFlags.gd:7",
+    "line": "var map1_enemy4_no_kill: bool = true",
+    "match": "map1_enemy4_no_kill"
+  },
+  {
+    "path": "game_src/Utils\\BugFlags.gd:8",
+    "line": "var map1_floor_hole: bool = true",
+    "match": "map1_floor_hole"
+  },
+  {
+    "path": "game_src/Utils\\BugFlags.gd:9",
+    "line": "var map1_seventh_coin_no_score: bool = true",
+    "match": "map1_seventh_coin_no_score"
+  },
+  {
+    "path": "game_src/Utils\\BugFlags.gd:12",
+    "line": "var map2_wall_stuck: bool = true",
+    "match": "map2_wall_stuck"
+  },
+  {
+    "path": "game_src/Utils\\BugFlags.gd:13",
+    "line": "var map2_floating_enemy: bool = true",
+    "match": "map2_floating_enemy"
+  },
+  {
+    "path": "game_src/Utils\\BugFlags.gd:16",
+    "line": "var map3_stair_stick: bool = true",
+    "match": "map3_stair_stick"
+  },
+  {
+    "path": "game_src/Utils\\BugFlags.gd:17",
+    "line": "var map3_fourth_enemy_unstompable: bool = true",
+    "match": "map3_fourth_enemy_unstompable"
+  },
+  {
+    "path": "game_src/Utils\\BugFlags.gd:18",
+    "line": "var map3_tower_wall_jump: bool = true",
+    "match": "map3_tower_wall_jump"
+  },
+  {
+    "path": "game_src/Utils\\BugFlags.gd:21",
+    "line": "var map4_delayed_lava_death: bool = true",
+    "match": "map4_delayed_lava_death"
+  },
+  {
+    "path": "game_src/Utils\\BugFlags.gd:22",
+    "line": "var map4_portal_second_touch: bool = true",
+    "match": "map4_portal_second_touch"
+  },
+  {
+    "path": "game_src/Utils\\BugFlags.gd:23",
+    "line": "var map4_retry_retains_enemies: bool = true",
+    "match": "map4_retry_retains_enemies"
+  },
+  {
+    "path": "game_src/Utils\\BugFlags.gd:26",
+    "line": "var retained_enemy_transforms: Dictionary = {}",
+    "match": "retained_enemy_transforms"
+  },
+  {
+    "path": "game_src/Utils\\MapRunner.gd:3",
+    "line": "# MapRunner.gd \u2014 Headless & CLI dispatcher for QA benchmark maps",
+    "match": "benchmark"
+  },
+  {
+    "path": "report.py:70",
+    "line": "lines.append(\"### \ud83c\udfaf Ground Truth Benchmark Score\")",
+    "match": "Benchmark"
+  },
+  {
+    "path": "game_src/Actors/Enemy.gd:6",
+    "line": "@export var is_floating_bug: bool = false",
+    "match": "is_floating_bug"
+  },
+  {
+    "path": "game_src/Actors/Enemy.gd:8",
+    "line": "var has_triggered_floating: bool = false",
+    "match": "has_triggered_floating"
+  },
+  {
+    "path": "game_src/Actors/Enemy.gd:19",
+    "line": "if BugFlags and BugFlags.map4_retry_retains_enemies:",
+    "match": "BugFlags"
+  },
+  {
+    "path": "game_src/Actors/Enemy.gd:20",
+    "line": "if BugFlags.retained_enemy_transforms.has(name):",
+    "match": "BugFlags"
+  },
+  {
+    "path": "game_src/Actors/Enemy.gd:21",
+    "line": "global_position = BugFlags.retained_enemy_transforms[name]",
+    "match": "BugFlags"
+  },
+  {
+    "path": "game_src/Actors/Enemy.gd:36",
+    "line": "if BugFlags and BugFlags.map2_floating_enemy and is_floating_bug:",
+    "match": "BugFlags"
+  },
+  {
+    "path": "game_src/Actors/Enemy.gd:39",
+    "line": "if not has_triggered_floating:",
+    "match": "has_triggered_floating"
+  },
+  {
+    "path": "game_src/Actors/Enemy.gd:40",
+    "line": "has_triggered_floating = true",
+    "match": "has_triggered_floating"
+  },
+  {
+    "path": "game_src/Actors/Enemy.gd:71",
+    "line": "# TRICKY  1: Stomp Tunneling Miss on Fast Descent",
+    "match": "TRICKY  1"
+  },
+  {
+    "path": "game_src/Actors/Player.gd:21",
+    "line": "var is_wall_stuck: bool = false",
+    "match": "is_wall_stuck"
+  },
+  {
+    "path": "game_src/Actors/Player.gd:22",
+    "line": "var is_stair_stuck: bool = false",
+    "match": "is_stair_stuck"
+  },
+  {
+    "path": "game_src/Actors/Player.gd:23",
+    "line": "var stair_escape_count: int = 0",
+    "match": "stair_escape_count"
+  },
+  {
+    "path": "game_src/Actors/Player.gd:25",
+    "line": "var lava_timer: float = -1.0",
+    "match": "lava_timer"
+  },
+  {
+    "path": "game_src/Actors/Player.gd:82",
+    "line": "if BugFlags and BugFlags.map1_enemy4_no_kill:",
+    "match": "BugFlags"
+  },
+  {
+    "path": "game_src/Actors/Player.gd:108",
+    "line": "if BugFlags and BugFlags.map4_delayed_lava_death:",
+    "match": "BugFlags"
+  },
+  {
+    "path": "game_src/Actors/Player.gd:109",
+    "line": "if lava_timer < 0.0:",
+    "match": "lava_timer"
+  },
+  {
+    "path": "game_src/Actors/Player.gd:110",
+    "line": "lava_timer = 3.0",
+    "match": "lava_timer"
+  },
+  {
+    "path": "game_src/Actors/Player.gd:121",
+    "line": "if lava_timer > 0.0:",
+    "match": "lava_timer"
+  },
+  {
+    "path": "game_src/Actors/Player.gd:122",
+    "line": "lava_timer -= delta",
+    "match": "lava_timer"
+  },
+  {
+    "path": "game_src/Actors/Player.gd:123",
+    "line": "if lava_timer <= 0.0:",
+    "match": "lava_timer"
+  },
+  {
+    "path": "game_src/Actors/Player.gd:124",
+    "line": "lava_timer = -1.0",
+    "match": "lava_timer"
+  },
+  {
+    "path": "game_src/Actors/Player.gd:127",
+    "line": "if BugFlags and BugFlags.map2_wall_stuck:",
+    "match": "BugFlags"
+  },
+  {
+    "path": "game_src/Actors/Player.gd:128",
+    "line": "if not is_wall_stuck and global_position.x >= 4360.0 and global_position.x <= 4440.0 and global_position.y >= 600.0 and global_position.y <= 680.0:",
+    "match": "is_wall_stuck"
+  },
+  {
+    "path": "game_src/Actors/Player.gd:129",
+    "line": "is_wall_stuck = true",
+    "match": "is_wall_stuck"
+  },
+  {
+    "path": "game_src/Actors/Player.gd:136",
+    "line": "if is_wall_stuck:",
+    "match": "is_wall_stuck"
+  },
+  {
+    "path": "game_src/Actors/Player.gd:141",
+    "line": "if BugFlags and BugFlags.map3_stair_stick:",
+    "match": "BugFlags"
+  },
+  {
+    "path": "game_src/Actors/Player.gd:142",
+    "line": "if not is_stair_stuck and is_on_floor() and global_position.x >= 5420.0 and global_position.x <= 5460.0 and global_position.y >= 540.0 and global_position.y <= 580.0:",
+    "match": "is_stair_stuck"
+  },
+  {
+    "path": "game_src/Actors/Player.gd:143",
+    "line": "is_stair_stuck = true",
+    "match": "is_stair_stuck"
+  },
+  {
+    "path": "game_src/Actors/Player.gd:144",
+    "line": "stair_escape_count = 0",
+    "match": "stair_escape_count"
+  },
+  {
+    "path": "game_src/Actors/Player.gd:151",
+    "line": "if is_stair_stuck:",
+    "match": "is_stair_stuck"
+  },
+  {
+    "path": "game_src/Actors/Player.gd:153",
+    "line": "stair_escape_count += 1",
+    "match": "stair_escape_count"
+  },
+  {
+    "path": "game_src/Actors/Player.gd:154",
+    "line": "if stair_escape_count >= 3:",
+    "match": "stair_escape_count"
+  },
+  {
+    "path": "game_src/Actors/Player.gd:155",
+    "line": "is_stair_stuck = false",
+    "match": "is_stair_stuck"
+  },
+  {
+    "path": "game_src/Actors/Player.gd:156",
+    "line": "if is_stair_stuck:",
+    "match": "is_stair_stuck"
+  },
+  {
+    "path": "game_src/Actors/Player.gd:246",
+    "line": "if BugFlags and BugFlags.map1_floor_hole:",
+    "match": "BugFlags"
+  },
+  {
+    "path": "game_src/Actors/Player.gd:264",
+    "line": "if BugFlags and BugFlags.map3_tower_wall_jump and is_on_wall() and Input.is_action_just_pressed(\"jump\"):",
+    "match": "BugFlags"
+  },
+  {
+    "path": "game_src/Actors/Player.gd:307",
+    "line": "# TRICKY  2: Wall-Friction Jump Dampening",
+    "match": "TRICKY  2"
+  },
+  {
+    "path": "game_src/Autoload/GameLogger.gd:1013",
+    "line": "# Pause toggle / set",
+    "match": "toggle"
+  },
+  {
+    "path": "game_src/Autoload/PlayerData.gd:11",
+    "line": "var bug_milestone_score_tax: bool = true",
+    "match": "bug_milestone_score_tax"
+  },
+  {
+    "path": "game_src/Autoload/PlayerData.gd:36",
+    "line": "# TRICKY  4: Milestone Score Regression",
+    "match": "TRICKY  4"
+  },
+  {
+    "path": "game_src/Autoload/PlayerData.gd:40",
+    "line": "if bug_milestone_score_tax and not is_resetting and old_score >= 500 and new_score > old_score:",
+    "match": "bug_milestone_score_tax"
+  },
+  {
+    "path": "game_src/Levels/Map2_UndergroundCaves.tscn:139",
+    "line": "is_floating_bug = true",
+    "match": "is_floating_bug"
+  },
+  {
+    "path": "game_src/Objects/Coin.gd:38",
+    "line": "# TRICKY  3: Sub-Frame Multi-Pickup Collision Race",
+    "match": "TRICKY  3"
+  },
+  {
+    "path": "game_src/Objects/Coin.gd:63",
+    "line": "if total_coins_collected == 7 and BugFlags and BugFlags.map1_seventh_coin_no_score:",
+    "match": "BugFlags"
+  },
+  {
+    "path": "game_src/Objects/Portal2D.gd:27",
+    "line": "if BugFlags and BugFlags.map4_portal_second_touch and is_map4_portal:",
+    "match": "BugFlags"
+  },
+  {
+    "path": "game_src/Objects/Portal2D.gd:81",
+    "line": "# TRICKY  5: Airborne Portal Transition Fall-Through",
+    "match": "TRICKY  5"
+  },
+  {
+    "path": "game_src/Tests/test_bugs.gd:8",
+    "line": "print(\"  BENCHMARK VERIFICATION TEST SUITE\")",
+    "match": "BENCHMARK"
+  },
+  {
+    "path": "game_src/Tests/test_bugs.gd:14",
+    "line": "var bug_flags = root.get_node_or_null(\"BugFlags\")",
+    "match": "bug_flags"
+  },
+  {
+    "path": "game_src/Tests/test_bugs.gd:18",
+    "line": "_assert(bug_flags != null, \"BugFlags available\")",
+    "match": "bug_flags"
+  },
+  {
+    "path": "game_src/Tests/test_bugs.gd:39",
+    "line": "if coin_script.total_coins_collected == 7 and bug_flags.map1_seventh_coin_no_score:",
+    "match": "bug_flags"
+  },
+  {
+    "path": "game_src/Tests/test_bugs.gd:83",
+    "line": "if touch_count < 2 and bug_flags.map4_portal_second_touch:",
+    "match": "bug_flags"
+  },
+  {
+    "path": "game_src/Tests/test_bugs.gd:90",
+    "line": "bug_flags.retained_enemy_transforms[\"Enemy1\"] = Vector2(100.0, 200.0)",
+    "match": "bug_flags"
+  },
+  {
+    "path": "game_src/Tests/test_bugs.gd:91",
+    "line": "logger.log_bug_trigger(\"4C\", {\"description\": \"Retry triggered without resetting enemy positions\", \"enemy_count\": bug_flags.retained_enemy_transforms.size()})",
+    "match": "bug_flags"
+  },
+  {
+    "path": "game_src/Tests/test_fault_injection.gd:3",
+    "line": "## Controlled Fault-Injection Test Suite for AI Game Tester Logger",
+    "match": "Injection"
+  },
+  {
+    "path": "game_src/Tests/test_fault_injection.gd:5",
+    "line": "## Run via: godot --headless --script res://src/Tests/test_fault_injection.gd",
+    "match": "test_fault_injection"
+  },
+  {
+    "path": "game_src/Tests/test_fault_injection.gd:13",
+    "line": "print(\"  FAULT INJECTION TEST SUITE - AI GAME TESTER LOGGER\")",
+    "match": "INJECTION"
+  },
+  {
+    "path": "game_src/Tests/test_fault_injection.gd:165",
+    "line": "print(\"  FAULT INJECTION RESULTS:\")",
+    "match": "INJECTION"
+  },
+  {
+    "path": "game_src/Tests/test_fault_injection.gd:171",
+    "line": "print(\">>> ALL FAULT INJECTION TESTS PASSED! <<<\\n\")",
+    "match": "INJECTION"
+  },
+  {
+    "path": "game_src/Tests/test_fault_injection.gd:174",
+    "line": "print(\">>> SOME FAULT INJECTION TESTS FAILED! <<<\\n\")",
+    "match": "INJECTION"
+  },
+  {
+    "path": "game_src/UserInterface/RetryButton.gd:12",
+    "line": "if BugFlags and BugFlags.map4_retry_retains_enemies:",
+    "match": "BugFlags"
+  },
+  {
+    "path": "game_src/UserInterface/RetryButton.gd:14",
+    "line": "BugFlags.retained_enemy_transforms.clear()",
+    "match": "BugFlags"
+  },
+  {
+    "path": "game_src/UserInterface/RetryButton.gd:17",
+    "line": "BugFlags.retained_enemy_transforms[e.name] = e.global_position",
+    "match": "BugFlags"
+  },
+  {
+    "path": "game_src/Utils/BugFlags.gd:3",
+    "line": "# Central toggle registry for intentional QA benchmark bugs",
+    "match": "toggle"
+  },
+  {
+    "path": "game_src/Utils/BugFlags.gd:7",
+    "line": "var map1_enemy4_no_kill: bool = true",
+    "match": "map1_enemy4_no_kill"
+  },
+  {
+    "path": "game_src/Utils/BugFlags.gd:8",
+    "line": "var map1_floor_hole: bool = true",
+    "match": "map1_floor_hole"
+  },
+  {
+    "path": "game_src/Utils/BugFlags.gd:9",
+    "line": "var map1_seventh_coin_no_score: bool = true",
+    "match": "map1_seventh_coin_no_score"
+  },
+  {
+    "path": "game_src/Utils/BugFlags.gd:12",
+    "line": "var map2_wall_stuck: bool = true",
+    "match": "map2_wall_stuck"
+  },
+  {
+    "path": "game_src/Utils/BugFlags.gd:13",
+    "line": "var map2_floating_enemy: bool = true",
+    "match": "map2_floating_enemy"
+  },
+  {
+    "path": "game_src/Utils/BugFlags.gd:16",
+    "line": "var map3_stair_stick: bool = true",
+    "match": "map3_stair_stick"
+  },
+  {
+    "path": "game_src/Utils/BugFlags.gd:17",
+    "line": "var map3_fourth_enemy_unstompable: bool = true",
+    "match": "map3_fourth_enemy_unstompable"
+  },
+  {
+    "path": "game_src/Utils/BugFlags.gd:18",
+    "line": "var map3_tower_wall_jump: bool = true",
+    "match": "map3_tower_wall_jump"
+  },
+  {
+    "path": "game_src/Utils/BugFlags.gd:21",
+    "line": "var map4_delayed_lava_death: bool = true",
+    "match": "map4_delayed_lava_death"
+  },
+  {
+    "path": "game_src/Utils/BugFlags.gd:22",
+    "line": "var map4_portal_second_touch: bool = true",
+    "match": "map4_portal_second_touch"
+  },
+  {
+    "path": "game_src/Utils/BugFlags.gd:23",
+    "line": "var map4_retry_retains_enemies: bool = true",
+    "match": "map4_retry_retains_enemies"
+  },
+  {
+    "path": "game_src/Utils/BugFlags.gd:26",
+    "line": "var retained_enemy_transforms: Dictionary = {}",
+    "match": "retained_enemy_transforms"
+  },
+  {
+    "path": "game_src/Utils/MapRunner.gd:3",
+    "line": "# MapRunner.gd \u2014 Headless & CLI dispatcher for QA benchmark maps",
+    "match": "benchmark"
+  },
+  {
+    "path": ".agents/skills/game-qa/references/gdscript_mechanics.md:1",
+    "line": "# GDScript Mechanics & Known Bug Signatures",
+    "match": "Known Bug"
+  }
+]

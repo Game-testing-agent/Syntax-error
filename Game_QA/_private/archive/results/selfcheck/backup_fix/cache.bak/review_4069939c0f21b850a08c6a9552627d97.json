@@ -1,0 +1,14 @@
+{
+  "verdict": "bug",
+  "severity": "medium",
+  "confidence": 0.6,
+  "title": "Enemy count mismatch after kill",
+  "explanation": "State snapshot at frame 522 reports enemies.count=5, but an enemy_killed event occurred at frame 243 (event \"enemy_killed\") which should have reduced the count. No enemy_spawned event follows the kill, so the count should be 4, indicating a contradiction between the snapshot and the event log.",
+  "evidence_frames": [
+    243,
+    522
+  ],
+  "suspected_code": "Level.gd:update_enemy_count",
+  "path": "path2",
+  "needs_human_review": true
+}

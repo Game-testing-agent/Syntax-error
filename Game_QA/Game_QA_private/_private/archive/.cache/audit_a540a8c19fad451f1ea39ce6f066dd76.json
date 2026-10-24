@@ -1,0 +1,14 @@
+{
+  "verdict": "bug",
+  "severity": "critical",
+  "confidence": 0.95,
+  "title": "Unregistered Exit Portal Causes Game Progression Soft-Lock at Level Finish",
+  "explanation": "Player reached exit terminus coordinates (7486.56, 159.97) across frames 3308 and 1671, but goal.found remained false and no portal_entered event was emitted. Violates lifecycle progression contract (Portal2D.gd:L11-L16), leaving player stranded.",
+  "evidence_frames": [
+    3308,
+    1671
+  ],
+  "suspected_code": "Portal2D.gd:L11-L16 (_ready)",
+  "path": "path2",
+  "needs_human_review": false
+}

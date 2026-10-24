@@ -1,0 +1,14 @@
+{
+  "verdict": "bug",
+  "severity": "high",
+  "confidence": 0.7,
+  "title": "Player invulnerable to threat enemy contact",
+  "explanation": "State_snapshot event at frame 300 shows Enemy (is_threat=true) 80.0 units from player, satisfying contact criteria, yet stats.deaths stays 0 and no player_died/player_hurt events fire before session_end at frame 350.",
+  "evidence_frames": [
+    300,
+    350
+  ],
+  "suspected_code": "Player.gd:_on_body_entered",
+  "path": "path2",
+  "needs_human_review": true
+}

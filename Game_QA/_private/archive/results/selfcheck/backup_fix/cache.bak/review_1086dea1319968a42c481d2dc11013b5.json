@@ -1,0 +1,13 @@
+{
+  "verdict": "bug",
+  "severity": "medium",
+  "confidence": 0.7,
+  "title": "Player removed without death at end of session",
+  "explanation": "At frame 634 a \"player_removed\" event occurs (event text \"player_removed\") while the last state snapshot (frame 1379) shows the player alive with 0 deaths and a score of 100. No prior death or kill event is logged, indicating the player disappeared unexpectedly. This removal coincides with a second \"session_end\" event after the first one at frame 633, suggesting an abrupt termination of the player lifecycle without proper death handling or score update.",
+  "evidence_frames": [
+    634
+  ],
+  "suspected_code": "Player.gd",
+  "path": "path2",
+  "needs_human_review": true
+}
