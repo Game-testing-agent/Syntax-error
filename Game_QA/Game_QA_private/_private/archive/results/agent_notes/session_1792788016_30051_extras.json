@@ -1,0 +1,14 @@
+{
+  "dismissed_candidates": [
+    {
+      "frame": 1223,
+      "lead": "Player died on enemy contact",
+      "reason": "Player made lateral body contact with Enemy5 without stomping; Player.gd:_on_EnemyDetector_body_entered executed die()."
+    }
+  ],
+  "unobservable_areas": [
+    "Audio playback and visual particle effect presentation (not logged to structured telemetry stream)",
+    "Sub-frame physics penetration vectors between discrete physics ticks"
+  ]
+}
+

@@ -1,0 +1,15 @@
+{
+  "verdict": "bug",
+  "severity": "medium",
+  "confidence": 0.68,
+  "title": "Delayed landing position update causes movement desync",
+  "explanation": "After the player spawns at (200,760) a fall is started (frame 226) and the player lands at (200,799.99) (frame 234). However the next state snapshot (frame 240) already shows the player on the floor, but a separate \"player_moved\" event later at frame 255 reports a movement from (200,760) to (200,799.99), indicating the internal position was still recorded at the pre\u2011fall height until that frame. This lag creates a brief desynchronisation between physics and event logging, which could manifest as a visual stutter or delayed response when the player lands. The issue is not covered by the active checks (which monitor bounds, score, deaths, velocity limits, FPS, and coin counts).",
+  "evidence_frames": [
+    234,
+    255,
+    272
+  ],
+  "suspected_code": "Player.gd",
+  "path": "path2",
+  "needs_human_review": true
+}

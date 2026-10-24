@@ -1,0 +1,15 @@
+[
+  {
+    "verdict": "bug",
+    "severity": "critical",
+    "confidence": 0.95,
+    "category": "kinematics",
+    "title": "Player Out of Bounds (Void Fall Without Death / Missing Pit Trigger)",
+    "explanation": "Player fell off platform at X=2370, triggering player_out_of_bounds at frame 381 (Y=1438.05 > 1400.0). Player continued falling through void across frames 381–601, reaching Y=33628.31 and downward velocity 15166.64 px/s without dying or respawning, violating boundary death invariants (Player.gd:L178-L186).",
+    "evidence_frames": [381, 386, 392, 601],
+    "suspected_code": "Player.gd:L178-L186 (OUT_OF_BOUNDS_Y)",
+    "path": "path2",
+    "needs_human_review": false
+  }
+]
+

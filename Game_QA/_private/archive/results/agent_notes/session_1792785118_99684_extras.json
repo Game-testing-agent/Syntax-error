@@ -1,0 +1,14 @@
+{
+  "dismissed_candidates": [
+    {
+      "frame": 109,
+      "lead": "Scene change requested during startup",
+      "reason": "Normal title screen button press transitioning from MainScreen to Level01."
+    }
+  ],
+  "unobservable_areas": [
+    "Audio playback and visual particle effect presentation (not logged to structured telemetry stream)",
+    "Sub-frame physics penetration vectors between discrete physics ticks"
+  ]
+}
+

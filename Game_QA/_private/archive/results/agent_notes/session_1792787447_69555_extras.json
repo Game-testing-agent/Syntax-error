@@ -1,0 +1,14 @@
+{
+  "dismissed_candidates": [
+    {
+      "frame": 370,
+      "lead": "fall_distance_threshold_reached at Y=1063.74",
+      "reason": "Normal kinematic telemetry milestone in Player.gd:L157 when vertical fall exceeds 400.0px."
+    }
+  ],
+  "unobservable_areas": [
+    "Audio playback and visual particle effect presentation (not logged to structured telemetry stream)",
+    "Sub-frame physics penetration vectors between discrete physics ticks"
+  ]
+}
+

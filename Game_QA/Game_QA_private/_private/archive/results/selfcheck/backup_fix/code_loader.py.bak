@@ -1,0 +1,88 @@
+"""Code Loader: Discovers GDScript source files and feeds relevant code context to the LLM."""
+from __future__ import annotations
+
+import os
+from pathlib import Path
+from typing import Optional
+
+from schemas import Event
+
+ROOT = Path(__file__).parent
+LOCAL_SRC = ROOT / "game_src"
+EXTERNAL_SRC = ROOT.parent / "Syntax-error" / "godot-4game" / "src"
+
+
+def find_source_dir() -> Path:
+    """Returns the game source directory (prefers local game_src, falls back to Syntax-error)."""
+    if LOCAL_SRC.exists() and any(LOCAL_SRC.rglob("*.gd")):
+        return LOCAL_SRC
+    if EXTERNAL_SRC.exists() and any(EXTERNAL_SRC.rglob("*.gd")):
+        return EXTERNAL_SRC
+    return LOCAL_SRC
+
+
+def load_script_with_line_numbers(path: Path) -> str:
+    """Reads a script and prefixes each line with its 1-indexed line number."""
+    if not path.exists():
+        return ""
+    lines = path.read_text(encoding="utf-8").splitlines()
+    return "\n".join(f"L{i}: {line}" for i, line in enumerate(lines, start=1))
+
+
+def get_game_codebase_context(events: list[Event], max_lines: int = 350) -> str:
+    """Selects the most relevant GDScript files and functions based on events in the review window.
+
+    Ensures the LLM has exact white-box knowledge with line numbers without exceeding token limits.
+    """
+    src_dir = find_source_dir()
+    if not src_dir.exists():
+        return "No GDScript source files found."
+
+    # Identify which scripts are active based on event categories and names
+    active_scripts: set[str] = set()
+
+    for e in events:
+        ev = (e.event or "").lower()
+        cat = (e.category or "").lower()
+        if cat in ("enemy", "player_lifecycle") or "stomp" in ev or "die" in ev or "kill" in ev:
+            active_scripts.add("Player.gd")
+            active_scripts.add("Enemy.gd")
+        if cat == "collectible" or "coin" in ev:
+            active_scripts.add("Coin.gd")
+        if cat == "portal" or "scene" in ev:
+            active_scripts.add("Portal2D.gd")
+        if "score" in ev or "death" in ev:
+            active_scripts.add("PlayerData.gd")
+
+    # If no specific category matched, default to the player and enemy scripts
+    if not active_scripts:
+        active_scripts.add("Player.gd")
+        active_scripts.add("Enemy.gd")
+
+    code_sections = []
+    lines_used = 0
+
+    # Locate each file in the source tree
+    for gd_file in src_dir.rglob("*.gd"):
+        if gd_file.name in active_scripts:
+            annotated = load_script_with_line_numbers(gd_file)
+            file_lines = annotated.splitlines()
+
+            # If the script is large, trim to key sections or fit within budget
+            if lines_used + len(file_lines) > max_lines:
+                # Include first 150 lines (constants, exports, and core collision/signal handlers)
+                file_lines = file_lines[:150]
+                file_lines.append(f"... (remaining lines truncated for brevity)")
+
+            lines_used += len(file_lines)
+            code_sections.append(
+                f"### {gd_file.name} ({gd_file.relative_to(src_dir)})\n```gdscript\n"
+                + "\n".join(file_lines)
+                + "\n```"
+            )
+
+            if lines_used >= max_lines:
+                break
+
+    return "\n\n".join(code_sections)
+

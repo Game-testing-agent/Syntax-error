@@ -1,0 +1,13 @@
+{
+  "verdict": "bug",
+  "severity": "medium",
+  "confidence": 0.9,
+  "title": "Collectible Collision Active During Picked Animation (Duplicate Pickup)",
+  "explanation": "At frame 1061, player bounced through Coin14 during its 0.4s picked animation, triggering duplicate_pickup_attempt anomaly. Violates collectible idempotency contract (Coin.gd:L27-L35), as collision shape remained enabled while awaiting queue_free().",
+  "evidence_frames": [
+    1061
+  ],
+  "suspected_code": "Coin.gd:L27-L35 (_on_body_entered)",
+  "path": "path2",
+  "needs_human_review": false
+}

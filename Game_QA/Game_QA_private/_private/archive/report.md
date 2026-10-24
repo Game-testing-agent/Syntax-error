@@ -1,0 +1,129 @@
+# 🎮 Game_QA Post-Run Evaluation Report
+
+> Automated Dual-Path QA Analysis for Godot 2D Platformer (`Syntax-error`)
+
+## 📊 Executive Summary
+
+- **Sessions Analyzed**: `2`
+- **Total Findings**: `12`
+- **Path 1 (Deterministic Invariants & Engine Anomalies)**: `5`
+- **Path 2 (LLM / Semantic Window Review)**: `7`
+
+| Severity | Count |
+| :--- | :--- |
+| 🔴 **Critical** | 2 |
+| 🟠 **High** | 8 |
+| 🟡 **Medium** | 2 |
+| 🔵 **Low** | 0 |
+
+---
+
+## 🕹️ Session: `session_1792846649_48218`
+*(Events logged: 440 | Telemetry snapshots: 8)*
+
+### 🔍 Detailed Findings
+
+#### 1. [MEDIUM] Check Violated: Framerate must maintain at least 15 FPS during active gameplay
+- **Detection Mechanism**: `Path 1 (Deterministic)` (🤖 Auto-Verified)
+- **Confidence**: `0.95`
+- **Evidence Frame(s)**: `[82]`
+- **Suspected Component**: `Main.gd`
+- **Details**:
+  > Predicate '(game_state != 'playing') or (fps >= 15.0)' failed across 1 frame(s) (e.g. frame 82 at t=1.80s). Evidence: {'fps': 1.0, 'game_state': 'playing'}
+
+#### 2. [HIGH] Engine Anomaly: unexpected_score_change
+- **Detection Mechanism**: `Path 1 (Deterministic)` (🤖 Auto-Verified)
+- **Confidence**: `0.95`
+- **Evidence Frame(s)**: `[761]`
+- **Suspected Component**: `GameLogger.gd / res://src/Levels/Map1_GreenHills.tscn`
+- **Details**:
+  > Expected: Score should only increase or reset to 0 | Observed: Score decreased by 10 across frame(s) [761].
+
+#### 3. [CRITICAL] Engine Anomaly: unexpected_player_removal
+- **Detection Mechanism**: `Path 1 (Deterministic)` (🤖 Auto-Verified)
+- **Confidence**: `0.95`
+- **Evidence Frame(s)**: `[1781]`
+- **Suspected Component**: `GameLogger.gd / res://src/Levels/Map1_GreenHills.tscn`
+- **Details**:
+  > Expected: Player removal should occur on death or scene transition | Observed: Player exited scene tree without death flag or transition across frame(s) [1781].
+
+#### 4. [HIGH] Milestone Score Tax Causes Score Deduction on Pickup
+- **Detection Mechanism**: `Path 2 (Semantic / LLM)` (🤖 Auto-Verified)
+- **Confidence**: `0.95`
+- **Evidence Frame(s)**: `[761]`
+- **Suspected Component**: `Autoload/PlayerData.gd:L40-L41 (set_score)`
+- **Details**:
+  > At frame 761 (t=13.38s), collecting the 6th coin at (3160, 370) with an existing score of 500 caused score to decrease from 500 to 490 instead of incrementing to 600. Traced to PlayerData.gd:L40-L41 where bug_milestone_score_tax subtracts 10 points on subsequent pickups when score >= 500, violating the design contract that collectibles monotonically increment score.
+
+#### 5. [HIGH] Seventh Collected Coin Awards Zero Score
+- **Detection Mechanism**: `Path 2 (Semantic / LLM)` (🤖 Auto-Verified)
+- **Confidence**: `0.95`
+- **Evidence Frame(s)**: `[1085]`
+- **Suspected Component**: `Objects/Coin.gd:L63-L71 (picked)`
+- **Details**:
+  > At frame 1085 (t=18.79s), collecting the 7th coin (id: 60616083148) at (3340, 300) resulted in 0 points awarded with score remaining at 490. Traced to Coin.gd:L63-L71 where total_coins_collected == 7 overrides should_award_score to false under BugFlags.map1_seventh_coin_no_score, violating the collectible contract.
+
+#### 6. [CRITICAL] Player Becomes Permanently Stuck in Wall Geometry
+- **Detection Mechanism**: `Path 2 (Semantic / LLM)` (🤖 Auto-Verified)
+- **Confidence**: `0.95`
+- **Evidence Frame(s)**: `[1285, 1740, 1781]`
+- **Suspected Component**: `Actors/Player.gd:L127-L140 (_physics_process)`
+- **Details**:
+  > At frame 1285 (t=22.09s), the player entered coordinates (4438.26, 602.42) and was permanently frozen with zero velocity, unable to move despite movement inputs until quitting at frame 1781. Traced to Player.gd:L127-L140 where BugFlags.map2_wall_stuck forcibly overrides velocity to Vector2.ZERO without checking active map context, creating an unrecoverable softlock.
+
+---
+
+## 🕹️ Session: `session_1792857656_89907`
+*(Events logged: 1211 | Telemetry snapshots: 15)*
+
+### 🔍 Detailed Findings
+
+#### 1. [MEDIUM] Check Violated: Framerate must maintain at least 15 FPS during active gameplay
+- **Detection Mechanism**: `Path 1 (Deterministic)` (🤖 Auto-Verified)
+- **Confidence**: `0.95`
+- **Evidence Frame(s)**: `[2211, 2324]`
+- **Suspected Component**: `Main.gd`
+- **Details**:
+  > Predicate '(game_state != 'playing') or (fps >= 15.0)' failed across 2 frame(s) (e.g. frame 2211 at t=44.09s). Evidence: {'fps': 3.0, 'game_state': 'playing'}
+
+#### 2. [HIGH] Engine Anomaly: unexpected_score_change
+- **Detection Mechanism**: `Path 1 (Deterministic)` (🤖 Auto-Verified)
+- **Confidence**: `0.95`
+- **Evidence Frame(s)**: `[363, 1013, 1048, 1186, 1570, 1596, 2953, 3029, 3183, 3250]`
+- **Suspected Component**: `GameLogger.gd / res://src/Levels/Map2_UndergroundCaves.tscn`
+- **Details**:
+  > Expected: Score should only increase or reset to 0 | Observed: Score decreased by 10 across frame(s) [363, 1013, 1048, 1186, 1570].
+
+#### 3. [HIGH] Seventh Collected Coin Awards Zero Score
+- **Detection Mechanism**: `Path 2 (Semantic / LLM)` (🤖 Auto-Verified)
+- **Confidence**: `0.95`
+- **Evidence Frame(s)**: `[436]`
+- **Suspected Component**: `Objects/Coin.gd:L63-L71 (picked)`
+- **Details**:
+  > At frame 436 (t=8.49s), collecting the 7th coin (id: 60850964187) at (4100, 700) resulted in 0 points awarded with score remaining at 490. Traced to Coin.gd:L63-L71 where total_coins_collected == 7 overrides should_award_score to false under BugFlags.map1_seventh_coin_no_score without checking active level, violating the collectible contract.
+
+#### 4. [HIGH] Milestone Score Tax Causes Score Deduction on Pickup
+- **Detection Mechanism**: `Path 2 (Semantic / LLM)` (🤖 Auto-Verified)
+- **Confidence**: `0.95`
+- **Evidence Frame(s)**: `[363, 1013, 1048, 1186, 1570, 1596, 2953, 3029, 3183, 3250, 3362]`
+- **Suspected Component**: `Autoload/PlayerData.gd:L40-L41 (set_score)`
+- **Details**:
+  > At frame 363 (t=7.26s) and recurring at frames 1013, 1048, 1186, 1570, 1596, 2953, 3029, 3183, 3250, 3362, collecting coins or killing enemies when score >= 500 caused score to decrease by 10 points instead of increasing. Traced to PlayerData.gd:L40-L41 where bug_milestone_score_tax subtracts 10 points on subsequent pickups when score >= 500, violating the score monotonicity design contract.
+
+#### 5. [HIGH] Platform Edge Floating Enemy Continues Horizontal Motion Without Falling
+- **Detection Mechanism**: `Path 2 (Semantic / LLM)` (🤖 Auto-Verified)
+- **Confidence**: `0.95`
+- **Evidence Frame(s)**: `[1222]`
+- **Suspected Component**: `Actors/Enemy.gd:L36-L47 (_physics_process)`
+- **Details**:
+  > At frame 1222 (t=21.50s), FloatingEnemy moved off the platform ledge at (7200, 550) and continued horizontal motion in mid-air without falling. Traced to Enemy.gd:L36-L47 where BugFlags.map2_floating_enemy forces velocity.y = 0.0 when not is_on_floor(), suppressing gravity and violating physical kinematics.
+
+#### 6. [HIGH] Phantom Enemy Wall Reversal Freezes Enemy at Wall
+- **Detection Mechanism**: `Path 2 (Semantic / LLM)` (🤖 Auto-Verified)
+- **Confidence**: `0.95`
+- **Evidence Frame(s)**: `[1779, 1800, 1900, 2000, 2500, 2566]`
+- **Suspected Component**: `Actors/Enemy.gd:L51-L61 (_physics_process)`
+- **Details**:
+  > At frame 1779 (t=30.95s), an enemy colliding with the wall at (5800, 550) triggered continuous enemy_reversed_at_wall events with old_direction 0.0 and new_direction 0.0 across 787 frames. Traced to Enemy.gd:L51-L61 where sign(velocity.x) yields 0.0 on perpendicular wall contact, trapping the enemy in a permanent zero-velocity loop.
+
+---

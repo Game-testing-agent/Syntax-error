@@ -1,0 +1,13 @@
+{
+  "verdict": "bug",
+  "severity": "high",
+  "confidence": 0.95,
+  "title": "Seventh Collected Coin Awards Zero Score",
+  "explanation": "At frame 421 (t=7.46s), collecting the 7th coin (coin_id: 60683192019) at (3500, 500) awarded 0 score. Traced to Coin.gd:L63-L71 where total_coins_collected == 7 overrides should_award_score to false, violating the contract that collectibles award their defined score value.",
+  "evidence_frames": [
+    421
+  ],
+  "suspected_code": "Objects/Coin.gd:L63-L71 (picked)",
+  "path": "path2",
+  "needs_human_review": false
+}

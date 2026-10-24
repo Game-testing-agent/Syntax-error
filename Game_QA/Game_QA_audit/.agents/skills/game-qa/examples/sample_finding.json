@@ -1,0 +1,12 @@
+{
+  "verdict": "bug",
+  "severity": "critical",
+  "confidence": 0.75,
+  "title": "Player invincible against Enemy4 contact",
+  "explanation": "Snapshot at frame 360 shows Enemy4 in contact with player (distance < 75px, player_is_above=false). The player remained alive across subsequent frames with stats.deaths=0. GDScript Player.gd:L76 explicitly short-circuits damage for Enemy4.",
+  "evidence_frames": [360, 364, 368],
+  "suspected_code": "Player.gd:L76",
+  "path": "path2",
+  "needs_human_review": true
+}
+

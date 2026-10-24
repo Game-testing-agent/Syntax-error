@@ -1,0 +1,14 @@
+{
+  "dismissed_candidates": [
+    {
+      "frame": 1068,
+      "lead": "jump_interrupted logged",
+      "reason": "Player released jump key during ascent; standard platformer variable jump height design in Player.gd:L97-103."
+    }
+  ],
+  "unobservable_areas": [
+    "Audio playback and visual particle effect presentation (not logged to structured telemetry stream)",
+    "Sub-frame physics penetration vectors between discrete physics ticks"
+  ]
+}
+

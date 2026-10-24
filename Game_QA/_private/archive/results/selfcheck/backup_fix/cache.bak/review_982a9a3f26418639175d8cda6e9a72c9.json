@@ -1,0 +1,13 @@
+{
+  "verdict": "bug",
+  "severity": "high",
+  "confidence": 0.75,
+  "title": "Semantic Anomaly: player_stuck_detected",
+  "explanation": "Heuristic review detected 'player_stuck_detected' at frame 177. Expected: Player should move horizontally when move_right is held | Observed: Player remained stationary (displacement < 8px)",
+  "evidence_frames": [
+    177
+  ],
+  "suspected_code": "Player.gd / GameLogger.gd",
+  "path": "path2",
+  "needs_human_review": true
+}

@@ -1,0 +1,23 @@
+{
+  "verdict": "bug",
+  "severity": "high",
+  "confidence": 0.95,
+  "title": "Milestone Score Tax Causes Score Deduction on Pickup",
+  "explanation": "At frame 363 (t=7.26s) and recurring at frames 1013, 1048, 1186, 1570, 1596, 2953, 3029, 3183, 3250, 3362, collecting coins or killing enemies when score >= 500 caused score to decrease by 10 points instead of increasing. Traced to PlayerData.gd:L40-L41 where bug_milestone_score_tax subtracts 10 points on subsequent pickups when score >= 500, violating the score monotonicity design contract.",
+  "evidence_frames": [
+    363,
+    1013,
+    1048,
+    1186,
+    1570,
+    1596,
+    2953,
+    3029,
+    3183,
+    3250,
+    3362
+  ],
+  "suspected_code": "Autoload/PlayerData.gd:L40-L41 (set_score)",
+  "path": "path2",
+  "needs_human_review": false
+}

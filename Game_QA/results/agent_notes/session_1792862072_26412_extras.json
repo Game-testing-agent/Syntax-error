@@ -1,0 +1,60 @@
+{
+  "session_id": "session_1792862072_26412",
+  "findings_extras": [
+    {
+      "title": "Score Decrements When Earning Points Above 500 Threshold",
+      "category": "state",
+      "dedupe_key": "PlayerData.gd:L33:score_decrements_above_500",
+      "window_id": "w01",
+      "repro_hint": "Earn score through pickups or kills while score is >= 500; observe score decreasing by 10 instead of increasing.",
+      "source": "agent"
+    },
+    {
+      "title": "Phantom Enemy Wall Reversal Freezes Patrol at Zero Velocity",
+      "category": "ai",
+      "dedupe_key": "Enemy.gd:L44:phantom_wall_reversal_freeze",
+      "window_id": "w02",
+      "repro_hint": "Observe Enemy4 patrol into wall collision when horizontal velocity is 0.0; enemy velocity remains 0.0 permanently.",
+      "source": "agent"
+    },
+    {
+      "title": "Seventh Coin Collection Suppresses Score Award",
+      "category": "state",
+      "dedupe_key": "Coin.gd:L58:seventh_coin_suppresses_score",
+      "window_id": "w03",
+      "repro_hint": "Collect 7 coins in sequence; verify PlayerData.score does not increase on the 7th coin pickup.",
+      "source": "agent"
+    },
+    {
+      "title": "Player Out of Bounds Void Fall Without Death",
+      "category": "kinematics",
+      "dedupe_key": "Player.gd:L214:void_fall_without_death",
+      "window_id": "w06",
+      "repro_hint": "Jump or drop below Y=1400.0 into a pit; observe continuous falling without death, damage, or respawn.",
+      "source": "agent"
+    }
+  ],
+  "dismissed_candidates": [
+    {
+      "frame": 432,
+      "lead": "Stomp attempt and stomp bounce triggered on Enemy4 without killing enemy",
+      "reason": "Player was jumping upward (player_velocity_y: -1233.33) into enemy's underside hitbox (attacker_area_y > stomp_threshold). Enemy.gd:L68-L69 intentionally rejects stomps from below; legitimate downward stomp killed Enemy4 at frame 834."
+    },
+    {
+      "frame": null,
+      "lead": "Sideways enemy hazard collision immunity",
+      "reason": "Player never collided sideways with any enemy in this session; zero enemy_contact_started events occurred."
+    },
+    {
+      "frame": null,
+      "lead": "Corner pin (x: [4360, 4440], y: [600, 680]) and step align (x: [5420, 5460]) traps",
+      "reason": "Player trajectory did not intersect these coordinates in this session."
+    }
+  ],
+  "unobservable_areas": [
+    "Sub-frame physics state between 1-second snapshot intervals",
+    "Continuous enemy position coordinates across all non-event frames",
+    "Portal completion sequence (session terminated due to out-of-bounds fall before reaching exit)"
+  ]
+}
+

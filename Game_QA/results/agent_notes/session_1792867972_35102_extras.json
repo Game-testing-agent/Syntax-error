@@ -1,0 +1,57 @@
+{
+  "session_id": "session_1792867972_35102",
+  "findings_extras": [
+    {
+      "title": "Seventh Coin Collection Suppresses Score Award",
+      "category": "state",
+      "dedupe_key": "Coin.gd:L58:seventh_coin_suppresses_score",
+      "window_id": "w01",
+      "repro_hint": "Collect 7 coins in sequence; verify PlayerData.score does not increase on the 7th coin pickup.",
+      "source": "agent"
+    },
+    {
+      "title": "Score Decrements When Earning Points Above 500 Threshold",
+      "category": "state",
+      "dedupe_key": "PlayerData.gd:L33:score_decrements_above_500",
+      "window_id": "w02",
+      "repro_hint": "Earn score through pickups or kills while score is >= 500; observe score decreasing by 10 instead of increasing.",
+      "source": "agent"
+    },
+    {
+      "title": "Player Out of Bounds Void Fall Without Death",
+      "category": "kinematics",
+      "dedupe_key": "Player.gd:L214:void_fall_without_death",
+      "window_id": "w03",
+      "repro_hint": "Drop below Y=1400.0 into a pit; observe continuous falling without death, damage, or respawn.",
+      "source": "agent"
+    }
+  ],
+  "dismissed_candidates": [
+    {
+      "frame": 571,
+      "lead": "Stomp on Enemy5 bounced velocity upward",
+      "reason": "Downward stomp on Enemy5 at frame 571 successfully killed the enemy and triggered jump bounce impulse; intentional combat mechanic."
+    },
+    {
+      "frame": 702,
+      "lead": "Stomp on Enemy6 score change",
+      "reason": "Enemy6 stomp killed the enemy normally. The score decrement was a symptom of PlayerData.set_score bug, not an enemy stomp defect."
+    },
+    {
+      "frame": null,
+      "lead": "Portal next_scene missing in Map4_LavaFortress.tscn",
+      "reason": "Portal at X=17200 was never reached due to player falling into a pit at X=7491; unobservable in this gameplay run."
+    },
+    {
+      "frame": null,
+      "lead": "Lava pit surface hazard delayed damage",
+      "reason": "Player jumped over LavaPit1 at x=3480 without entering its Area2D; unobservable in this gameplay run."
+    }
+  ],
+  "unobservable_areas": [
+    "Sub-frame physics state between 1-second snapshot intervals",
+    "Portal completion and end screen transition (player fell out of bounds before reaching exit)",
+    "Lava surface hazard damage interactions"
+  ]
+}
+

@@ -1,0 +1,18 @@
+{
+  "verdict": "bug",
+  "severity": "high",
+  "confidence": 0.95,
+  "title": "Phantom Enemy Wall Reversal Freezes Enemy at Wall",
+  "explanation": "At frame 1779 (t=30.95s), an enemy colliding with the wall at (5800, 550) triggered continuous enemy_reversed_at_wall events with old_direction 0.0 and new_direction 0.0 across 787 frames. Traced to Enemy.gd:L51-L61 where sign(velocity.x) yields 0.0 on perpendicular wall contact, trapping the enemy in a permanent zero-velocity loop.",
+  "evidence_frames": [
+    1779,
+    1800,
+    1900,
+    2000,
+    2500,
+    2566
+  ],
+  "suspected_code": "Actors/Enemy.gd:L51-L61 (_physics_process)",
+  "path": "path2",
+  "needs_human_review": false
+}

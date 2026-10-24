@@ -1,0 +1,15 @@
+{
+  "verdict": "bug",
+  "severity": "high",
+  "confidence": 0.75,
+  "title": "Oscillating Enemy Wall Reversal (Enemy5 Trapped)",
+  "explanation": "Enemy 'Enemy5' triggered 3 wall reversals within review window w157 (frames 47085\u201347317). Enemy is oscillating rapidly between collision boundaries without making forward patrol progress.",
+  "evidence_frames": [
+    47085,
+    47201,
+    47317
+  ],
+  "suspected_code": "Enemy.gd:L30 (_physics_process: is_on_wall)",
+  "path": "path2",
+  "needs_human_review": true
+}

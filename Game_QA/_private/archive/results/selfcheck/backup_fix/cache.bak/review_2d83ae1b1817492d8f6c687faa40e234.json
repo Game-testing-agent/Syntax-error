@@ -1,0 +1,13 @@
+{
+  "verdict": "bug",
+  "severity": "medium",
+  "confidence": 0.7,
+  "title": "Threat enemy nearby but player takes no damage",
+  "explanation": "A state_snapshot at frame 840 shows a nearby enemy with is_threat:true (distance 80 units) while the player is alive on the floor and stats.deaths remains 0. No player_died or player_hurt events occur in the window, contradicting the expectation that a threat enemy should damage the player on contact.",
+  "evidence_frames": [
+    840
+  ],
+  "suspected_code": "enemy collision/damage handling",
+  "path": "path2",
+  "needs_human_review": true
+}

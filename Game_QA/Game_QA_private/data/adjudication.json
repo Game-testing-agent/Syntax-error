@@ -1,0 +1,6 @@
+{
+  "false_positives": [
+    "# Add confirmed false positive titles or suspected_code strings here to categorize them as FALSE_POSITIVE"
+  ]
+}
+

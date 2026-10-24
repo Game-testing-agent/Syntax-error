@@ -1,0 +1,157 @@
+"""Code Loader: Discovers GDScript source files and feeds relevant code context to the LLM."""
+from __future__ import annotations
+
+import os
+import re
+from pathlib import Path
+from typing import Optional
+
+from schemas import Event
+
+ROOT = Path(__file__).parent
+LOCAL_SRC = ROOT / "game_src"
+EXTERNAL_SRC = ROOT.parent / "Syntax-error" / "godot-4game" / "src"
+
+
+def find_source_dir() -> Path:
+    """Returns the game source directory (prefers local game_src, falls back to Syntax-error)."""
+    if LOCAL_SRC.exists() and any(LOCAL_SRC.rglob("*.gd")):
+        return LOCAL_SRC
+    if EXTERNAL_SRC.exists() and any(EXTERNAL_SRC.rglob("*.gd")):
+        return EXTERNAL_SRC
+    return LOCAL_SRC
+
+
+def load_script_with_line_numbers(path: Path) -> str:
+    """Reads a script and prefixes each line with its 1-indexed line number."""
+    if not path.exists():
+        return ""
+    lines = path.read_text(encoding="utf-8").splitlines()
+    return "\n".join(f"L{i}: {line}" for i, line in enumerate(lines, start=1))
+
+
+def _resolve_script_dependencies(
+    script_names: set[str],
+    file_map: dict[str, Path],
+    autoload_map: dict[str, str],
+) -> set[str]:
+    """Expands selected scripts with their extends base classes and referenced autoloads."""
+    resolved = set(script_names)
+    queue = list(script_names)
+
+    while queue:
+        current_name = queue.pop(0)
+        current_path = file_map.get(current_name)
+        if not current_path or not current_path.exists():
+            continue
+
+        try:
+            content = current_path.read_text(encoding="utf-8")
+        except Exception:
+            continue
+
+        # (a) Check 'extends <Class>'
+        m_extends = re.search(r"^\s*extends\s+(\w+)", content, re.MULTILINE)
+        if m_extends:
+            base_class = m_extends.group(1)
+            candidate_base = f"{base_class}.gd"
+            if candidate_base in file_map and candidate_base not in resolved:
+                resolved.add(candidate_base)
+                queue.append(candidate_base)
+
+        # (b) Check referenced autoloads
+        for al_name, al_file in autoload_map.items():
+            if al_name in content and al_file in file_map and al_file not in resolved:
+                resolved.add(al_file)
+                queue.append(al_file)
+
+    return resolved
+
+
+def get_game_codebase_context(events: list[Event], max_lines: int = 500) -> str:
+    """Selects the most relevant GDScript files and functions based on events in the review window.
+
+    Ensures the LLM has exact white-box knowledge with line numbers without exceeding token limits.
+    """
+    src_dir = find_source_dir()
+    if not src_dir.exists():
+        return "No GDScript source files found."
+
+    file_map = {p.name: p for p in src_dir.rglob("*.gd")}
+
+    # Autoload mapping from project architecture
+    autoload_map = {
+        "PlayerData": "PlayerData.gd",
+        "GameLogger": "GameLogger.gd",
+    }
+
+    # Identify seed scripts based on event categories and names
+    active_scripts: set[str] = set()
+
+    for e in events:
+        ev = (e.event or "").lower()
+        cat = (e.category or "").lower()
+        if cat in ("enemy", "player_lifecycle", "player_movement") or "player" in ev:
+            active_scripts.add("Player.gd")
+            active_scripts.add("Enemy.gd")
+        if "enemy" in ev or "stomp" in ev:
+            active_scripts.add("Enemy.gd")
+        if cat == "collectible" or "coin" in ev:
+            active_scripts.add("Coin.gd")
+        if cat == "portal" or "scene" in ev:
+            active_scripts.add("Portal2D.gd")
+        if "score" in ev or "death" in ev:
+            active_scripts.add("PlayerData.gd")
+
+    # Default seed scripts if none matched
+    if not active_scripts:
+        active_scripts.add("Player.gd")
+        active_scripts.add("Enemy.gd")
+
+    # Step 1: Resolve dependencies (extends bases and referenced autoloads)
+    resolved_scripts = _resolve_script_dependencies(active_scripts, file_map, autoload_map)
+
+    # Step 2: Always include GameLogger.gd so logger citations are always resolvable
+    if "GameLogger.gd" in file_map:
+        resolved_scripts.add("GameLogger.gd")
+
+    code_sections = []
+    lines_used = 0
+    dropped_files = []
+
+    # Sort scripts with primary entities first, then bases/autoloads
+    priority_order = ["Player.gd", "Enemy.gd", "Coin.gd", "Portal2D.gd", "Actor.gd", "PlayerData.gd", "GameLogger.gd"]
+    sorted_scripts = sorted(
+        resolved_scripts,
+        key=lambda s: priority_order.index(s) if s in priority_order else 99,
+    )
+
+    for script_name in sorted_scripts:
+        gd_file = file_map.get(script_name)
+        if not gd_file:
+            continue
+
+        annotated = load_script_with_line_numbers(gd_file)
+        file_lines = annotated.splitlines()
+
+        if lines_used >= max_lines:
+            dropped_files.append(script_name)
+            continue
+
+        if lines_used + len(file_lines) > max_lines:
+            remaining_budget = max(40, max_lines - lines_used)
+            file_lines = file_lines[:remaining_budget]
+            file_lines.append("... (remaining lines truncated for brevity)")
+
+        lines_used += len(file_lines)
+        code_sections.append(
+            f"### {gd_file.name} ({gd_file.relative_to(src_dir)})\n```gdscript\n"
+            + "\n".join(file_lines)
+            + "\n```"
+        )
+
+    if dropped_files:
+        code_sections.append(f"<!-- Budget notice: Dropped lower-priority files: {', '.join(dropped_files)} -->")
+
+    return "\n\n".join(code_sections)
+

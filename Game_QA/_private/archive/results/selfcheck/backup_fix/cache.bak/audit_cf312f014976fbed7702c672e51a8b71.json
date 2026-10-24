@@ -1,0 +1,13 @@
+{
+  "verdict": "bug",
+  "severity": "high",
+  "confidence": 0.75,
+  "title": "Phantom Enemy Wall Reversal (Enemy Frozen)",
+  "explanation": "Enemy attempted wall reversal at frame 3241 but old_direction and new_direction were both 0.0, causing the enemy to freeze.",
+  "evidence_frames": [
+    3241
+  ],
+  "suspected_code": "Enemy.gd:L30 (_physics_process: is_on_wall)",
+  "path": "path2",
+  "needs_human_review": true
+}

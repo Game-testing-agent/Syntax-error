@@ -1,0 +1,9 @@
+# requirements.txt
+pydantic>=2.5
+python-dotenv>=1.0
+simpleeval>=0.9.13   # optional for restricted predicate evaluation
+
+# Optional LLM providers for Path 2 semantic reviews:
+# anthropic>=0.30
+# openai>=1.30
+# groq>=0.9

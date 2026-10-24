@@ -1,0 +1,13 @@
+{
+  "verdict": "bug",
+  "severity": "high",
+  "confidence": 0.75,
+  "title": "Semantic Anomaly: player_stuck_detected",
+  "explanation": "White-box audit verified 'player_stuck_detected' at frame 1. Expected: Horizontal displacement > 10px | Observed: Stationary despite active input. Traced to logic in Player.gd:L105 (move_and_slide).",
+  "evidence_frames": [
+    1
+  ],
+  "suspected_code": "Player.gd:L105 (move_and_slide)",
+  "path": "path2",
+  "needs_human_review": true
+}

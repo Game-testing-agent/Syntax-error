@@ -1,0 +1,62 @@
+[
+  {
+    "verdict": "bug",
+    "severity": "critical",
+    "confidence": 0.95,
+    "category": "lifecycle",
+    "title": "Unregistered Exit Portal Causes Game Progression Soft-Lock at Level Finish",
+    "explanation": "Player navigated the full course of Level01, reaching exit terminus coordinates (7316.6, 159.96) at frames 13156 and 13300, but goal.found remained false and no portal_entered or level_completed event was emitted. Violates lifecycle progression contract (Portal2D.gd:L11-L16), trapping the player in an uncompletable level.",
+    "evidence_frames": [13156, 13300],
+    "suspected_code": "Portal2D.gd:L11-L16 (_ready)",
+    "path": "path2",
+    "needs_human_review": false
+  },
+  {
+    "verdict": "bug",
+    "severity": "high",
+    "confidence": 0.95,
+    "category": "state",
+    "title": "Score Monotonicity Anomaly: Erroneous Score Deductions on Pickups",
+    "explanation": "At frames 578, 861, 964, and 1714, collecting collectibles after reaching 500 points triggered unexpected_score_change anomalies decrementing score by 10 instead of adding points. Violates state monotonicity invariant (PlayerData.gd:L36-L43 set_score), corrupting cumulative player score.",
+    "evidence_frames": [578, 861, 964, 1714],
+    "suspected_code": "PlayerData.gd:L36-L43 (set_score)",
+    "path": "path2",
+    "needs_human_review": false
+  },
+  {
+    "verdict": "bug",
+    "severity": "high",
+    "confidence": 0.90,
+    "category": "ai",
+    "title": "Zero-Velocity Wall Collision Freezes Enemy AI Movement",
+    "explanation": "At frames 3241 and 3242, enemy_reversed_at_wall recorded old_direction 0.0 and new_direction 0.0 for Enemy4. Multiplying zero velocity by -1.0 in Enemy.gd:L33 left Enemy4 permanently immobilized at (6563.42, 424.65), violating autonomous patrol kinematics.",
+    "evidence_frames": [3241, 3242],
+    "suspected_code": "Enemy.gd:L31-L33 (_physics_process: is_on_wall)",
+    "path": "path2",
+    "needs_human_review": false
+  },
+  {
+    "verdict": "bug",
+    "severity": "medium",
+    "confidence": 0.85,
+    "category": "ai",
+    "title": "Trapped Enemy Rapidly Oscillates Between Collision Boundaries",
+    "explanation": "Enemy2 triggered 14 wall reversals ping-ponging back and forth between X=3640 and X=4360 every 108 frames across frames 400, 508, 1551, 1659, 1767, and 1875. Violates AI exploration contract (Enemy.gd:L31-L33), trapping the entity in an infinite oscillation loop.",
+    "evidence_frames": [400, 508, 1551, 1659, 1767, 1875],
+    "suspected_code": "Enemy.gd:L31-L33 (_physics_process: is_on_wall)",
+    "path": "path2",
+    "needs_human_review": false
+  },
+  {
+    "verdict": "bug",
+    "severity": "high",
+    "confidence": 0.90,
+    "category": "interaction",
+    "title": "Stomp Detection Tunneling Allows Enemy to Survive Stomp Attack",
+    "explanation": "At frame 3244, stomp_attempted and enemy_stomped registered bounce velocity -1600 on Enemy4, but no enemy_killed event was emitted and Enemy4 survived. Violates combat resolution contract (Enemy.gd:L57-L63), permitting enemies to survive valid stomp attacks at high fall speeds.",
+    "evidence_frames": [3244],
+    "suspected_code": "Enemy.gd:L57-L63 (_on_StompArea2D_area_entered)",
+    "path": "path2",
+    "needs_human_review": false
+  }
+]

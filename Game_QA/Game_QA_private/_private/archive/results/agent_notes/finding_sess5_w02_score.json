@@ -1,0 +1,16 @@
+{
+  "verdict": "bug",
+  "severity": "high",
+  "confidence": 0.95,
+  "category": "state",
+  "title": "Milestone Score Deduction on Collectible Pickup",
+  "explanation": "Across frames 386 to 1733, collecting coins after reaching 500 points caused score to decrease by 10 points instead of increasing by 100 points. Traced to PlayerData.gd:L40-L41 where bug_milestone_score_tax deducts 10 points on subsequent score gains, violating monotonic score progression.",
+  "evidence_frames": [386, 606, 715, 749, 891, 1407, 1433, 1650, 1733],
+  "suspected_code": "Autoload/PlayerData.gd:L40-L41 (set_score)",
+  "dedupe_key": "PlayerData.gd:L40:milestone_score_tax",
+  "repro_hint": "Reach 500 points and collect additional coins or stomp enemies; each awards -10 points.",
+  "path": "path2",
+  "source": "agent",
+  "needs_human_review": false
+}
+

@@ -1,0 +1,30 @@
+{
+  "session_id": "session_1792868413_52644",
+  "findings_extras": [
+    {
+      "title": "Duplicate Coin Pickup Attempt Due to Missing Collision Disabling",
+      "category": "interaction",
+      "dedupe_key": "Coin.gd:L19:duplicate_coin_pickup_attempt",
+      "window_id": "w03",
+      "repro_hint": "Jump into a coin and re-enter its collision box while the picked animation plays; observe duplicate body_entered anomaly.",
+      "source": "agent"
+    }
+  ],
+  "dismissed_candidates": [
+    {
+      "frame": 923,
+      "lead": "Score reached 500 without decrement",
+      "reason": "PlayerData.set_score only decrements when old_score >= 500 and points are gained. Here score went 400->500, which is benign and expected."
+    },
+    {
+      "frame": 1720,
+      "lead": "Session stop at frame 1720 with uncollected coins",
+      "reason": "Intentional session exit/quit by player/driver (session_end event emitted). Not a freeze or soft lock."
+    }
+  ],
+  "unobservable_areas": [
+    "Enemy stomp and damage interactions (no enemies engaged in Level01)",
+    "Level completion portal transition"
+  ]
+}
+

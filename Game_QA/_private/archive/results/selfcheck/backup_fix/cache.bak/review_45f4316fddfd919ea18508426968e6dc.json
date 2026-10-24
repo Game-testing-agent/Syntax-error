@@ -1,0 +1,13 @@
+{
+  "verdict": "bug",
+  "severity": "high",
+  "confidence": 0.75,
+  "title": "Semantic Anomaly: duplicate_pickup_attempt",
+  "explanation": "Heuristic review detected 'duplicate_pickup_attempt' at frame 4276. Expected: Coin body_entered should not trigger after collection | Observed: Duplicate body_entered on collected coin",
+  "evidence_frames": [
+    4276
+  ],
+  "suspected_code": "Player.gd / GameLogger.gd",
+  "path": "path2",
+  "needs_human_review": true
+}

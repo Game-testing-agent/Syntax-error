@@ -1,0 +1,13 @@
+{
+  "verdict": "bug",
+  "severity": "high",
+  "confidence": 0.7,
+  "title": "Player invulnerable to threat enemy contact",
+  "explanation": "state_snapshot event at frame 300 shows the closest enemy (is_threat=true) at x=1886.6, y=800.0, which is 79.98 units from the player (dx<80) and y-difference 0.02 (<82), so contact occurs; stats.deaths remains 0 in that snapshot. No player_died, player_hurt, or player_damaged events are present in any later event (session_end at frame 350). Thus the player takes no damage despite threat contact.",
+  "evidence_frames": [
+    665
+  ],
+  "suspected_code": "Player.gd:_on_body_entered",
+  "path": "path2",
+  "needs_human_review": true
+}

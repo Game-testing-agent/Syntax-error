@@ -1,0 +1,16 @@
+{
+  "verdict": "bug",
+  "severity": "critical",
+  "confidence": 0.98,
+  "category": "kinematics",
+  "title": "Player Falls Indefinitely Through Boundary Hole Without Void Death",
+  "explanation": "At frame 3471 (t=58.27s), the player fell past OUT_OF_BOUNDS_Y (1400.0) at (17894.93, 1403.4) and continued falling down into the void to Y=245423.75 without triggering player death or respawn. Traced to Player.gd:L244-L256 where exceeding OUT_OF_BOUNDS_Y logs an anomaly but never calls die().",
+  "evidence_frames": [3471, 4208],
+  "suspected_code": "Actors/Player.gd:L244-L256 (_physics_process)",
+  "dedupe_key": "Player.gd:L244:out_of_bounds_infinite_fall",
+  "repro_hint": "Fall through the boundary hole near the level terminus; the player falls infinitely into the void without dying.",
+  "path": "path2",
+  "source": "agent",
+  "needs_human_review": false
+}
+

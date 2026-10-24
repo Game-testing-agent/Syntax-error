@@ -1,0 +1,18 @@
+# Architecture Notes: Prompt Usage & Window Overlap
+
+## 1. CP-21: Review Prompt Usage
+- **External API Mode**: Neither `eval.py` nor `llm.py` contains any code loading or sending `prompts/review_v1.md`. It is currently an unreferenced reference document.
+- **Native Agent Mode**: In native agent mode (`USE_EXTERNAL_API=0`), [`.agents/skills/game-qa/SKILL.md`](file:///c:/Users/hunne/Documents/Game_QA/.agents/skills/game-qa/SKILL.md) is the effective, active system prompt guiding the white-box QA workflow.
+- **Status**: No code wired in, adhering strictly to instructions.
+
+## 2. CP-15: Window Overlap & Cross-Window Invariant Chains
+- **Current Windowing**: `eval.py:L74-100` advances windows contiguously with zero overlap:
+  ```python
+  next_t = cur_t + window_sec  # window_sec = 5.0
+  ...
+  cur_t = next_t  # 0.0s overlap
+  ```
+- **Session-Level Invariant Coverage**: Multi-step chains spanning across multiple windows (such as death and respawn across windows w03 and w04, or traversing to the portal across w18 and w19) are evaluated during the macro session-level pass specified in `SKILL.md` Section 6 (monotonicity, liveness, absence, ordering).
+- **Proposed Enhancement (Not Implemented)**:
+  Introduce a 1.0s temporal overlap (`stride_sec = 4.0` with `window_sec = 5.0`) so that events occurring near window boundaries are contextualized by adjacent window snapshots without fragmenting causal event chains.
+

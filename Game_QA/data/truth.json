@@ -1,0 +1,19 @@
+{
+  "session_1792580000_12345": {
+    "session_id": "session_1792580000_12345",
+    "expected_bugs": [
+      {"title": "player_stuck_detected", "should_be_caught_by": "path1"},
+      {"title": "player_out_of_bounds", "should_be_caught_by": "path1"},
+      {"title": "unexpected_player_removal", "should_be_caught_by": "path1"},
+      {"title": "unexpected_score_change", "should_be_caught_by": "path1"},
+      {"title": "duplicate_pickup_attempt", "should_be_caught_by": "path1"},
+      {"title": "missing_expected_object", "should_be_caught_by": "path1"},
+      {"title": "scene_transition_timeout", "should_be_caught_by": "path1"},
+      {"title": "runtime_error_observed", "should_be_caught_by": "path1"}
+    ]
+  },
+  "session_1792693950_44822": {
+    "session_id": "session_1792693950_44822",
+    "expected_bugs": []
+  }
+}
