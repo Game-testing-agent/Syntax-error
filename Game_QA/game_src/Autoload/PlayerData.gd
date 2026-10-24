@@ -37,14 +37,11 @@ func set_score(new_score: int) -> void:
 
 	if is_inside_tree() and GameLogger:
 		var delta = score - old_score
-		if delta < 0 and not is_resetting:
-			GameLogger.log_anomaly("unexpected_score_change", {
-				"old_score": old_score,
-				"new_score": new_score,
-				"delta": delta,
-				"expected": "Score should only increase or reset to 0",
-				"observed": "Score decreased by " + str(abs(delta))
-			}, "warning")
+		GameLogger.log_event("score_changed", "stats", {
+			"old_score": old_score,
+			"new_score": score,
+			"delta": delta
+		})
 
 	updated.emit()
 

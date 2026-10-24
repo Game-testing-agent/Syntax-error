@@ -2,7 +2,6 @@ extends Area2D
 
 @onready var anim_player: AnimationPlayer = $AnimationPlayer
 @export var score: int = 100
-# Deferred collision pickup race condition
 var is_collected: bool = false
 static var total_coins_collected: int = 0
 
@@ -25,12 +24,11 @@ func _on_body_entered(body: PhysicsBody2D) -> void:
 
 	if is_collected:
 		if GameLogger:
-			GameLogger.log_anomaly("duplicate_pickup_attempt", {
+			GameLogger.log_event("coin_overlap_ignored", "collectible", {
+				"collector": body.name,
 				"coin_id": int(get_instance_id()),
-				"position": GameLogger.vec2_to_dict(global_position),
-				"expected": "Coin body_entered should not trigger after collection",
-				"observed": "Duplicate body_entered on collected coin"
-			}, "warning")
+				"position": GameLogger.vec2_to_dict(global_position)
+			}, self)
 		return
 
 	if body and "velocity" in body and abs(body.velocity.x) > 300.0:

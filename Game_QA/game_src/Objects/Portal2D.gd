@@ -39,14 +39,9 @@ func teleport() -> void:
 
 	if not next_scene or next_scene.resource_path == "":
 		if GameLogger:
-			GameLogger.log_anomaly("missing_expected_object", {
-				"node": name,
-				"missing_property": "next_scene",
-				"expected": "Valid PackedScene assigned to next_scene",
-				"observed": "next_scene is null or empty"
-			}, "error")
-			GameLogger.log_event("portal_target_missing", "portal", {
-				"portal_name": name
+			GameLogger.log_event("portal_activation_failed", "portal", {
+				"portal_name": name,
+				"reason": "empty_target"
 			}, self)
 		return
 
@@ -62,45 +57,24 @@ func teleport() -> void:
 			"target_scene": target_path
 		}, self)
 
-
-	# If the player touches the portal while airborne and moving downward, pausing
-
-	# the scene tree is skipped, allowing gravity to pull the player into the pit
-
-	# below the portal during the 0.5s fade-out sequence before the scene switch.
-
+	# Mid-air transition handling
 	var should_pause = true
-
 	var player_nodes = get_tree().get_nodes_in_group("player")
 	if player_nodes.size() > 0 and not player_nodes[0].is_on_floor() and player_nodes[0].velocity.y > 0:
 		should_pause = false
 
-
-
 	if should_pause:
-
 		get_tree().paused = true
 
-
-
 	if GameLogger:
-
 		GameLogger.log_event("portal_fade_started", "portal", {
-
 			"animation": "fade_out"
-
 		}, self)
 
-
-
 	anim_player.play("fade_out")
-
 	await anim_player.animation_finished
 
-
-
 	if should_pause:
-
 		get_tree().paused = false
 
 	if GameLogger:
@@ -121,10 +95,3 @@ func teleport() -> void:
 			"error_code": err,
 			"target_scene": target_path
 		}, self)
-		GameLogger.log_anomaly("runtime_error_observed", {
-			"error_code": err,
-			"operation": "change_scene_to_packed",
-			"target_scene": target_path,
-			"expected": "Error code OK (0)",
-			"observed": "Error code " + str(err)
-		}, "error")

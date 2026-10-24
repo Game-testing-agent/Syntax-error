@@ -1,7 +1,7 @@
 extends Actor
 
 @export var stomp_impulse: float = 600.0
-@export var is_invincible: bool = false  # TEMPORARY: God mode (set to false to re-enable death)
+@export var is_invincible: bool = false
 const MOVE_SAMPLE_DIST_THRESHOLD: float = 100.0
 const MOVE_SAMPLE_FRAME_INTERVAL: int = 30
 const FALL_DISTANCE_THRESHOLD: float = 400.0
@@ -44,12 +44,6 @@ func _exit_tree() -> void:
 		GameLogger.log_event("player_removed", "player_lifecycle", {
 			"position": GameLogger.vec2_to_dict(global_position)
 		})
-		if not GameLogger.is_shutting_down and not GameLogger.expected_player_death and not GameLogger.is_scene_transitioning:
-			GameLogger.log_anomaly("unexpected_player_removal", {
-				"position": GameLogger.vec2_to_dict(global_position),
-				"expected": "Player removal should occur on death or scene transition",
-				"observed": "Player exited scene tree without death flag or transition"
-			}, "error")
 		GameLogger.expected_player_death = false
 		GameLogger.unregister_player(self)
 
@@ -210,16 +204,8 @@ func _physics_process(delta: float) -> void:
 		last_move_log_pos = global_position
 		last_move_log_frame = current_frame
 
-	# Out of bounds anomaly detection
-	if global_position.y > OUT_OF_BOUNDS_Y and not out_of_bounds_logged and GameLogger:
+	if global_position.y > OUT_OF_BOUNDS_Y and not out_of_bounds_logged:
 		out_of_bounds_logged = true
-
-		GameLogger.log_anomaly("player_out_of_bounds", {
-			"position": GameLogger.vec2_to_dict(global_position),
-			"threshold_y": OUT_OF_BOUNDS_Y,
-			"expected": "Player position Y <= " + str(OUT_OF_BOUNDS_Y),
-			"observed": "Player position Y exceeded limit: " + str(round(global_position.y * 10.0) / 10.0)
-		}, "error")
 
 	was_on_floor = current_on_floor
 

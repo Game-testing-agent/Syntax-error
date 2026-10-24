@@ -6,7 +6,6 @@ extends Actor
 @export var is_floating: bool = false
 @export var is_armored: bool = false
 var has_triggered_floating: bool = false
-# High-speed stomp tunneling miss
 var is_dead: bool = false
 
 

@@ -1,67 +1,13 @@
 [
   {
-    "session_id": "session_1792870246_65380",
-    "total_events": 325,
-    "total_snapshots": 4,
-    "findings": [
-      {
-        "verdict": "bug",
-        "severity": "critical",
-        "confidence": 0.95,
-        "title": "Engine Anomaly: player_out_of_bounds",
-        "explanation": "Expected: Player position Y <= 1400.0 | Observed: Player position Y exceeded limit: 1412.4 across frame(s) [337].",
-        "evidence_frames": [
-          337
-        ],
-        "suspected_code": "GameLogger.gd / res://src/Levels/Map4_LavaFortress.tscn",
-        "path": "path1",
-        "needs_human_review": false
-      },
-      {
-        "verdict": "bug",
-        "severity": "high",
-        "confidence": 0.75,
-        "title": "Semantic Anomaly: player_out_of_bounds",
-        "explanation": "White-box audit verified 'player_out_of_bounds' at frame 337. Expected: Player position Y <= 1400.0 | Observed: Player position Y exceeded limit: 1412.4. Traced to logic in Player.gd (OUT_OF_BOUNDS_Y).",
-        "evidence_frames": [
-          337
-        ],
-        "suspected_code": "Player.gd (OUT_OF_BOUNDS_Y)",
-        "path": "path2",
-        "needs_human_review": true
-      }
-    ],
+    "session_id": "session_1792882296_84915",
+    "total_events": 723,
+    "total_snapshots": 14,
+    "findings": [],
     "score": {
       "matched": [],
-      "false_positives": [
-        {
-          "verdict": "bug",
-          "severity": "critical",
-          "confidence": 0.95,
-          "title": "Engine Anomaly: player_out_of_bounds",
-          "explanation": "Expected: Player position Y <= 1400.0 | Observed: Player position Y exceeded limit: 1412.4 across frame(s) [337].",
-          "evidence_frames": [
-            337
-          ],
-          "suspected_code": "GameLogger.gd / res://src/Levels/Map4_LavaFortress.tscn",
-          "path": "path1",
-          "needs_human_review": false
-        },
-        {
-          "verdict": "bug",
-          "severity": "high",
-          "confidence": 0.75,
-          "title": "Semantic Anomaly: player_out_of_bounds",
-          "explanation": "White-box audit verified 'player_out_of_bounds' at frame 337. Expected: Player position Y <= 1400.0 | Observed: Player position Y exceeded limit: 1412.4. Traced to logic in Player.gd (OUT_OF_BOUNDS_Y).",
-          "evidence_frames": [
-            337
-          ],
-          "suspected_code": "Player.gd (OUT_OF_BOUNDS_Y)",
-          "path": "path2",
-          "needs_human_review": true
-        }
-      ],
-      "n_findings": 2
+      "false_positives": [],
+      "n_findings": 0
     }
   }
 ]

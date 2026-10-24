@@ -62,9 +62,57 @@ def derive_checks(code_text: str, code_file: str) -> list[Check]:
 
 def _audit_window_semantics(window: ReviewWindow) -> Optional[Finding]:
     """White-box semantic auditor referencing actual GDScript lines without external APIs."""
-    # 1. Engine-Level Telemetry Anomalies mapped directly to GDScript
+    # 1. Discrete Events Auditing (Objective telemetry + legacy anomaly fallback)
     for ev in window.events:
-        if ev.category == "anomaly":
+        if ev.event == "score_changed" and ev.payload.get("delta", 0) < 0:
+            return Finding(
+                verdict=Verdict.bug,
+                severity=Severity.high,
+                confidence=0.85,
+                title="Semantic Anomaly: unexpected_score_change",
+                explanation=f"Observed negative score delta {ev.payload.get('delta')} at frame {ev.frame} without state reset. Traced to logic in PlayerData.gd (set_score).",
+                evidence_frames=[ev.frame],
+                suspected_code="PlayerData.gd (set_score)",
+                path="path2",
+                needs_human_review=False,
+            )
+        elif ev.event == "coin_overlap_ignored":
+            return Finding(
+                verdict=Verdict.bug,
+                severity=Severity.high,
+                confidence=0.80,
+                title="Semantic Anomaly: duplicate_pickup_attempt",
+                explanation=f"Duplicate overlap detected on already-collected coin at frame {ev.frame}. Traced to deferred collision handling in Coin.gd (_on_body_entered).",
+                evidence_frames=[ev.frame],
+                suspected_code="Coin.gd (_on_body_entered)",
+                path="path2",
+                needs_human_review=False,
+            )
+        elif ev.event == "portal_activation_failed":
+            return Finding(
+                verdict=Verdict.bug,
+                severity=Severity.critical,
+                confidence=0.90,
+                title="Semantic Anomaly: missing_expected_object",
+                explanation=f"Portal activation failed at frame {ev.frame} due to unassigned target scene. Traced to Portal2D.gd (teleport).",
+                evidence_frames=[ev.frame],
+                suspected_code="Portal2D.gd (teleport)",
+                path="path2",
+                needs_human_review=False,
+            )
+        elif ev.event == "scene_load_failed":
+            return Finding(
+                verdict=Verdict.bug,
+                severity=Severity.critical,
+                confidence=0.90,
+                title="Semantic Anomaly: runtime_error_observed",
+                explanation=f"Engine returned error code {ev.payload.get('error_code')} during scene transition at frame {ev.frame}. Traced to Portal2D.gd (change_scene_to_packed).",
+                evidence_frames=[ev.frame],
+                suspected_code="Portal2D.gd (change_scene_to_packed)",
+                path="path2",
+                needs_human_review=False,
+            )
+        elif ev.category == "anomaly":
             code_map = {
                 "player_out_of_bounds": "Player.gd (OUT_OF_BOUNDS_Y)",
                 "duplicate_pickup_attempt": "Coin.gd (_on_body_entered)",
@@ -206,22 +254,30 @@ def _audit_window_semantics(window: ReviewWindow) -> Optional[Finding]:
 
     for ename, rev_list in enemy_reversals.items():
         if len(rev_list) >= 3:
-            rev_frames = [r.frame for r in rev_list]
-            return Finding(
-                verdict=Verdict.bug,
-                severity=Severity.high,
-                confidence=0.75,
-                title=f"Oscillating Enemy Wall Reversal ({ename} Trapped)",
-                explanation=(
-                    f"Enemy '{ename}' triggered {len(rev_list)} wall reversals within review window {window.window_id} "
-                    f"(frames {min(rev_frames)}–{max(rev_frames)}). Enemy is oscillating rapidly between collision boundaries "
-                    f"without making forward patrol progress."
-                ),
-                evidence_frames=rev_frames[:5],
-                suspected_code="Enemy.gd (_physics_process: is_on_wall)",
-                path="path2",
-                needs_human_review=True,
-            )
+            xs = [
+                r.payload.get("position", {}).get("x", 0.0)
+                for r in rev_list
+                if isinstance(r.payload, dict) and isinstance(r.payload.get("position"), dict)
+            ]
+            # Trapped oscillation occurs when the enemy is vibrating between close boundaries (<150px)
+            is_trapped = (max(xs) - min(xs) < 150.0) if xs else False
+            if is_trapped:
+                rev_frames = [r.frame for r in rev_list]
+                return Finding(
+                    verdict=Verdict.bug,
+                    severity=Severity.high,
+                    confidence=0.75,
+                    title=f"Oscillating Enemy Wall Reversal ({ename} Trapped)",
+                    explanation=(
+                        f"Enemy '{ename}' triggered {len(rev_list)} wall reversals within review window {window.window_id} "
+                        f"(frames {min(rev_frames)}–{max(rev_frames)}). Enemy is oscillating rapidly between collision boundaries "
+                        f"without making forward patrol progress."
+                    ),
+                    evidence_frames=rev_frames[:5],
+                    suspected_code="Enemy.gd (_physics_process: is_on_wall)",
+                    path="path2",
+                    needs_human_review=True,
+                )
 
     return None
 

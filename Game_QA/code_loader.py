@@ -10,15 +10,19 @@ from schemas import Event
 
 ROOT = Path(__file__).parent
 LOCAL_SRC = ROOT / "game_src"
-EXTERNAL_SRC = ROOT.parent / "Syntax-error" / "godot-4game" / "src"
+_ext_candidates = [
+    ROOT.parent / "godot-4game" / "src",
+    ROOT.parent / "Syntax-error" / "godot-4game" / "src",
+]
+EXTERNAL_SRC = next((p for p in _ext_candidates if p.exists()), _ext_candidates[0])
 
 
 def find_source_dir() -> Path:
-    """Returns the game source directory (prefers local game_src, falls back to Syntax-error)."""
-    if LOCAL_SRC.exists() and any(LOCAL_SRC.rglob("*.gd")):
-        return LOCAL_SRC
+    """Returns the game source directory (prefers external active Syntax-error copy, falls back to local game_src)."""
     if EXTERNAL_SRC.exists() and any(EXTERNAL_SRC.rglob("*.gd")):
         return EXTERNAL_SRC
+    if LOCAL_SRC.exists() and any(LOCAL_SRC.rglob("*.gd")):
+        return LOCAL_SRC
     return LOCAL_SRC
 
 

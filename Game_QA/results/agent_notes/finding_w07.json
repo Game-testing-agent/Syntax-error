@@ -1,0 +1,15 @@
+{
+  "verdict": "bug",
+  "severity": "high",
+  "confidence": 0.95,
+  "category": "kinematics",
+  "title": "Player pinned to zero velocity on stairs in Map3",
+  "explanation": "At frame 2130, the player lands on Map3 stairs at coordinates (5458, 560), setting is_stair_stuck in Player.gd:L150. Frame 2140 jump and frame 2142 right inputs produce zero velocity because Player.gd:L165 forces velocity to Vector2.ZERO until 3 rapid left inputs occur, violating the kinematics invariant.",
+  "evidence_frames": [2130, 2140, 2142, 2162, 2177, 2224, 2280],
+  "suspected_code": "Actors/Player.gd:L149-L167",
+  "dedupe_key": "Player.gd:L149:stair_stick_pins_player_velocity",
+  "repro_hint": "Walk right onto the stairs near x=5440 in Map3 to trigger the movement lock.",
+  "path": "path2",
+  "source": "agent",
+  "needs_human_review": false
+}

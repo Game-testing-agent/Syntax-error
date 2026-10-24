@@ -83,6 +83,11 @@ def merge_findings(existing: Finding, incoming: Finding) -> None:
     if len(incoming.explanation) > len(existing.explanation):
         existing.explanation = incoming.explanation
 
+    if incoming.title and "Engine Anomaly:" in existing.title:
+        existing.title = incoming.title
+        existing.suspected_code = incoming.suspected_code
+        existing.path = incoming.path
+
     existing.needs_human_review = existing.needs_human_review or incoming.needs_human_review
 
 

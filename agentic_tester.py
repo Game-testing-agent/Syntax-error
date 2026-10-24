@@ -426,17 +426,28 @@ class AgenticTestingLoop:
         alive  = bool(player.get("alive", False)) and state.get("game_state") != "player_died"
         return state, deaths, alive
 
-    def _ensure_level1(self, state=None):
+    def _ensure_level1(self, state=None, target_x=None):
         """Make sure the game is actively running in Level01; issue start_game/retry if needed."""
         for attempt in range(5):
             st = self.controller.get_latest_state()
             scene = (st or {}).get("scene", "")
             if "Level01" in scene:
                 player = (st or {}).get("player") or {}
-                if player.get("alive", False):
+                alive = player.get("alive", False) and st.get("game_state") != "player_died"
+                if alive:
+                    px = float((player.get("position") or {}).get("x", 200.0))
+                    # Since hybrid bot routes run strictly left-to-right, if player is already past the target,
+                    # reset spawn to beginning of Level01 so the bot can traverse cleanly to target.
+                    if target_x is not None and px > target_x - 50.0:
+                        print(f"[Loop] Current player X ({px:.0f}) is past target ({target_x:.0f}) - resetting to spawn for clean hybrid bot traversal...", flush=True)
+                        self.controller.release_all()
+                        self.controller.retry()
+                        time.sleep(1.5)
+                        continue
                     return True
                 else:
                     print("[Loop] Player dead on spawn - issuing retry...", flush=True)
+                    self.controller.release_all()
                     self.controller.retry()
                     time.sleep(1.5)
                     continue
@@ -526,7 +537,7 @@ class AgenticTestingLoop:
 
             # ---- ENSURE LEVEL01 ----
             state, deaths_before, _ = self._observe()
-            self._ensure_level1(state)
+            self._ensure_level1(state, target_x=tx)
             state, deaths_before, _ = self._observe()
 
             # ---- EXECUTE ----

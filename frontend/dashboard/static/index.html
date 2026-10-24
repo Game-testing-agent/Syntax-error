@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Syntax-Error // QA Explorer Dashboard</title>
+  <link rel="stylesheet" href="/static/css/dashboard.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- ========================================================================
+       Top Navigation Header
+       ======================================================================== -->
+  <header class="dashboard-header">
+    <div class="brand">
+      <div class="brand-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+          <polyline points="2 17 12 22 22 17"></polyline>
+          <polyline points="2 12 12 17 22 12"></polyline>
+        </svg>
+      </div>
+      <div>
+        <div class="brand-title">SYNTAX-ERROR</div>
+        <div class="brand-subtitle">AI QA BENCHMARK & EXPLORER</div>
+      </div>
+    </div>
+
+    <!-- Center: Global Map Selector -->
+    <div class="header-center">
+      <div class="map-badge-selector">
+        <span class="map-badge-label">Active Map:</span>
+        <select id="global-map-select" class="map-select-compact">
+          <option value="0" selected>Default Map (Original Game)</option>
+          <option value="1">Map 1: Green Hills</option>
+          <option value="2">Map 2: Underground Caves</option>
+          <option value="3">Map 3: Sky Castle</option>
+          <option value="4">Map 4: Lava Fortress</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Right: Process status & actions -->
+    <div class="header-right">
+      <div class="process-indicator" id="process-indicator-box">
+        <span class="status-dot" id="status-dot"></span>
+        <span id="status-text">READY / IDLE</span>
+      </div>
+
+      <button id="stop-process-btn" class="header-btn stop-btn" style="display:none;" title="Terminate active process">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>
+        Stop
+      </button>
+
+      <button id="run-qa-eval-btn" class="header-btn" title="Run Game_QA Post-Run Evaluator">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+        Run QA Audit
+      </button>
+
+      <button id="refresh-btn" class="header-btn" title="Refresh data from disk">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+        Refresh
+      </button>
+    </div>
+  </header>
+
+  <!-- ========================================================================
+       Dashboard Layout: Sidebar + Main Content Area
+       ======================================================================== -->
+  <div class="dashboard-body">
+    
+    <!-- Sidebar Navigation -->
+    <nav class="sidebar">
+      <div class="nav-section-title">Telemetry & QA</div>
+      <a href="#overview" class="nav-item active" data-tab="overview">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+        Overview & Bugs
+      </a>
+
+      <div class="nav-section-title">Execution Hub</div>
+      <a href="#run-game" class="nav-item" data-tab="run-game">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+        Run Game & Maps
+      </a>
+      <a href="#agent-explorer" class="nav-item" data-tab="agent-explorer">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a8 8 0 0 0-8 8c0 5 8 12 8 12s8-7 8-12a8 8 0 0 0-8-8z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+        Agent Explorer
+        <span class="nav-badge">Closed-Loop</span>
+      </a>
+      <a href="#run-explorer" class="nav-item" data-tab="run-explorer">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+        Normal Explorer
+      </a>
+
+      <div class="nav-section-title">Monitoring</div>
+      <a href="#telemetry" class="nav-item" data-tab="telemetry">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
+        Live Telemetry
+      </a>
+      <a href="#terminal" class="nav-item" data-tab="terminal">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
+        Live Terminal
+      </a>
+
+      <div class="sidebar-footer">
+        <div>Godot 4 2D Platformer</div>
+        <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-dim);margin-top:2px;">UDP Port: 4242 | GDScript</div>
+      </div>
+    </nav>
+
+    <!-- Main Content Panes -->
+    <main class="main-content">
+
+      <!-- ====================================================================
+           Tab 1: Overview & Bug Radar
+           ==================================================================== -->
+      <section id="tab-overview" class="tab-pane active">
+        <!-- KPI Metrics Grid -->
+        <div class="stats-grid">
+          <div class="stat-card critical">
+            <span class="stat-label">Critical Bugs</span>
+            <span class="stat-value" id="kpi-critical-bugs">-</span>
+            <span class="stat-sub">High severity anomalies</span>
+          </div>
+          <div class="stat-card high">
+            <span class="stat-label">High Severity</span>
+            <span class="stat-value" id="kpi-high-bugs">-</span>
+            <span class="stat-sub">Gameplay / score defects</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Total Discovered</span>
+            <span class="stat-value" id="kpi-total-bugs">-</span>
+            <span class="stat-sub">From Game_QA final reports</span>
+          </div>
+          <div class="stat-card green">
+            <span class="stat-label">Benchmark Ground Truth</span>
+            <span class="stat-value" id="kpi-covered-benchmark">-</span>
+            <span class="stat-sub">Intentional bugs covered</span>
+          </div>
+          <div class="stat-card purple">
+            <span class="stat-label">Logged Events</span>
+            <span class="stat-value" id="kpi-events-count">-</span>
+            <span class="stat-sub">JSONL telemetry stream</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Agentic Runs</span>
+            <span class="stat-value" id="kpi-agentic-runs">-</span>
+            <span class="stat-sub">Recorded test sessions</span>
+          </div>
+        </div>
+
+        <!-- Discovered Bugs Table from Game_QA -->
+        <div class="card" style="margin-bottom:24px;">
+          <div class="card-header">
+            <h2 class="card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+              Discovered Bugs & QA Findings
+            </h2>
+            <span style="font-size:12px;color:var(--text-muted);">Real results parsed from <code>Game_QA/results/</code></span>
+          </div>
+          <p class="card-desc">Findings caught across deterministic invariant checks (Path 1) and LLM white-box audits (Path 2).</p>
+          
+          <div style="overflow-x:auto;">
+            <table class="bugs-table">
+              <thead>
+                <tr>
+                  <th style="width:40px;">#</th>
+                  <th>Severity</th>
+                  <th>Title / Anomaly</th>
+                  <th>Path</th>
+                  <th>Confidence</th>
+                  <th>Suspected Code</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="bugs-tbody">
+                <tr><td colspan="7" style="text-align:center;padding:16px;">Loading findings...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Two Column Layout: Ground Truth Benchmark Checklist & Recent Agentic Runs -->
+        <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(420px, 1fr));gap:24px;">
+          
+          <!-- Ground Truth Benchmark List -->
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+                Master Answer Key Verification
+              </h2>
+              <span style="font-size:11px;font-family:var(--font-mono);color:var(--text-dim);">maps/ANSWER_KEY.md</span>
+            </div>
+            <p class="card-desc">11 documented intentional bugs across Maps 1 through 4:</p>
+            <div id="benchmark-checklist-container">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+          <!-- Recent Agentic Test Runs -->
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                Recent Agentic Test Sessions
+              </h2>
+              <span style="font-size:11px;font-family:var(--font-mono);color:var(--text-dim);">agentic_test_results/</span>
+            </div>
+            <p class="card-desc">Autonomous test loops executed by <code>agentic_tester.py</code>:</p>
+            <div id="agentic-runs-container">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           Tab 2: Run Game & Custom Maps
+           ==================================================================== -->
+      <section id="tab-run-game" class="tab-pane">
+        <div class="card" style="margin-bottom:24px;">
+          <div class="card-header">
+            <h2 class="card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+              Select Map (5 Available: Default Campaign + 4 Custom Benchmark Maps)
+            </h2>
+            <span style="font-size:12px;color:var(--accent-cyan);font-weight:600;">Click a map card to select or run</span>
+          </div>
+          <p class="card-desc">Choose from the Default Map (original game campaign launched by <code>run_game</code>) or the four custom benchmark maps (Map 1 to Map 4). The selected map is passed directly to the game launcher or explorer.</p>
+          
+          <div class="maps-grid" id="maps-grid-container">
+            <!-- Dynamically populated with all 5 maps -->
+          </div>
+        </div>
+
+        <!-- Launch Configuration Panel -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+              Game Launch Settings
+            </h2>
+          </div>
+
+          <div class="form-row">
+            <div class="form-col form-group">
+              <label class="form-label">Display Mode</label>
+              <select id="game-launch-mode" class="form-select">
+                <option value="windowed">Normal Window (GUI)</option>
+                <option value="debug">Debug Mode (With Console & Verbose Telemetry)</option>
+                <option value="headless">Headless (No Window / Fast CI Mode)</option>
+              </select>
+            </div>
+            <div class="form-col form-group">
+              <label class="form-label">Auto-Quit After Frames (Optional)</label>
+              <input type="number" id="game-frames-input" class="form-input" placeholder="e.g. 600 frames (blank = run indefinitely)">
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-top:8px;">
+            <label class="checkbox-label">
+              <input type="checkbox" id="game-with-bot-checkbox">
+              <span><strong>Spawn Hybrid Bot Traversal:</strong> Automatically navigate player toward destination coordinates</span>
+            </label>
+          </div>
+
+          <div style="margin-top:20px;display:flex;gap:12px;">
+            <button class="btn" onclick="launchGameWorkflow()" style="padding:12px 28px;font-size:14px;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+              Launch Game Workflow
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           Tab 3: Agent Explorer
+           ==================================================================== -->
+      <section id="tab-agent-explorer" class="tab-pane">
+        <div class="card" style="margin-bottom:24px;">
+          <div class="card-header">
+            <h2 class="card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a8 8 0 0 0-8 8c0 5 8 12 8 12s8-7 8-12a8 8 0 0 0-8-8z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+              Autonomous Agentic Testing Loop
+            </h2>
+            <span class="path-badge" style="background:rgba(56,189,248,0.15);color:var(--accent-cyan);border-color:rgba(56,189,248,0.3);">agentic_tester.py</span>
+          </div>
+          <p class="card-desc">
+            Executes the closed-loop testing workflow: <code>observe -> select target -> navigate -> evaluate -> record evidence -> replan</code>.
+            Targets are grounded in 1,290 verified reachable coordinates.
+          </p>
+
+          <!-- Strategy Selection Cards -->
+          <div class="form-group">
+            <label class="form-label">Exploration Strategy</label>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));gap:12px;">
+              <label class="card" style="padding:14px;cursor:pointer;border-color:var(--border-accent);">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+                  <input type="radio" name="agent_strategy" value="coverage" checked onchange="document.getElementById('agent-strategy-select').value=this.value">
+                  <strong style="color:#fff;">Coverage (Default)</strong>
+                </div>
+                <div style="font-size:11.5px;color:var(--text-muted);">Maximise spatial coverage of unique platform segments.</div>
+              </label>
+
+              <label class="card" style="padding:14px;cursor:pointer;">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+                  <input type="radio" name="agent_strategy" value="risk" onchange="document.getElementById('agent-strategy-select').value=this.value">
+                  <strong style="color:var(--accent-yellow);">Risk-Prioritized</strong>
+                </div>
+                <div style="font-size:11.5px;color:var(--text-muted);">Prioritise elevated, high-gap, and hard-to-reach segments.</div>
+              </label>
+
+              <label class="card" style="padding:14px;cursor:pointer;">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+                  <input type="radio" name="agent_strategy" value="systematic" onchange="document.getElementById('agent-strategy-select').value=this.value">
+                  <strong style="color:var(--accent-cyan);">Systematic Sweep</strong>
+                </div>
+                <div style="font-size:11.5px;color:var(--text-muted);">Left-to-right sweep of recorded reachable platform points.</div>
+              </label>
+            </div>
+            <input type="hidden" id="agent-strategy-select" value="coverage">
+          </div>
+
+          <!-- Configuration Inputs -->
+          <div class="form-row">
+            <div class="form-col form-group">
+              <label class="form-label">Test Case Budget</label>
+              <input type="number" id="agent-budget-input" class="form-input" value="20" min="1" max="100">
+              <span style="font-size:11px;color:var(--text-dim);">Number of target cases to run (default: 20)</span>
+            </div>
+            <div class="form-col form-group">
+              <label class="form-label">Execution Mode</label>
+              <select id="agent-mode-select" class="form-select">
+                <option value="adaptive" selected>adaptive (Closed-Loop Agentic Testing Loop)</option>
+                <option value="waypoints">waypoints (Deterministic Runner)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-col form-group">
+              <label class="form-label">Max Steps Per Target</label>
+              <input type="number" id="agent-maxsteps-input" class="form-input" value="350" min="50" max="2000">
+            </div>
+            <div class="form-col form-group">
+              <label class="form-label">Tolerance Radius (px)</label>
+              <input type="number" id="agent-tolerance-input" class="form-input" value="70.0" step="5">
+            </div>
+          </div>
+
+          <div class="form-row" style="margin-top:8px;">
+            <label class="checkbox-label form-col">
+              <input type="checkbox" id="agent-launch-window-check" checked>
+              <span>Auto-launch Godot game window</span>
+            </label>
+            <label class="checkbox-label form-col">
+              <input type="checkbox" id="agent-verbose-check">
+              <span>Verbose step logging</span>
+            </label>
+          </div>
+
+          <!-- Presets -->
+          <div style="margin-top:16px;">
+            <span style="font-size:11px;color:var(--text-dim);text-transform:uppercase;margin-right:8px;">Quick Presets:</span>
+            <button class="preset-chip" onclick="document.getElementById('agent-budget-input').value=5;showNotification('Preset: Fast Audit (5 cases)')">Fast Audit (5 cases)</button>
+            <button class="preset-chip" onclick="document.getElementById('agent-budget-input').value=20;showNotification('Preset: Standard Suite (20 cases)')">Standard Suite (20 cases)</button>
+            <button class="preset-chip" onclick="document.getElementById('agent-budget-input').value=40;document.querySelector('input[name=agent_strategy][value=risk]').click();showNotification('Preset: Deep Risk Hunt')">Deep Risk Hunt (40 cases)</button>
+          </div>
+
+          <div style="margin-top:24px;">
+            <button class="btn" onclick="launchAgentExplorerWorkflow()" style="padding:12px 32px;font-size:14px;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+              Launch Agent Explorer
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           Tab 4: Normal Explorer (run_explorer)
+           ==================================================================== -->
+      <section id="tab-run-explorer" class="tab-pane">
+        <div class="card" style="margin-bottom:24px;">
+          <div class="card-header">
+            <h2 class="card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+              AI Game Tester Explorer Control Hub
+            </h2>
+            <span class="path-badge" style="background:rgba(56,189,248,0.15);color:var(--accent-cyan);border-color:rgba(56,189,248,0.3);">explorer.py</span>
+          </div>
+          <p class="card-desc">Exposes all exploration modes, route replay mechanisms, and waypoint navigators supported by <code>explorer.py</code>.</p>
+
+          <!-- Top Mode Selector -->
+          <div class="form-group">
+            <label class="form-label">Exploration Mode</label>
+            <select id="exp-mode-select" class="form-select" style="font-weight:600;font-size:14px;color:var(--accent-cyan);">
+              <option value="hybrid" selected>[1] Hybrid Bot: Baseline Mode (Completes Level01 + Level02 reliably)</option>
+              <option value="hybrid_variation">[2] Hybrid Bot: Controlled Variation Mode (Exploration & Bug Hunting)</option>
+              <option value="target_coord">[3] Target Coordinate Explorer (Navigate directly to specific X, Y)</option>
+              <option value="waypoints_sequential">[W2] Sequential Waypoints Mode (Enter N coords; visits each with wait time)</option>
+              <option value="waypoints_interactive">[W1] Interactive Waypoints Mode (Visits coords sequentially with pauses)</option>
+              <option value="scripted">[4] Scripted Mode: Predefined Action Path (from paths/*.json)</option>
+              <option value="random">[6] Random Exploration Mode (Seed & Random Actions)</option>
+              <option value="coverage_guided">[7] Coverage-Guided Exploration Mode (Spatial Grid Novelty)</option>
+              <option value="tests">[8] Run Hybrid Bot & Explorer Test Suite (Validation Tests)</option>
+            </select>
+          </div>
+
+          <!-- ================================================================
+               DYNAMIC WAYPOINT CONFIGURATION (W1 & W2)
+               ================================================================ -->
+          <div id="exp-waypoint-config" class="waypoint-panel" style="display:none;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span class="map-badge" id="wp-mode-badge">Waypoint Mode</span>
+                <span style="font-size:13px;font-weight:600;color:#fff;">Waypoint Route Configuration</span>
+              </div>
+              <span style="font-size:12px;color:var(--text-muted);">Waypoints: <strong id="wp-count-display">0</strong></span>
+            </div>
+
+            <!-- Preset Buttons -->
+            <div class="waypoint-presets">
+              <span style="font-size:11px;color:var(--text-dim);text-transform:uppercase;">Quick Waypoint Presets:</span>
+              <button type="button" class="preset-chip wp-preset-chip" data-preset="level1_intro">Level 1 Intro (3 points)</button>
+              <button type="button" class="preset-chip wp-preset-chip" data-preset="level1_full">Full Level 1 Route (6 points)</button>
+              <button type="button" class="preset-chip wp-preset-chip" data-preset="map3_sky">Map 3 Sky Castle (3 points)</button>
+              <button type="button" class="preset-chip wp-preset-chip" data-preset="bug_hunt">Map 1 Bug Coordinates (3 points)</button>
+            </div>
+
+            <!-- Dynamic Table of Coordinates -->
+            <div class="waypoint-table-container">
+              <table class="waypoint-table">
+                <thead>
+                  <tr>
+                    <th style="width:50px;">Index</th>
+                    <th>X Coordinate</th>
+                    <th>Y Coordinate</th>
+                    <th style="width:50px;">Remove</th>
+                  </tr>
+                </thead>
+                <tbody id="waypoints-tbody">
+                  <!-- Dynamically populated rows -->
+                </tbody>
+              </table>
+            </div>
+
+            <div style="display:flex;gap:8px;margin-bottom:14px;">
+              <button type="button" id="wp-add-btn" class="btn btn-secondary btn-sm">+ Add Waypoint</button>
+              <button type="button" id="wp-clear-btn" class="btn btn-secondary btn-sm" style="color:var(--text-dim);">Clear All</button>
+            </div>
+
+            <!-- W2 Specific Timing & Tolerance Settings -->
+            <div id="wp-sequential-details" class="form-row">
+              <div class="form-col form-group">
+                <label class="form-label">Wait Time At Each Waypoint (seconds)</label>
+                <input type="number" id="wp-wait-input" class="form-input" value="3.0" step="0.5" min="0">
+                <span style="font-size:11px;color:var(--text-dim);">Default: 3.0s (--waypoint-wait)</span>
+              </div>
+              <div class="form-col form-group">
+                <label class="form-label">Tolerance Radius (px)</label>
+                <input type="number" id="wp-tolerance-input" class="form-input" value="60.0" step="5" min="10">
+                <span style="font-size:11px;color:var(--text-dim);">Arrival distance radius (--tolerance)</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Dynamic Target Coord Section (when target_coord is selected) -->
+          <div id="exp-target-coord-config" class="waypoint-panel" style="display:none;">
+            <h4 style="font-size:13px;font-weight:600;color:#fff;margin-bottom:12px;">Target Coordinate Configuration</h4>
+            <div class="form-row">
+              <div class="form-col form-group">
+                <label class="form-label">Target X</label>
+                <input type="number" id="exp-target-x" class="form-input" value="3117.0" step="10">
+              </div>
+              <div class="form-col form-group">
+                <label class="form-label">Target Y</label>
+                <input type="number" id="exp-target-y" class="form-input" value="560.0" step="10">
+              </div>
+            </div>
+            <div style="display:flex;gap:8px;">
+              <button type="button" class="preset-chip" onclick="document.getElementById('exp-target-x').value=3117;document.getElementById('exp-target-y').value=560;">Default: (3117, 560)</button>
+              <button type="button" class="preset-chip" onclick="document.getElementById('exp-target-x').value=7342;document.getElementById('exp-target-y').value=160;">Level 1 Goal: (7342, 160)</button>
+              <button type="button" class="preset-chip" onclick="document.getElementById('exp-target-x').value=14638;document.getElementById('exp-target-y').value=800;">Map 3 Sky: (14638, 800)</button>
+            </div>
+          </div>
+
+          <!-- Dynamic Scripted Path Section -->
+          <div id="exp-scripted-config" class="waypoint-panel" style="display:none;">
+            <label class="form-label">Select Scripted JSON Path</label>
+            <select id="exp-scripted-path-select" class="form-select">
+              <option value="paths/basic_platformer.json">basic_platformer.json</option>
+              <option value="paths/coin_and_jump.json">coin_and_jump.json</option>
+            </select>
+          </div>
+
+          <!-- Dynamic Seed Section -->
+          <div id="exp-seed-config" class="waypoint-panel" style="display:none;">
+            <label class="form-label">Random Seed</label>
+            <input type="number" id="exp-seed-input" class="form-input" value="42">
+          </div>
+
+          <!-- General Parameters -->
+          <div class="form-row">
+            <div class="form-col form-group">
+              <label class="form-label">Max Actions / Steps</label>
+              <input type="number" id="exp-maxactions-input" class="form-input" value="350">
+            </div>
+            <div class="form-col form-group">
+              <label class="form-label">Target Level / Map</label>
+              <select id="exp-map-select" class="form-select">
+                <option value="0" selected>Default Map (Level01 Campaign)</option>
+                <option value="1">Map 1: Green Hills</option>
+                <option value="2">Map 2: Underground Caves</option>
+                <option value="3">Map 3: Sky Castle</option>
+                <option value="4">Map 4: Lava Fortress</option>
+              </select>
+            </div>
+            <div class="form-col form-group">
+              <label class="form-label">UDP Port</label>
+              <input type="number" id="exp-port-input" class="form-input" value="4242">
+            </div>
+          </div>
+
+          <div class="form-row" style="margin-top:8px;">
+            <label class="checkbox-label form-col">
+              <input type="checkbox" id="exp-launch-window-check" checked>
+              <span>Auto-launch Godot game window (--launch)</span>
+            </label>
+            <label class="checkbox-label form-col">
+              <input type="checkbox" id="exp-close-exit-check">
+              <span>Close game on exit (--close-on-exit)</span>
+            </label>
+            <label class="checkbox-label form-col">
+              <input type="checkbox" id="exp-verbose-check">
+              <span>Verbose traces (--verbose)</span>
+            </label>
+          </div>
+
+          <div style="margin-top:24px;">
+            <button class="btn" onclick="launchRunExplorerWorkflow()" style="padding:12px 32px;font-size:14px;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+              Execute Explorer Mode
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           Tab 5: Live Telemetry & Events
+           ==================================================================== -->
+      <section id="tab-telemetry" class="tab-pane">
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
+              Recent Telemetry Stream
+            </h2>
+            <button class="btn btn-secondary btn-sm" onclick="fetchTelemetry()">Refresh Telemetry</button>
+          </div>
+          <p class="card-desc">Structured telemetry recorded in <code>game_events.jsonl</code> emitted by <code>GameLogger.gd</code> at 60 FPS.</p>
+
+          <div style="overflow-x:auto;">
+            <table class="bugs-table">
+              <thead>
+                <tr>
+                  <th style="width:60px;">Event #</th>
+                  <th>Category</th>
+                  <th>Event Name</th>
+                  <th>Physics Frame</th>
+                  <th>Elapsed</th>
+                  <th>Data Preview</th>
+                </tr>
+              </thead>
+              <tbody id="telemetry-tbody">
+                <tr><td colspan="6" style="text-align:center;padding:16px;">Loading telemetry stream...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           Tab 6: Full Live Terminal
+           ==================================================================== -->
+      <section id="tab-terminal" class="tab-pane">
+        <div class="terminal-window">
+          <div class="terminal-header">
+            <div class="terminal-dots">
+              <span class="terminal-dot dot-red"></span>
+              <span class="terminal-dot dot-yellow"></span>
+              <span class="terminal-dot dot-green"></span>
+            </div>
+            <div class="terminal-title">SYNTAX-ERROR // LIVE EXECUTION STREAM (STDOUT/STDERR)</div>
+            <div class="terminal-actions">
+              <button id="term-clear-btn" class="terminal-btn">Clear</button>
+              <button id="term-copy-btn" class="terminal-btn">Copy</button>
+              <button id="term-download-btn" class="terminal-btn">Export Log</button>
+            </div>
+          </div>
+          <div class="terminal-body" id="terminal-output">
+            <div class="term-line" style="color:var(--text-dim);">[SYSTEM] Dashboard live terminal ready. Run any workflow from the sidebar tabs to begin streaming.</div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ========================================================================
+       Finding Inspection Modal
+       ======================================================================== -->
+  <div id="finding-modal" class="modal-backdrop">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeFindingModal()">&times;</button>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+        <span id="modal-finding-sev" class="severity-pill critical">CRITICAL</span>
+        <span id="modal-finding-path" class="path-badge">PATH 1</span>
+        <span id="modal-finding-source" style="font-size:11px;font-family:var(--font-mono);color:var(--text-dim);"></span>
+      </div>
+      <h3 id="modal-finding-title" style="color:#fff;font-size:18px;margin-bottom:14px;"></h3>
+
+      <div class="form-group">
+        <label class="form-label">Suspected Component / Code Location</label>
+        <div id="modal-finding-code" style="background:var(--bg-input);padding:10px;border-radius:var(--radius-sm);font-family:var(--font-mono);font-size:12px;color:var(--accent-cyan);"></div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Evidence Frame(s)</label>
+        <div id="modal-finding-frames" style="background:var(--bg-input);padding:8px;border-radius:var(--radius-sm);font-family:var(--font-mono);font-size:12px;color:#fff;"></div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Detailed Audit Explanation</label>
+        <div id="modal-finding-expl" style="background:var(--bg-input);padding:12px;border-radius:var(--radius-sm);font-size:12.5px;line-height:1.6;color:#e2e8f0;white-space:pre-wrap;"></div>
+      </div>
+
+      <div style="text-align:right;margin-top:20px;">
+        <button class="btn btn-secondary" onclick="closeFindingModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/js/terminal.js"></script>
+  <script src="/static/js/dashboard.js"></script>
+</body>
+</html>
+

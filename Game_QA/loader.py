@@ -11,14 +11,39 @@ from schemas import Event, SessionData, Snapshot
 
 ROOT = Path(__file__).resolve().parent
 
+# Locate project workspace root:
+# If Game_QA is inside Syntax-error, ROOT.parent is workspace root.
+# If Game_QA is a sibling to Syntax-error, ROOT.parent / "Syntax-error" is workspace root.
+WORKSPACE_ROOT = (
+    ROOT.parent
+    if (ROOT.parent / "godot-4game").exists() or (ROOT.parent / "game_events.jsonl").exists()
+    else (ROOT.parent / "Syntax-error" if (ROOT.parent / "Syntax-error").exists() else ROOT)
+)
+
 DEFAULT_SEARCH_PATHS = [
+    # Primary workspace root logs
+    WORKSPACE_ROOT / "game_events.jsonl",
+    WORKSPACE_ROOT / "godot-4game" / "game_events.jsonl",
+    # Local to Game_QA
+    ROOT / "game_events.jsonl",
+    ROOT / "telemetry" / "game_events.jsonl",
+    ROOT / "_private" / "telemetry" / "game_events_original.jsonl",
+    # Current working directory
+    Path("game_events.jsonl"),
+    Path("godot-4game") / "game_events.jsonl",
+    Path("..") / "game_events.jsonl",
+    # Benchmark map logs
+    WORKSPACE_ROOT / "maps" / "map1_green_hills" / "logs" / "game_events.jsonl",
+    WORKSPACE_ROOT / "maps" / "map2_underground_caves" / "logs" / "game_events.jsonl",
+    WORKSPACE_ROOT / "maps" / "map3_sky_castle" / "logs" / "game_events.jsonl",
+    WORKSPACE_ROOT / "maps" / "map4_lava_fortress" / "logs" / "game_events.jsonl",
+    # Sample / fallback datasets
+    WORKSPACE_ROOT / "sample_game_events.jsonl",
+    ROOT / "sample_game_events.jsonl",
+    # Sibling fallback
     ROOT.parent / "Syntax-error" / "game_events.jsonl",
     ROOT.parent / "Syntax-error" / "godot-4game" / "game_events.jsonl",
     ROOT.parent / "Syntax-error" / "sample_game_events.jsonl",
-    Path(r"c:\Users\hunne\Documents\Syntax-error\game_events.jsonl"),
-    Path(r"c:\Users\hunne\Documents\Syntax-error\godot-4game\game_events.jsonl"),
-    Path(r"c:\Users\hunne\Documents\Syntax-error\sample_game_events.jsonl"),
-    Path(r"..\Syntax-error\game_events.jsonl"),
 ]
 
 
@@ -28,24 +53,47 @@ def resolve_log_path(user_path: Optional[str] = None) -> Path:
         p = Path(user_path)
         if p.exists():
             return p.resolve()
+        # Also check relative to WORKSPACE_ROOT and ROOT
+        if (WORKSPACE_ROOT / user_path).exists():
+            return (WORKSPACE_ROOT / user_path).resolve()
+        if (ROOT / user_path).exists():
+            return (ROOT / user_path).resolve()
         raise FileNotFoundError(f"Specified log file not found: {user_path}")
 
     # 1. Primary real game log: always prefer game_events.jsonl (even if currently 0 bytes / fresh)
     primary_paths = [
+        WORKSPACE_ROOT / "game_events.jsonl",
+        WORKSPACE_ROOT / "godot-4game" / "game_events.jsonl",
+        Path("game_events.jsonl"),
+        Path("godot-4game") / "game_events.jsonl",
+        Path("..") / "game_events.jsonl",
+        ROOT / "game_events.jsonl",
+        ROOT / "telemetry" / "game_events.jsonl",
+        ROOT / "_private" / "telemetry" / "game_events_original.jsonl",
         ROOT.parent / "Syntax-error" / "game_events.jsonl",
         ROOT.parent / "Syntax-error" / "godot-4game" / "game_events.jsonl",
-        Path(r"c:\Users\hunne\Documents\Syntax-error\game_events.jsonl"),
-        Path(r"..\Syntax-error\game_events.jsonl"),
-        Path(r"c:\Users\hunne\Documents\Syntax-error\godot-4game\game_events.jsonl"),
     ]
     for p in primary_paths:
         if p.exists():
             return p.resolve()
 
-    # 2. Fallback to sample data ONLY if real game_events.jsonl does not exist at all
+    # 2. Benchmark map logs
+    map_log_paths = [
+        WORKSPACE_ROOT / "maps" / "map1_green_hills" / "logs" / "game_events.jsonl",
+        WORKSPACE_ROOT / "maps" / "map2_underground_caves" / "logs" / "game_events.jsonl",
+        WORKSPACE_ROOT / "maps" / "map3_sky_castle" / "logs" / "game_events.jsonl",
+        WORKSPACE_ROOT / "maps" / "map4_lava_fortress" / "logs" / "game_events.jsonl",
+    ]
+    for p in map_log_paths:
+        if p.exists():
+            return p.resolve()
+
+    # 3. Fallback to sample data ONLY if real game_events.jsonl does not exist at all
     sample_paths = [
+        WORKSPACE_ROOT / "sample_game_events.jsonl",
+        ROOT / "sample_game_events.jsonl",
         ROOT.parent / "Syntax-error" / "sample_game_events.jsonl",
-        Path(r"c:\Users\hunne\Documents\Syntax-error\sample_game_events.jsonl"),
+        ROOT / "_private" / "telemetry" / "game_events_original.jsonl",
     ]
     for sample_path in sample_paths:
         if sample_path.exists():

@@ -1,0 +1,47 @@
+{
+  "session_id": "session_1792876534_57695",
+  "audit_timestamp": "2026-10-25T03:00:00Z",
+  "findings_metadata": [
+    {
+      "dedupe_key": "Coin.gd:L21:duplicate_pickup_attempt",
+      "category": "interaction",
+      "repro_hint": "Collect a coin and immediately jump or re-intersect its area within 0.4s while picked animation is playing.",
+      "source": "agent",
+      "contract": "Physical/logical invariant: collected entities must disable collision monitoring upon pickup to prevent redundant collision checks."
+    }
+  ],
+  "dismissed_candidates": [
+    {
+      "frame": 1274,
+      "lead": "Score dropped 1800 -> 0 and deaths dropped 1 -> 0",
+      "reason": "global_state_reset emitted at frame 1274 along with retry_pressed and retry_started; PlayerData.reset_data() intentional level retry per SKILL.md Section 7."
+    },
+    {
+      "frame": 1580,
+      "lead": "Score dropped 200 -> 0 and deaths dropped 1 -> 0",
+      "reason": "global_state_reset emitted at frame 1580 on agent retry after death; intentional reset per SKILL.md Section 7."
+    },
+    {
+      "frame": 886,
+      "lead": "Enemy contact without damage to player",
+      "reason": "Player stomped Enemy from above with vertical velocity; stomp detector in Player.gd:L140 and Enemy.gd:L80 registered kill and awarded 100 points as designed."
+    },
+    {
+      "frame": 1044,
+      "lead": "Enemy wall reversals",
+      "reason": "Enemy2 and Enemy3 reversed direction between -1 and 1 at platform wall edges (Enemy.gd:L35); normal patrol behavior, not a frozen phantom reversal (0.0 -> 0.0)."
+    },
+    {
+      "frame": 1240,
+      "lead": "Player movement stopped abruptly",
+      "reason": "Player took sideways contact damage from Enemy3, triggering player_died, death_overlay_shown, and tree pause as designed."
+    }
+  ],
+  "unobservable_areas": [
+    "Audio cues and sound playback (no audio stream telemetry emitted)",
+    "Visual shader and particle rendering effects",
+    "Levels beyond Level02 (Level03, Map3, Map4 unvisited in this session)",
+    "Sub-frame physics trajectory between discrete logging intervals",
+    "Analog input pressure curves (inputs captured as discrete digital actions)"
+  ]
+}

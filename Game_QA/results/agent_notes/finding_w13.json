@@ -1,0 +1,15 @@
+{
+  "verdict": "bug",
+  "severity": "critical",
+  "confidence": 0.95,
+  "category": "lifecycle",
+  "title": "Exit portal missing next_scene property, blocking level progression",
+  "explanation": "At frame 4023, the player touches Portal2D at the end of Map3, but Portal2D.gd:L56 aborts transition because next_scene is null, emitting missing_expected_object. In Map3_SkyCastle.tscn:L40, Portal2D is instanced without a next_scene assignment, violating the progression contract and soft-locking completion.",
+  "evidence_frames": [4023, 4026, 4036],
+  "suspected_code": "Objects/Portal2D.gd:L56-L67",
+  "dedupe_key": "Portal2D.gd:L56:unassigned_next_scene_blocks_exit",
+  "repro_hint": "Reach the end of Map3 and enter Portal2D.",
+  "path": "path2",
+  "source": "path1",
+  "needs_human_review": false
+}

@@ -38,11 +38,6 @@ var is_scene_transitioning: bool = false
 var transition_start_time_ms: int = 0
 var expected_player_death: bool = false
 
-# Stuck Detection Tracking
-var stuck_input_name: String = ""
-var stuck_frames: int = 0
-var stuck_check_pos: Vector2 = Vector2.ZERO
-
 # Recursion Guard
 var is_logging_internal: bool = false
 
@@ -218,16 +213,6 @@ func _process(_delta: float) -> void:
 			elif "EndScreen" in scene_path or scene_path == "EndScreen":
 				log_lifecycle("end_screen_loaded", {"scene": scene_path})
 
-	# Scene transition timeout detection
-	if is_scene_transitioning:
-		if Time.get_ticks_msec() - transition_start_time_ms > 5000:
-			is_scene_transitioning = false
-			log_anomaly("scene_transition_timeout", {
-				"elapsed_ms": Time.get_ticks_msec() - transition_start_time_ms,
-				"expected": "Scene should load within 5000ms",
-				"observed": "Scene transition timed out"
-			}, "error")
-
 	# Periodic real-time state polling export for agents (latest_state.json)
 	if frame_count % state_export_interval_frames == 0:
 		var full_state = extract_game_state()
@@ -243,47 +228,6 @@ func _physics_process(_delta: float) -> void:
 	# Periodic structured state snapshot in JSONL
 	if enable_snapshots and phys_frame > 0 and phys_frame % snapshot_interval_frames == 0:
 		log_state_snapshot()
-
-	# Stuck player anomaly detection (sustained movement input with near-zero displacement)
-	_check_player_stuck()
-
-
-func _check_player_stuck() -> void:
-	if not active_player or not is_instance_valid(active_player) or not active_player.is_inside_tree():
-		stuck_frames = 0
-		return
-
-	var tree = get_tree() if is_inside_tree() else null
-	if tree and tree.paused:
-		stuck_frames = 0
-		return
-
-	var moving_left = Input.is_action_pressed("move_left")
-	var moving_right = Input.is_action_pressed("move_right")
-	var is_trying_to_move = moving_left or moving_right
-
-	# Only check if player is grounded and not pressing into a normal obstacle wall
-	if is_trying_to_move and active_player.is_on_floor() and not active_player.is_on_wall():
-		if stuck_frames == 0:
-			stuck_check_pos = active_player.global_position
-			stuck_input_name = "move_right" if moving_right else "move_left"
-		stuck_frames += 1
-
-		if stuck_frames >= 60: # 60 frames = 1.0 second of sustained movement input
-			var displacement = active_player.global_position.distance_to(stuck_check_pos)
-			if displacement < 8.0:
-				log_anomaly("player_stuck_detected", {
-					"held_input": stuck_input_name,
-					"held_frames": stuck_frames,
-					"displacement": round(displacement * 10.0) / 10.0,
-					"position": vec2_to_dict(active_player.global_position),
-					"expected": "Player should move horizontally when " + stuck_input_name + " is held and unobstructed",
-					"observed": "Player remained stationary (displacement < 8px)"
-				}, "warning")
-			stuck_check_pos = active_player.global_position
-			stuck_frames = 0
-	else:
-		stuck_frames = 0
 
 
 # ==============================================================================
@@ -306,18 +250,6 @@ func log_event(event_name: String, category: String, data: Dictionary = {}, enti
 func log_state_snapshot() -> Dictionary:
 	var snapshot_data = extract_game_state("state_snapshot")
 	return log_event("state_snapshot", "state_snapshot", snapshot_data)
-
-
-## Lightweight rule-based anomaly logging operation
-func log_anomaly(anomaly_type: String, data: Dictionary = {}, severity: String = "warning") -> Dictionary:
-	var anomaly_payload = {
-		"anomaly_type": anomaly_type,
-		"severity": severity,
-		"expected": data.get("expected", null),
-		"observed": data.get("observed", null),
-		"details": data
-	}
-	return log_event(anomaly_type, "anomaly", anomaly_payload)
 
 
 ## Input and UI action logging operation
@@ -835,13 +767,7 @@ const EXPECTED_EVENTS: Dictionary = {
 		"death_menu_opened", "score_label_updated", "retry_started",
 		"global_state_reset", "return_to_main_menu"
 	],
-	"state_snapshot": ["state_snapshot"],
-	"anomaly": [
-		"player_stuck_detected", "player_out_of_bounds",
-		"unexpected_player_removal", "unexpected_score_change",
-		"duplicate_pickup_attempt", "missing_expected_object",
-		"scene_transition_timeout", "runtime_error_observed"
-	]
+	"state_snapshot": ["state_snapshot"]
 }
 
 ## In-memory set of event names observed during this session
@@ -929,7 +855,7 @@ func generate_coverage_report() -> Dictionary:
 
 func _setup_agent_server() -> void:
 	_agent_udp = PacketPeerUDP.new()
-	var err = _agent_udp.bind(agent_udp_port, "*")
+	var err = _agent_udp.bind(agent_udp_port, "127.0.0.1")
 	if err == OK:
 		print("[GameLogger] Agent control server listening on UDP port %d" % agent_udp_port)
 	else:

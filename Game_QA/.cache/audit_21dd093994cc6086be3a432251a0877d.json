@@ -1,0 +1,13 @@
+{
+  "verdict": "bug",
+  "severity": "high",
+  "confidence": 0.85,
+  "title": "Semantic Anomaly: duplicate_pickup_attempt",
+  "explanation": "Duplicate overlap detected on already-collected coin at frame 1408 in Level02 following player retry. Violates idempotence contract C_PICKUP_IDEMPOTENT. Traced to Coin.gd (_on_body_entered) where collision monitoring remains active during the picked animation.",
+  "evidence_frames": [
+    1408
+  ],
+  "suspected_code": "Coin.gd (_on_body_entered)",
+  "path": "path2",
+  "needs_human_review": false
+}

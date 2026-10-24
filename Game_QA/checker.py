@@ -104,7 +104,68 @@ def check_snapshot(
 
 
 def check_event(event: Event) -> Optional[Violation]:
-    """Inspects discrete events for engine-level anomalies emitted by GameLogger.gd."""
+    """Inspects discrete events for contract violations and engine anomalies."""
+    # 1. Objective telemetry event checks
+    if event.event == "score_changed":
+        delta = event.payload.get("delta", 0)
+        if delta < 0:
+            return Violation(
+                check_id="engine_unexpected_score_change",
+                frame=event.frame,
+                session_time=event.session_time,
+                severity=Severity.high,
+                evidence={
+                    "event_name": "unexpected_score_change",
+                    "scene": event.scene,
+                    "expected": "Score should only increase during active play",
+                    "observed": f"Score decreased by {abs(delta)}",
+                    "details": event.payload,
+                },
+            )
+    elif event.event == "coin_overlap_ignored":
+        return Violation(
+            check_id="engine_duplicate_pickup_attempt",
+            frame=event.frame,
+            session_time=event.session_time,
+            severity=Severity.high,
+            evidence={
+                "event_name": "duplicate_pickup_attempt",
+                "scene": event.scene,
+                "expected": "Coin should only trigger overlap before collection",
+                "observed": "Duplicate overlap triggered on collected coin",
+                "details": event.payload,
+            },
+        )
+    elif event.event == "portal_activation_failed":
+        return Violation(
+            check_id="engine_missing_expected_object",
+            frame=event.frame,
+            session_time=event.session_time,
+            severity=Severity.critical,
+            evidence={
+                "event_name": "missing_expected_object",
+                "scene": event.scene,
+                "expected": "Valid PackedScene assigned to portal",
+                "observed": "Portal destination target is empty or missing",
+                "details": event.payload,
+            },
+        )
+    elif event.event == "scene_load_failed":
+        return Violation(
+            check_id="engine_runtime_error_observed",
+            frame=event.frame,
+            session_time=event.session_time,
+            severity=Severity.critical,
+            evidence={
+                "event_name": "runtime_error_observed",
+                "scene": event.scene,
+                "expected": "Scene change should return OK (0)",
+                "observed": f"Error code {event.payload.get('error_code')}",
+                "details": event.payload,
+            },
+        )
+
+    # 2. Legacy engine-level anomalies
     if event.category == "anomaly" or "anomaly" in event.event:
         sev_str = event.payload.get("severity", "warning").lower()
         if sev_str in ("error", "critical"):
@@ -160,13 +221,24 @@ def violations_to_findings(
         else:
             # Engine anomaly
             ev = first.evidence
-            title = f"Engine Anomaly: {ev.get('event_name', check_id)}"
+            ev_name = ev.get('event_name', check_id).replace("engine_", "")
+            title = f"Engine Anomaly: {ev_name}"
             explanation = (
                 f"Expected: {ev.get('expected', 'Normal execution')} | "
                 f"Observed: {ev.get('observed', 'Anomaly logged by GameLogger.gd')} "
                 f"across frame(s) {evidence_frames[:5]}."
             )
-            suspected = f"GameLogger.gd / {ev.get('scene', 'GameScene')}"
+            code_map = {
+                "duplicate_pickup_attempt": "Coin.gd:L21 (_on_body_entered)",
+                "player_out_of_bounds": "Player.gd (OUT_OF_BOUNDS_Y)",
+                "unexpected_score_change": "PlayerData.gd (set_score)",
+                "missing_expected_object": "Portal2D.gd (teleport)",
+                "scene_transition_timeout": "Portal2D.gd (GameLogger.is_scene_transitioning)",
+                "runtime_error_observed": "Portal2D.gd (change_scene_to_packed)",
+                "player_stuck_detected": "Player.gd (move_and_slide)",
+                "unexpected_player_removal": "Player.gd (_exit_tree)",
+            }
+            suspected = code_map.get(ev_name, f"GameLogger.gd / {ev.get('scene', 'GameScene')}")
             sev = first.severity
 
         out.append(
