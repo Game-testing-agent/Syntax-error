@@ -399,20 +399,16 @@
           <div class="form-group">
             <label class="form-label">Exploration Mode</label>
             <select id="exp-mode-select" class="form-select" style="font-weight:600;font-size:14px;color:var(--accent-cyan);">
-              <option value="hybrid" selected>[1] Hybrid Bot: Baseline Mode (Completes Level01 + Level02 reliably)</option>
-              <option value="hybrid_variation">[2] Hybrid Bot: Controlled Variation Mode (Exploration & Bug Hunting)</option>
-              <option value="target_coord">[3] Target Coordinate Explorer (Navigate directly to specific X, Y)</option>
-              <option value="waypoints_sequential">[W2] Sequential Waypoints Mode (Enter N coords; visits each with wait time)</option>
-              <option value="waypoints_interactive">[W1] Interactive Waypoints Mode (Visits coords sequentially with pauses)</option>
-              <option value="scripted">[4] Scripted Mode: Predefined Action Path (from paths/*.json)</option>
-              <option value="random">[6] Random Exploration Mode (Seed & Random Actions)</option>
-              <option value="coverage_guided">[7] Coverage-Guided Exploration Mode (Spatial Grid Novelty)</option>
-              <option value="tests">[8] Run Hybrid Bot & Explorer Test Suite (Validation Tests)</option>
+              <option value="waypoints_sequential" selected>[W2] Sequential Waypoints Mode</option>
+              <option value="hybrid">[1] Complete Hybrid Game Bot</option>
+              <option value="hybrid_variation">[2] Bot Random Explorer</option>
+              <option value="scripted">[4] Trained Path</option>
+              <option value="random">[6] Random Explorer</option>
             </select>
           </div>
 
           <!-- ================================================================
-               DYNAMIC WAYPOINT CONFIGURATION (W1 & W2)
+               DYNAMIC WAYPOINT CONFIGURATION (W2)
                ================================================================ -->
           <div id="exp-waypoint-config" class="waypoint-panel" style="display:none;">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
