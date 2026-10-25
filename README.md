@@ -4,6 +4,27 @@
 
 ---
 
+## ⚡ Quick Start: How to Run Everything (Start Here!)
+
+### 1. Launch the Visual Dashboard (One-Click)
+To run the full visual control hub and interactive bug radar:
+1. Go to the **`frontend/dashboard/`** folder.
+2. Double-click or run **`start_dashboard.bat`**:
+   ```cmd
+   frontend\dashboard\start_dashboard.bat
+   ```
+* **Everything starts automatically**: It verifies Python, auto-installs missing dependencies (FastAPI, Uvicorn, WebSockets), boots the server, and automatically opens your default browser at **`http://localhost:8080`**.
+
+### 2. The Main AI Agent Button (Gemini & Multi-LLM Execution)
+Inside the dashboard, the primary execution trigger is the **AI Agent / Agent Explorer** button:
+* **Default Setup (Antigravity & Gemini API)**: Clicking this button connects by default through the **Gemini API** via Google Antigravity to execute closed-loop autonomous exploration and QA evaluation.
+* **Using Any Other LLM (Claude, GPT-4, Llama, etc.)**: If you or your reviewers are using a different LLM or working inside an agentic assistant/IDE, open this project folder in your AI agent and type:
+  > **`Run game QA using game qa skill`**
+
+  This command directly triggers the master white-box auditing skill ([`Game_QA/.agents/skills/game-qa/SKILL.md`](Game_QA/.agents/skills/game-qa/SKILL.md)). The LLM will autonomously read the 8-phase auditing playbook, inspect `game_events.jsonl`, cross-examine the active GDScript files (`Player.gd`, `Enemy.gd`, etc.), apply the 18 reasoning rules, and submit confirmed bug findings through `tools/native_submit.py` to light up the **Dashboard Bug Radar**!
+
+---
+
 ## 📌 Motivation: Why We Built This Project
 
 Testing a video game is **slow, repetitive, and expensive**. 
