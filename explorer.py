@@ -1478,7 +1478,7 @@ class SequentialWaypointsExplorer:
 # GODOT LAUNCHER HELPER
 # ==============================================================================
 
-def launch_godot_game(level_path: Optional[str] = None) -> Optional[subprocess.Popen]:
+def launch_godot_game(level_path: Optional[str] = None, map_num: int = 0) -> Optional[subprocess.Popen]:
     """Finds Godot 4 executable and launches the platformer game."""
     root_dir = os.path.dirname(os.path.abspath(__file__))
     candidates = [
@@ -1500,7 +1500,9 @@ def launch_godot_game(level_path: Optional[str] = None) -> Optional[subprocess.P
         return None
 
     cmd = [exe, "--path", os.path.join(root_dir, "godot-4game")]
-    if level_path and ("Map3" in str(level_path) or "SkyCastle" in str(level_path)):
+    if map_num in [1, 2, 3, 4]:
+        cmd.extend(["--", f"--map={map_num}"])
+    elif level_path and ("Map3" in str(level_path) or "SkyCastle" in str(level_path)):
         cmd.extend(["--", "--map=3"])
     elif level_path and ("Map1" in str(level_path) or "GreenHills" in str(level_path)):
         cmd.extend(["--", "--map=1"])
@@ -1555,6 +1557,8 @@ def main():
                         help="Physics frames per second (default: 60)")
     parser.add_argument("--launch", action="store_true",
                         help="Auto-launch Godot game process if not running")
+    parser.add_argument("--map", type=int, default=0,
+                        help="Map number: 0 for Default Map, or 1, 2, 3, 4 (default: 0)")
     parser.add_argument("--level", default="res://src/Levels/Level01.tscn",
                         help="Level to run or record: 1, 2, Level01, Level02, or scene path (default: res://src/Levels/Level01.tscn)")
     parser.add_argument("--recordings-dir", default="recordings",
@@ -1571,6 +1575,16 @@ def main():
                         help="Print detailed execution traces")
 
     args = parser.parse_args()
+
+    # Map number resolution: if map specified but level left as default Level01, load corresponding benchmark map
+    if args.map in [1, 2, 3, 4] and args.level == "res://src/Levels/Level01.tscn":
+        benchmark_map_scenes = {
+            1: "res://src/Levels/Map1_GreenHills.tscn",
+            2: "res://src/Levels/Map2_UndergroundCaves.tscn",
+            3: "res://src/Levels/Map3_SkyCastle.tscn",
+            4: "res://src/Levels/Map4_LavaFortress.tscn"
+        }
+        args.level = benchmark_map_scenes[args.map]
 
     # Normalize mode aliases
     if args.mode in ("waypoint_1", "interactive_waypoints"):
@@ -1599,14 +1613,14 @@ def main():
     godot_proc = None
 
     if args.launch:
-        godot_proc = launch_godot_game(scene_path)
+        godot_proc = launch_godot_game(scene_path, map_num=args.map)
         connected = controller.connect(retries=30, retry_interval=0.5)
     else:
         # Check if game is already running
         connected = controller.connect(retries=2, retry_interval=0.3)
         if not connected:
             print(f"[INFO] Game window not detected. Auto-launching Godot game window ({level_name})...")
-            godot_proc = launch_godot_game(scene_path)
+            godot_proc = launch_godot_game(scene_path, map_num=args.map)
             connected = controller.connect(retries=30, retry_interval=0.5)
 
     if not connected:

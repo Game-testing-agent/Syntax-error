@@ -781,7 +781,8 @@ async function launchGameWorkflow() {
     const data = await res.json();
     if (!res.ok) throw new Error(data.detail || "Launch failed");
 
-    showNotification(`Game launched on Map ${selectedMapId}!`);
+    const mapLabel = selectedMapId === 0 ? "Default Map" : `Map ${selectedMapId}`;
+    showNotification(`Game launched on ${mapLabel}!`);
     switchTab("terminal");
     pollProcessStatus();
   } catch (err) {
@@ -840,7 +841,8 @@ async function launchRunExplorerWorkflow() {
   const launchWindow = document.getElementById("exp-launch-window-check").checked;
   const closeOnExit = document.getElementById("exp-close-exit-check").checked;
   const verbose = document.getElementById("exp-verbose-check").checked;
-  const mapNum = parseInt(document.getElementById("exp-map-select").value, 10) || null;
+  const expMapEl = document.getElementById("exp-map-select");
+  const mapNum = expMapEl && expMapEl.value !== "" ? parseInt(expMapEl.value, 10) : 0;
 
   // Flatten coordinates for sequential waypoints
   const waypointsFlat = [];

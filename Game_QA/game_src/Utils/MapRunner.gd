@@ -3,12 +3,13 @@ extends Node
 # MapRunner.gd — Headless & CLI dispatcher for game levels
 # Parses cmdline user args (after '--') and loads the requested map.
 
-var target_map_num: int = 0
+var target_map_num: int = -1
 var max_frames: int = 0
 var frame_counter: int = 0
 var is_debug: bool = false
 
 const MAP_SCENES = {
+	0: "res://src/Levels/Level01.tscn",
 	1: "res://src/Levels/Map1_GreenHills.tscn",
 	2: "res://src/Levels/Map2_UndergroundCaves.tscn",
 	3: "res://src/Levels/Map3_SkyCastle.tscn",

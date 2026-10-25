@@ -856,7 +856,7 @@ def api_execute_run_game(req: RunGameRequest):
         if req.with_bot:
             cmd = [sys.executable, "explorer.py", "--mode", "hybrid", "--launch"]
         elif req.mode in ("headless", "debug") or req.frames:
-            cmd = [sys.executable, "run_map.py", "--map", "1"]
+            cmd = [sys.executable, "run_map.py", "--map", "0"]
             if req.mode == "headless":
                 cmd.append("--headless")
             elif req.mode == "debug":
@@ -926,7 +926,7 @@ class RunExplorerRequest(BaseModel):
     port: int = Field(4242, description="UDP port")
     fps: int = Field(60, description="Physics FPS")
     level: Optional[str] = Field(None, description="Level name or scene path")
-    map_num: Optional[int] = Field(None, description="Optional benchmark map number (1-4)")
+    map_num: Optional[int] = Field(0, description="Map number: 0 for Default Map, or 1, 2, 3, 4 for benchmark maps")
     launch: bool = Field(True, description="Auto-launch game window")
     close_on_exit: bool = Field(False, description="Close game on exit")
     verbose: bool = Field(False, description="Verbose logs")
@@ -991,7 +991,7 @@ def api_execute_run_explorer(req: RunExplorerRequest):
                 4: "res://src/Levels/Map4_LavaFortress.tscn"
             }
             cmd.extend(["--level", map_scenes[req.map_num]])
-        elif req.map_num == 0 or req.level:
+        else:
             cmd.extend(["--level", req.level or "res://src/Levels/Level01.tscn"])
 
         if req.launch:
