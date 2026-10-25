@@ -520,13 +520,38 @@ def get_latest_game_state() -> Optional[Dict[str, Any]]:
     return None
 
 
+def auto_refresh_qa_findings(force: bool = False) -> Dict[str, Any]:
+    """Auto-compiles and refreshes Game_QA findings, eval_results.json, and report.md."""
+    try:
+        qa_str = str(GAME_QA_DIR)
+        if qa_str not in sys.path:
+            sys.path.insert(0, qa_str)
+        import compile_findings
+        return compile_findings.refresh_and_compile(force=force)
+    except Exception as e:
+        return {"status": "error", "error": str(e)}
+
+
 # -----------------------------------------------------------------------------
 # API Endpoints
 # -----------------------------------------------------------------------------
 
+@app.post("/api/overview/refresh")
+def api_refresh_overview():
+    """Forces an immediate recompilation and refresh of all QA findings and reports."""
+    sync_res = auto_refresh_qa_findings(force=True)
+    overview = api_overview()
+    return {
+        "status": "success",
+        "sync": sync_res,
+        "overview": overview
+    }
+
+
 @app.get("/api/overview")
 def api_overview():
     """Returns aggregated dashboard statistics, discovered bugs, and benchmark status."""
+    auto_refresh_qa_findings(force=False)
     qa_data = parse_game_qa_findings()
     answer_key = parse_answer_key()
     agentic_runs = parse_agentic_runs()
@@ -1118,6 +1143,7 @@ app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
 @app.get("/")
 def serve_index():
+    auto_refresh_qa_findings(force=False)
     index_file = STATIC_DIR / "index.html"
     if not index_file.exists():
         raise HTTPException(status_code=404, detail="index.html not found")

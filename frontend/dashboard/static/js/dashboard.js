@@ -34,6 +34,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Auto-refresh bugs & overview data every 3.5s so new audits appear live in real-time
   setInterval(fetchOverview, 3500);
+
+  // Auto-refresh immediately whenever user refocuses window or returns to tab
+  window.addEventListener("focus", () => fetchOverview());
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) fetchOverview();
+  });
 });
 
 // ----------------------------------------------------------------------------
@@ -405,6 +411,30 @@ async function refreshAllData() {
     fetchPaths(),
     fetchTelemetry()
   ]);
+}
+
+async function forceRefreshOverview(event) {
+  if (event && event.preventDefault) event.preventDefault();
+  const btn = document.getElementById("btn-force-refresh-qa");
+  const origHtml = btn ? btn.innerHTML : "";
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = `<span style="display:inline-block;animation:spin 0.8s linear infinite;">↻</span> Syncing...`;
+  }
+  try {
+    const res = await fetch("/api/overview/refresh", { method: "POST" });
+    if (res.ok) {
+      showNotification("QA findings, eval results & report synchronized!");
+    }
+  } catch (err) {
+    console.warn("Manual refresh failed:", err);
+  } finally {
+    await fetchOverview();
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = origHtml;
+    }
+  }
 }
 
 async function fetchOverview() {
