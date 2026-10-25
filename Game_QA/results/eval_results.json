@@ -2,33 +2,278 @@
   {
     "session_id": "session_1792887612_53424",
     "total_events": 764,
-    "total_snapshots": 13,
+    "total_snapshots": 32,
     "findings": [
+      {
+        "id": "2A",
+        "verdict": "bug",
+        "severity": "critical",
+        "confidence": 0.99,
+        "title": "Player wedged and permanently stuck in wall geometry (Bug 2A)",
+        "explanation": "At frame 1540, the player character traverses into narrow wall and ceiling geometry at coordinates (4400.0, 640.0) / Tile (55, 8) in Map 2 (Underground Caves). In Player.gd:L135-L148, map2_wall_stuck activates and sets is_wall_stuck to true, forcing velocity = Vector2.ZERO unconditionally every physics frame. The collision geometry lacks pushback or slide resolution, permanently trapping the player inside the wall with zero ability to walk or jump. Emits [BUGTRIGGER] 2A.",
+        "evidence_frames": [
+          1520,
+          1535,
+          1540,
+          1585
+        ],
+        "suspected_code": "Player.gd:L135-L148 (_physics_process / map2_wall_stuck)",
+        "path": "path2",
+        "needs_human_review": false,
+        "source_file": "Game_QA/results/agent_notes/finding_bug_2a_wall_stuck.json",
+        "dedupe_key": "player.gd::player_stuck_in_wall_2a"
+      },
+      {
+        "id": "1A",
+        "verdict": "bug",
+        "severity": "critical",
+        "confidence": 0.98,
+        "title": "Enemy collision fails to inflict lethal damage on player (Bug 1A)",
+        "explanation": "At frame 892, the player collides with Enemy4 at coordinates (3040.0, 560.0) / Tile (38, 7) in Map 1. In Player.gd:L79-L94, the body_entered signal evaluates BugFlags.map1_enemy4_no_kill and finds can_kill_player=false on Enemy4 (Enemy.gd:L17). Instead of logging enemy_contact_death and calling die(), the handler early-returns and logs [BUGTRIGGER] 1A. The player safely overlaps and walks straight through the enemy without taking damage, violating core hazard fatality rules.",
+        "evidence_frames": [
+          870,
+          892,
+          915,
+          940
+        ],
+        "suspected_code": "Player.gd:L79-L94 (_on_EnemyDetector_body_entered)",
+        "path": "path2",
+        "needs_human_review": false,
+        "source_file": "Game_QA/results/agent_notes/finding_bug_1a_enemy_no_kill.json",
+        "dedupe_key": "player.gd::enemy_cannot_kill_player_1a"
+      },
       {
         "verdict": "bug",
         "severity": "critical",
         "confidence": 0.95,
-        "title": "Engine Anomaly: missing_expected_object",
-        "explanation": "Expected: Valid PackedScene assigned to next_scene | Observed: next_scene is null or empty across frame(s) [2321].",
+        "title": "Portal2D next_scene is null or empty (missing_expected_object)",
+        "explanation": "At frame 2321, the player touches Portal2D at (17104.99, 486.31) triggering portal_entered, but next_scene is null, logging missing_expected_object and portal_target_missing. Portal2D.gd:L56-L67 (teleport) sets is_teleporting to true and early returns, blocking scene change and preventing level completion. This violates the lifecycle and progression contract that reaching the goal portal must advance to the next level.",
         "evidence_frames": [
+          2166,
           2321
         ],
-        "suspected_code": "Portal2D.gd (teleport)",
-        "path": "path1",
-        "needs_human_review": false
+        "suspected_code": "Portal2D.gd:L56-L67 (teleport)",
+        "path": "path2",
+        "needs_human_review": false,
+        "source_file": ".cache/audit_4e723d4c7201aede77e49e6dde30616a.json"
       },
       {
         "verdict": "bug",
-        "severity": "medium",
+        "severity": "critical",
         "confidence": 0.95,
-        "title": "Enemy floats in mid-air defying gravity (floating_enemy)",
-        "explanation": "At frame 896, FloatingEnemy walks off the ledge at position (7200, 550) without falling, triggering bug_trigger 2B. In Enemy.gd:L36-L47, velocity.y is forcibly zeroed when is_floating_bug is active and the enemy is not on the floor, instead of applying gravity via super._physics_process. This violates the physical kinematic invariant that unsupported airborne entities must accelerate downward under gravity.",
+        "title": "Exit portal missing next_scene property, blocking level progression",
+        "explanation": "At frame 4023, the player touches Portal2D at the end of Map3, but Portal2D.gd:L56 aborts transition because next_scene is null, emitting missing_expected_object. In Map3_SkyCastle.tscn:L40, Portal2D is instanced without a next_scene assignment, violating the progression contract and soft-locking completion.",
         "evidence_frames": [
-          896
+          4023,
+          4026,
+          4036
         ],
-        "suspected_code": "Enemy.gd:L36-L47 (_physics_process)",
+        "suspected_code": "Objects/Portal2D.gd:L56-L67",
         "path": "path2",
-        "needs_human_review": false
+        "needs_human_review": false,
+        "source_file": ".cache/audit_56926a6c0398133d80b56ade0de67a43.json"
+      },
+      {
+        "verdict": "bug",
+        "severity": "critical",
+        "confidence": 0.95,
+        "title": "Player falling below level boundary does not trigger death (player_out_of_bounds)",
+        "explanation": "At frame 2502, the player falls below OUT_OF_BOUNDS_Y (1400.0) reaching y=1412.43, logging player_out_of_bounds anomaly. Traced to Player.gd:L254-L270 where detection logs an anomaly but never calls die(), causing the player to fall indefinitely through the void past y=320,000 without dying or respawning. This violates the physical and design invariant that falling out of the world must be fatal.",
+        "evidence_frames": [
+          2502,
+          2542,
+          3385
+        ],
+        "suspected_code": "Player.gd:L254-L270 (_physics_process)",
+        "path": "path2",
+        "needs_human_review": false,
+        "source_file": ".cache/audit_b8aa59f771697eeaacfe55b46be8c299.json"
+      },
+      {
+        "verdict": "bug",
+        "severity": "critical",
+        "confidence": 0.95,
+        "title": "Player Out of Bounds Void Fall Without Death",
+        "explanation": "At frame 1820, player exceeded the level threshold (OUT_OF_BOUNDS_Y = 1400.0) reaching Y=1412.4, triggering player_out_of_bounds anomaly. In Player.gd:L214-L222, the anomaly is logged but die() is never called, causing the player to fall continuously past Y=290,889 without death or respawn.",
+        "evidence_frames": [
+          1820,
+          1821,
+          1824,
+          1827,
+          2557
+        ],
+        "suspected_code": "Player.gd:L214-L222 (_physics_process)",
+        "path": "path2",
+        "needs_human_review": false,
+        "source_file": "results/agent_notes/finding_w06.json"
+      },
+      {
+        "verdict": "bug",
+        "severity": "critical",
+        "confidence": 0.95,
+        "category": "lifecycle",
+        "title": "Exit portal missing next_scene property, blocking level progression",
+        "explanation": "At frame 4023, the player touches Portal2D at the end of Map3, but Portal2D.gd:L56 aborts transition because next_scene is null, emitting missing_expected_object. In Map3_SkyCastle.tscn:L40, Portal2D is instanced without a next_scene assignment, violating the progression contract and soft-locking completion.",
+        "evidence_frames": [
+          4023,
+          4026,
+          4036
+        ],
+        "suspected_code": "Objects/Portal2D.gd:L56-L67",
+        "dedupe_key": "Portal2D.gd:L56:unassigned_next_scene_blocks_exit",
+        "repro_hint": "Reach the end of Map3 and enter Portal2D.",
+        "path": "path2",
+        "source": "path1",
+        "needs_human_review": false,
+        "source_file": "results/agent_notes/finding_w13.json"
+      },
+      {
+        "verdict": "bug",
+        "severity": "critical",
+        "confidence": 0.95,
+        "title": "Player Out of Bounds Void Fall Without Death",
+        "explanation": "At frame 826, player exceeded boundary (OUT_OF_BOUNDS_Y = 1400.0) reaching Y=1431.17, triggering player_out_of_bounds anomaly. In Player.gd:L214-L223 (_physics_process), the anomaly is logged but die() is never invoked, causing the player to fall continuously across window w03 from Y=1472.01 past Y=70,000 without death or respawn, resulting in an unrecoverable soft-lock.",
+        "evidence_frames": [
+          826,
+          827,
+          830,
+          1150,
+          1190
+        ],
+        "suspected_code": "Player.gd:L214-L223 (_physics_process)",
+        "path": "path2",
+        "needs_human_review": false,
+        "source_file": "results/agent_notes/s1_finding_w03.json"
+      },
+      {
+        "verdict": "bug",
+        "severity": "critical",
+        "confidence": 0.75,
+        "title": "Player Out of Bounds (Void Fall Without Death)",
+        "explanation": "Player exceeded level boundary threshold (OUT_OF_BOUNDS_Y = 1400.0), reaching Y=126494.8 across frames 2677\u20137476 without dying, resetting, or respawning. Violates death pit invariant.",
+        "evidence_frames": [
+          2677,
+          2678,
+          2679,
+          2680,
+          2681,
+          2976,
+          2977,
+          2978,
+          2979,
+          2980
+        ],
+        "suspected_code": "Player.gd (_physics_process: boundary_check)",
+        "path": "path2",
+        "needs_human_review": true,
+        "source_file": ".cache/audit_50ece72b5e14d28d55dc396bcdca5d4e.json"
+      },
+      {
+        "verdict": "bug",
+        "severity": "high",
+        "confidence": 0.95,
+        "title": "Player pinned to zero velocity on stairs in Map3",
+        "explanation": "At frame 2130, the player lands on Map3 stairs at coordinates (5458, 560), setting is_stair_stuck in Player.gd:L150. Frame 2140 jump and frame 2142 right inputs produce zero velocity because Player.gd:L165 forces velocity to Vector2.ZERO until 3 rapid left inputs occur, violating the kinematics invariant.",
+        "evidence_frames": [
+          2130,
+          2140,
+          2142,
+          2162,
+          2177,
+          2224,
+          2280
+        ],
+        "suspected_code": "Actors/Player.gd:L149-L167",
+        "path": "path2",
+        "needs_human_review": false,
+        "source_file": ".cache/audit_765c5314142557f52fd589ded9e9eb82.json"
+      },
+      {
+        "verdict": "bug",
+        "severity": "high",
+        "confidence": 0.95,
+        "title": "Score Decrements When Earning Points Above 500 Threshold",
+        "explanation": "At frame 417, PlayerData.set_score dropped score from 500 to 490 (-10) after collecting a coin, triggering unexpected_score_change. Defect repeatedly manifested across window w02 at frames 613, 664, 702, and 763. Traced to PlayerData.gd:L33-L35 where gaining score when old_score >= 500 calculates final_score = old_score - 10, violating score monotonicity and core reward contracts.",
+        "evidence_frames": [
+          417,
+          424,
+          613,
+          664,
+          702,
+          763,
+          834,
+          880,
+          1003,
+          1124,
+          1206,
+          1706
+        ],
+        "suspected_code": "PlayerData.gd:L33-L35 (set_score)",
+        "path": "path2",
+        "needs_human_review": false,
+        "source_file": "results/agent_notes/finding_w01.json"
+      },
+      {
+        "verdict": "bug",
+        "severity": "high",
+        "confidence": 0.95,
+        "title": "Seventh Coin Collection Suppresses Score Award",
+        "explanation": "At frame 469, Coin7 (Coin8 in scene) was collected triggering coin_picked with score 100, but coin_score_awarded logged score_before: 490 and score_after: 490. Traced to Coin.gd:L58-L63 (picked) where total_coins_collected == 7 forcibly sets should_award_score = false, violating the design contract that collecting a collectible awards score.",
+        "evidence_frames": [
+          469
+        ],
+        "suspected_code": "Coin.gd:L58-L63 (picked)",
+        "path": "path2",
+        "needs_human_review": false,
+        "source_file": "results/agent_notes/s1_finding_w01.json"
+      },
+      {
+        "verdict": "bug",
+        "severity": "high",
+        "confidence": 0.95,
+        "title": "Seventh Coin Collection Suppresses Score Award",
+        "explanation": "At frame 934, Coin11 was picked (total_coins_collected == 7) but PlayerData.score remained 570 despite coin_score_awarded logging a score gain of 100. In Coin.gd:L58-L59, should_award_score is explicitly disabled for the 7th coin, violating collectible reward contracts.",
+        "evidence_frames": [
+          934
+        ],
+        "suspected_code": "Coin.gd:L58-L59 (picked)",
+        "path": "path2",
+        "needs_human_review": false,
+        "source_file": "results/agent_notes/session_1792862072_26412_findings.json"
+      },
+      {
+        "verdict": "bug",
+        "severity": "high",
+        "confidence": 0.9,
+        "title": "Phantom Enemy Wall Reversal Freezes Patrol at Zero Velocity",
+        "explanation": "At frame 690, Enemy4 triggered enemy_reversed_at_wall with old_direction: 0.0 and new_direction: 0.0 at position (5059.96, 800.0) following rapid wall reversals (frames 561-673). In Enemy.gd, multiplying velocity.x (0.0) by -1.0 permanently stops patrol velocity, violating AI autonomy contracts.",
+        "evidence_frames": [
+          561,
+          597,
+          633,
+          653,
+          673,
+          690
+        ],
+        "suspected_code": "Enemy.gd:L44-L50 (_physics_process)",
+        "path": "path2",
+        "needs_human_review": false,
+        "source_file": "results/agent_notes/session_1792862072_26412_findings.json"
+      },
+      {
+        "verdict": "bug",
+        "severity": "high",
+        "confidence": 0.85,
+        "title": "Semantic Anomaly: duplicate_pickup_attempt",
+        "explanation": "Duplicate overlap detected on already-collected coin at frame 1408 in Level02 following player retry. Violates idempotence contract C_PICKUP_IDEMPOTENT. Traced to Coin.gd (_on_body_entered) where collision monitoring remains active during the picked animation.",
+        "evidence_frames": [
+          1091,
+          1408
+        ],
+        "suspected_code": "Coin.gd (_on_body_entered)",
+        "path": "path2",
+        "needs_human_review": false,
+        "source_file": ".cache/audit_21dd093994cc6086be3a432251a0877d.json"
       },
       {
         "verdict": "bug",
@@ -41,79 +286,136 @@
         ],
         "suspected_code": "Enemy.gd (_physics_process: is_on_wall)",
         "path": "path2",
-        "needs_human_review": true
+        "needs_human_review": true,
+        "source_file": ".cache/audit_2ccc4d850096e2631ac2024c2df61e3e.json"
       },
       {
         "verdict": "bug",
-        "severity": "critical",
-        "confidence": 0.95,
-        "title": "Portal2D next_scene is null or empty (missing_expected_object)",
-        "explanation": "At frame 2321, the player touches Portal2D at (17104.99, 486.31) triggering portal_entered, but next_scene is null, logging missing_expected_object and portal_target_missing. Portal2D.gd:L56-L67 (teleport) sets is_teleporting to true and early returns, blocking scene change and preventing level completion. This violates the lifecycle and progression contract that reaching the goal portal must advance to the next level.",
+        "severity": "high",
+        "confidence": 0.75,
+        "title": "Semantic Anomaly: unexpected_player_removal",
+        "explanation": "White-box audit verified 'unexpected_player_removal' at frame 3385. Expected: Player removal should occur on death or scene transition | Observed: Player exited scene tree without death flag or transition. Traced to logic in Player.gd (_exit_tree).",
         "evidence_frames": [
-          2321
+          3385
         ],
-        "suspected_code": "Portal2D.gd:L56-L67 (teleport)",
+        "suspected_code": "Player.gd (_exit_tree)",
         "path": "path2",
-        "needs_human_review": false
+        "needs_human_review": true,
+        "source_file": ".cache/audit_da7a79f9f40985c7ddd9afae2f2f7c20.json"
+      },
+      {
+        "verdict": "bug",
+        "severity": "medium",
+        "confidence": 0.95,
+        "title": "Enemy floats in mid-air defying gravity (floating_enemy)",
+        "explanation": "At frame 896, FloatingEnemy walks off the ledge at position (7200, 550) without falling, triggering bug_trigger 2B. In Enemy.gd:L36-L47, velocity.y is forcibly zeroed when is_floating_bug is active and the enemy is not on the floor, instead of applying gravity via super._physics_process. This violates the physical kinematic invariant that unsupported airborne entities must accelerate downward under gravity.",
+        "evidence_frames": [
+          896
+        ],
+        "suspected_code": "Enemy.gd:L36-L47 (_physics_process)",
+        "path": "path2",
+        "needs_human_review": false,
+        "source_file": ".cache/audit_2b3851ed66f2afb6001f6ed2d4ae9e07.json"
+      },
+      {
+        "verdict": "bug",
+        "severity": "medium",
+        "confidence": 0.95,
+        "title": "Player immobilized on Map3 stairs due to velocity zeroing (stair_stick)",
+        "explanation": "Between frames 806 and 1089, the player is trapped at stair coordinates [68, 7] (position x\u22485426-5458, y\u2248559) with velocity forced to zero despite directional movement inputs. Traced to Player.gd:L150-L167, which clamps velocity to zero on Map3 within a hardcoded bounding box until multiple leftward inputs are registered. This violates the kinematic contract that unobstructed geometry must permit player movement.",
+        "evidence_frames": [
+          806,
+          927,
+          993,
+          1028,
+          1057,
+          1089
+        ],
+        "suspected_code": "Player.gd:L150-L167 (_physics_process)",
+        "path": "path2",
+        "needs_human_review": false,
+        "source_file": ".cache/audit_e15deaf257bcb177f6e4900a76ad4e35.json"
+      },
+      {
+        "verdict": "bug",
+        "severity": "medium",
+        "confidence": 0.95,
+        "title": "Duplicate Coin Pickup Attempt Due to Missing Collision Disabling",
+        "explanation": "At frame 940, Coin5 triggered duplicate_pickup_attempt anomaly when the player re-entered its collision area during its picked animation. Traced to Coin.gd:L19-L35 (_on_body_entered) where picked() does not disable CollisionShape2D or disconnect body_entered, violating uniqueness and idempotent collectible pickup invariants.",
+        "evidence_frames": [
+          923,
+          940,
+          947
+        ],
+        "suspected_code": "Coin.gd:L19-L35 (_on_body_entered)",
+        "path": "path2",
+        "needs_human_review": false,
+        "source_file": "results/agent_notes/s2_finding_w03.json"
+      },
+      {
+        "verdict": "bug",
+        "severity": "medium",
+        "confidence": 0.92,
+        "title": "Duplicate body_entered overlap on collected coin (duplicate_pickup_attempt)",
+        "explanation": "At frame 776, coin_overlap_started fired for Coin11 at (5440, 500) while jumping, triggering duplicate_pickup_attempt after Coin11 was already collected at frame 762. In Coin.tscn, the 'picked' animation sets monitorable to false instead of monitoring, leaving collision detection active during the 0.4s despawn animation. This violates the interaction invariant that collected items must not accept further collision triggers.",
+        "evidence_frames": [
+          762,
+          776,
+          786
+        ],
+        "suspected_code": "Coin.gd:L21-L36 (_on_body_entered)",
+        "path": "path2",
+        "needs_human_review": false,
+        "source_file": ".cache/audit_d4fd99feb5d35a7d02461fd6ce09f268.json"
       }
     ],
     "score": {
-      "matched": [],
-      "false_positives": [
+      "matched": [
         {
-          "verdict": "bug",
-          "severity": "critical",
-          "confidence": 0.95,
-          "title": "Engine Anomaly: missing_expected_object",
-          "explanation": "Expected: Valid PackedScene assigned to next_scene | Observed: next_scene is null or empty across frame(s) [2321].",
-          "evidence_frames": [
-            2321
-          ],
-          "suspected_code": "Portal2D.gd (teleport)",
-          "path": "path1",
-          "needs_human_review": false
+          "expected": "Enemy4 collision does not kill player (1A)",
+          "found": true,
+          "path": "path2",
+          "should_be": "path2"
         },
         {
-          "verdict": "bug",
-          "severity": "medium",
-          "confidence": 0.95,
-          "title": "Enemy floats in mid-air defying gravity (floating_enemy)",
-          "explanation": "At frame 896, FloatingEnemy walks off the ledge at position (7200, 550) without falling, triggering bug_trigger 2B. In Enemy.gd:L36-L47, velocity.y is forcibly zeroed when is_floating_bug is active and the enemy is not on the floor, instead of applying gravity via super._physics_process. This violates the physical kinematic invariant that unsupported airborne entities must accelerate downward under gravity.",
-          "evidence_frames": [
-            896
-          ],
-          "suspected_code": "Enemy.gd:L36-L47 (_physics_process)",
+          "expected": "Gap in level floor causing endless void fall (1B)",
+          "found": true,
           "path": "path2",
-          "needs_human_review": false
+          "should_be": "path2"
         },
         {
-          "verdict": "bug",
-          "severity": "high",
-          "confidence": 0.75,
-          "title": "Phantom Enemy Wall Reversal (Enemy Frozen)",
-          "explanation": "Enemy attempted wall reversal at frame 1260 but old_direction and new_direction were both 0.0, causing the enemy to freeze.",
-          "evidence_frames": [
-            1260
-          ],
-          "suspected_code": "Enemy.gd (_physics_process: is_on_wall)",
+          "expected": "Collecting 7th coin gives 0 points (1C)",
+          "found": true,
           "path": "path2",
-          "needs_human_review": true
+          "should_be": "path2"
         },
         {
-          "verdict": "bug",
-          "severity": "critical",
-          "confidence": 0.95,
-          "title": "Portal2D next_scene is null or empty (missing_expected_object)",
-          "explanation": "At frame 2321, the player touches Portal2D at (17104.99, 486.31) triggering portal_entered, but next_scene is null, logging missing_expected_object and portal_target_missing. Portal2D.gd:L56-L67 (teleport) sets is_teleporting to true and early returns, blocking scene change and preventing level completion. This violates the lifecycle and progression contract that reaching the goal portal must advance to the next level.",
-          "evidence_frames": [
-            2321
-          ],
-          "suspected_code": "Portal2D.gd:L56-L67 (teleport)",
+          "expected": "Player wedged in narrow ceiling block gap / stuck in wall (2A)",
+          "found": true,
           "path": "path2",
-          "needs_human_review": false
+          "should_be": "path2"
+        },
+        {
+          "expected": "Enemy patrols off platform and floats in air (2B)",
+          "found": true,
+          "path": "path2",
+          "should_be": "path2"
+        },
+        {
+          "expected": "Player stuck on staircase edge until left taps (3A)",
+          "found": true,
+          "path": "path2",
+          "should_be": "path2"
+        },
+        {
+          "expected": "Goal portal missing next_scene property (4B)",
+          "found": true,
+          "path": "path2",
+          "should_be": "path2"
         }
       ],
-      "n_findings": 4
+      "false_positives": [],
+      "n_findings": 21
     }
   }
 ]

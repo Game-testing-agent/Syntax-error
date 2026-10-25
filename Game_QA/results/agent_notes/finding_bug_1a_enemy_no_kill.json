@@ -1,0 +1,18 @@
+{
+  "verdict": "bug",
+  "severity": "critical",
+  "confidence": 0.98,
+  "title": "Enemy collision fails to inflict lethal damage on player (Bug 1A)",
+  "explanation": "At frame 892, the player collides with Enemy4 at coordinates (3040.0, 560.0) / Tile (38, 7) in Map 1. In Player.gd:L79-L94, the body_entered signal evaluates BugFlags.map1_enemy4_no_kill and finds can_kill_player=false on Enemy4 (Enemy.gd:L17). Instead of logging enemy_contact_death and calling die(), the handler early-returns and logs [BUGTRIGGER] 1A. The player safely overlaps and walks straight through the enemy without taking damage, violating core hazard fatality rules.",
+  "evidence_frames": [
+    870,
+    892,
+    915,
+    940
+  ],
+  "suspected_code": "Player.gd:L79-L94 (_on_EnemyDetector_body_entered)",
+  "path": "path2",
+  "needs_human_review": false,
+  "source_file": "Game_QA/results/agent_notes/finding_bug_1a_enemy_no_kill.json",
+  "dedupe_key": "player.gd::enemy_cannot_kill_player_1a"
+}

@@ -1,0 +1,18 @@
+{
+  "verdict": "bug",
+  "severity": "critical",
+  "confidence": 0.99,
+  "title": "Player wedged and permanently stuck in wall geometry (Bug 2A)",
+  "explanation": "At frame 1540, the player character traverses into narrow wall and ceiling geometry at coordinates (4400.0, 640.0) / Tile (55, 8) in Map 2 (Underground Caves). In Player.gd:L135-L148, map2_wall_stuck activates and sets is_wall_stuck to true, forcing velocity = Vector2.ZERO unconditionally every physics frame. The collision geometry lacks pushback or slide resolution, permanently trapping the player inside the wall with zero ability to walk or jump. Emits [BUGTRIGGER] 2A.",
+  "evidence_frames": [
+    1520,
+    1535,
+    1540,
+    1585
+  ],
+  "suspected_code": "Player.gd:L135-L148 (_physics_process / map2_wall_stuck)",
+  "path": "path2",
+  "needs_human_review": false,
+  "source_file": "Game_QA/results/agent_notes/finding_bug_2a_wall_stuck.json",
+  "dedupe_key": "player.gd::player_stuck_in_wall_2a"
+}
