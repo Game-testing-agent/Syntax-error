@@ -1,6 +1,8 @@
-# 🎮 Syntax-Error: Autonomous AI Game Testing & Dual-Path QA Framework
+# 🎮 Syntax-Error: Autonomous AI Game Testing & Quality Assurance Framework
 
-> **An end-to-end autonomous Quality Assurance system for 2D platformers in Godot, powered by Reinforcement Learning navigation, high-frequency telemetry streaming, token-efficient schema compression, and Dual-Path AI bug triage (Deterministic Rules + Gemini White-Box Code Audit).**
+> **An end-to-end autonomous Quality Assurance system for 2D platformers in Godot, powered by Reinforcement Learning navigation, high-frequency telemetry streaming, token-efficient schema compression, and AI-driven bug triage (Deterministic Rules + Gemini White-Box Code Audit).**
+
+![Syntax-Error 2D Platformer Gameplay Screenshot](Screenshot%202026-10-25%20083324.png)
 
 ---
 
@@ -61,10 +63,10 @@ This framework automates the game tester's entire workflow **end to end**:
                                                   │
                                                   ▼
 +----------------------------------------------------------------------------------------------------+
-| 3. DETECT (Dual-Path QA Engine)                                                                    |
-|    - Path 1 (Deterministic Invariants): Fast AST rule checks catch boundary breaches, speed spikes,|
+| 3. DETECT (Automated QA Engine)                                                                    |
+|    - Deterministic Invariant Checks: Fast AST rule checks catch boundary breaches, speed spikes,   |
 |      and negative scores instantly with 0.95 confidence.                                           |
-|    - Path 2 (Semantic / Gemini White-Box Audit): Slices logs into 5-second ReviewWindows. Gemini   |
+|    - Semantic / Gemini White-Box Audit: Slices logs into 5-second ReviewWindows. Gemini            |
 |      cross-examines telemetry against actual GDScript code (Player.gd, Enemy.gd) to detect logic   |
 |      flaws, checking for innocent explanations first to eliminate false alarms.                    |
 +----------------------------------------------------------------------------------------------------+
@@ -89,7 +91,7 @@ This framework automates the game tester's entire workflow **end to end**:
 
 ---
 
-## 🤖 The Core Agentic Engine: Dual Specialized AI Skills
+## 🤖 The Core Agentic Engine: Specialized AI Skills
 
 The true intelligence of this platform is driven by **two specialized AI Agent Skills** that run interlocking agentic loops:
 
@@ -157,7 +159,7 @@ The repository includes modular batch scripts configured for different stages of
 | **`view_logs.bat`** | Launches a live, color-coded terminal visualizer (`view_structured_logs.py`) for formatted inspection of `game_events.jsonl`. |
 | **`setup_and_run.bat`** | Initial setup script verifying Python dependencies, checking Godot executables, and bootstrapping the test environment. |
 | **`rl_training\run_training.bat`** | Runs the standalone 300-episode Q-Learning training loop for 2D platformer navigation, gap jumping, and enemy avoidance. |
-| **`Game_QA\run_eval.bat`** | **Dual-Path QA Evaluator**. Ingests recorded logs at stride 4, runs deterministic invariant checks, triggers Antigravity Gemini semantic review, and compiles `Game_QA/report.md`. |
+| **`Game_QA\run_eval.bat`** | **Automated QA Evaluator**. Ingests recorded logs at stride 4, runs deterministic invariant checks, triggers Antigravity Gemini semantic review, and compiles `Game_QA/report.md`. |
 
 ---
 
@@ -187,13 +189,13 @@ The repository includes modular batch scripts configured for different stages of
 │   ├── training_metrics.csv       # Episode reward, step count, and convergence logs
 │   └── training_notes.md          # Technical documentation on RL approach & architecture
 │
-├── Game_QA/                       # Automated Dual-Path QA Subsystem
+├── Game_QA/                       # Automated QA Subsystem
 │   ├── .agents/skills/game-qa/    # AI Skill: White-Box GDScript & Telemetry QA Lead
 │   │   └── SKILL.md               # 8-phase audit workflow & 18 universal reasoning rules
 │   ├── run_eval.bat               # One-click evaluation batch script
 │   ├── eval.py                    # Main evaluation orchestrator & deduplication
-│   ├── checker.py                 # Path 1 deterministic invariant rule checker
-│   ├── llm.py                     # Path 2 semantic evaluator & Gemini agent runner
+│   ├── checker.py                 # Deterministic invariant rule checker
+│   ├── llm.py                     # Semantic evaluator & Gemini agent runner
 │   ├── loader.py                  # Log parser, stride sampler, and kinematic flattener
 │   ├── code_loader.py             # GDScript source parser & AST extractor
 │   ├── schemas.py                 # Pydantic data models (Snapshot, Event, Finding)
@@ -269,7 +271,7 @@ pip install pydantic>=2.5 simpleeval>=0.9.13 python-dotenv>=1.0 fastapi>=0.100.0
 | **RL Training**<br>`(rl_training/)` | *None (Standard Library)* | Standalone Q-Learning module with zero external dependencies (pure Python). |
 | **QA Engine**<br>`(Game_QA/requirements.txt)` | `pydantic>=2.5`<br>`simpleeval>=0.9.13`<br>`python-dotenv>=1.0` | Invariant evaluation, schema data models, AST rule parsing, and environment variables. |
 | **Web Dashboard**<br>`(frontend/dashboard/requirements.txt)` | `fastapi>=0.100.0`<br>`uvicorn>=0.20.0`<br>`websockets>=11.0`<br>`psutil>=5.9.0`<br>`requests>=2.28.0` | Asynchronous REST backend, Uvicorn ASGI server, real-time live terminal streaming (`/ws/logs`), and process/memory monitoring. |
-| **Optional LLM SDKs**<br>*(If not using Antigravity Agent)* | `anthropic>=0.30`<br>`openai>=1.30`<br>`google-generativeai` | Optional if calling external cloud LLM APIs directly for Path 2 review. |
+| **Optional LLM SDKs**<br>*(If not using Antigravity Agent)* | `anthropic>=0.30`<br>`openai>=1.30`<br>`google-generativeai` | Optional if calling external cloud LLM APIs directly for semantic review. |
 
 ---
 
@@ -288,7 +290,7 @@ run_agentic_test.bat --budget 20 --strategy coverage
 ```
 *(Alternatively, you can launch interactive testing modes with `run_explorer.bat`)*
 
-### 3. Run the Dual-Path QA Audit on Raw Logs
+### 3. Run the Automated QA Audit on Raw Logs
 Navigate to the `Game_QA` directory and launch the evaluation pipeline:
 ```cmd
 cd Game_QA
