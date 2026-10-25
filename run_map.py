@@ -17,6 +17,12 @@ import subprocess
 from glob import glob
 
 MAPS = {
+    0: {
+        "title": "Default Map (Original Game)",
+        "slug": "default_game",
+        "scene": "res://src/Levels/Level01.tscn",
+        "desc": "Standard campaign level (Level01) launched by default run_game."
+    },
     1: {
         "title": "Map 1: Green Hills",
         "slug": "map1_green_hills",
@@ -78,7 +84,7 @@ def find_godot_binary() -> str:
 
 def main():
     parser = argparse.ArgumentParser(description="Launcher for QA Benchmark Maps", add_help=False)
-    parser.add_argument("--map", type=str, default=None, help="Map number to load (1, 2, 3, or 4)")
+    parser.add_argument("--map", type=str, default="0", help="Map number to load (0 for Default Map, or 1, 2, 3, 4; default: 0)")
     parser.add_argument("--list", action="store_true", help="List all available maps")
     parser.add_argument("--debug", action="store_true", help="Run with debug logging enabled")
     parser.add_argument("--headless", action="store_true", help="Run Godot in headless mode")
@@ -95,21 +101,20 @@ def main():
         sys.exit(0)
 
     if args.list:
-        print("Available QA Benchmark Maps:")
+        print("Available Maps:")
         for num, info in sorted(MAPS.items()):
             print(f"  [{num}] {info['title']} - {info['desc']}")
         sys.exit(0)
 
     if args.map is None:
-        print("Error: Missing required argument '--map <N>' or '--list'. Run with --help for usage.", file=sys.stderr)
-        sys.exit(1)
+        args.map = "0"
 
     try:
         map_num = int(args.map)
         if map_num not in MAPS:
             raise ValueError()
     except ValueError:
-        print(f"Error: Invalid map number '{args.map}'. Valid options are 1, 2, 3, 4.", file=sys.stderr)
+        print(f"Error: Invalid map number '{args.map}'. Valid options are 0, 1, 2, 3, 4.", file=sys.stderr)
         sys.exit(1)
 
     godot_bin = find_godot_binary()
@@ -120,7 +125,10 @@ def main():
     root_dir = os.path.dirname(os.path.abspath(__file__))
     project_dir = os.path.join(root_dir, "godot-4game")
     map_info = MAPS[map_num]
-    log_dir = os.path.join(root_dir, "maps", map_info["slug"], "logs")
+    if map_num == 0:
+        log_dir = os.path.join(root_dir, "godot-4game")
+    else:
+        log_dir = os.path.join(root_dir, "maps", map_info["slug"], "logs")
     os.makedirs(log_dir, exist_ok=True)
 
     cmd = [godot_bin]
@@ -128,7 +136,8 @@ def main():
         cmd.append("--headless")
     cmd.extend(["--path", project_dir, "--"])
     cmd.append(f"--map={map_num}")
-    cmd.append(f"--log-dir={log_dir}")
+    if map_num != 0:
+        cmd.append(f"--log-dir={log_dir}")
     if args.debug:
         cmd.append("--debug")
     if args.frames is not None:
@@ -155,11 +164,11 @@ def main():
             if not connected:
                 print("[WARNING] Game not responding to UDP handshake, proceeding with fallback telemetry...")
 
-            tx = args.target_coord[0] if args.target_coord else (7342.0 if map_num == 1 else (14638.0 if map_num == 3 else None))
-            ty = args.target_coord[1] if args.target_coord else (160.0 if map_num == 1 else (800.0 if map_num == 3 else None))
+            tx = args.target_coord[0] if args.target_coord else (7342.0 if map_num in (0, 1) else (14638.0 if map_num == 3 else None))
+            ty = args.target_coord[1] if args.target_coord else (160.0 if map_num in (0, 1) else (800.0 if map_num == 3 else None))
             target = (tx, ty) if tx is not None else None
 
-            target_lvl = "Level01" if map_num == 1 else ("Map3_SkyCastle" if map_num == 3 else map_info["slug"])
+            target_lvl = "Level01" if map_num in (0, 1) else ("Map3_SkyCastle" if map_num == 3 else map_info["slug"])
             runner = HybridBotRunner(
                 controller=controller,
                 target_level=target_lvl,

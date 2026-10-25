@@ -178,12 +178,24 @@
 
         <!-- Discovered Bugs Table from Game_QA -->
         <div class="card" style="margin-bottom:24px;">
-          <div class="card-header">
-            <h2 class="card-title">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-              Discovered Bugs & QA Findings
-            </h2>
-            <span style="font-size:12px;color:var(--text-muted);">Real results parsed from <code>Game_QA/results/</code></span>
+          <div class="card-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+            <div style="display:flex;align-items:center;gap:12px;">
+              <h2 class="card-title" style="margin:0;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                Discovered Bugs & QA Findings
+              </h2>
+              <span class="live-dot" style="display:inline-flex;align-items:center;gap:5px;font-size:11px;color:#10b981;font-weight:600;background:rgba(16,185,129,0.12);padding:3px 8px;border-radius:12px;border:1px solid rgba(16,185,129,0.25);">
+                <span style="width:6px;height:6px;border-radius:50%;background:#10b981;"></span>
+                Auto-Refreshed On Open
+              </span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <span style="font-size:11.5px;color:var(--text-muted);">Syncs live on open & every 3.5s</span>
+              <button type="button" class="btn btn-secondary btn-sm" id="btn-force-refresh-qa" onclick="forceRefreshOverview(event)" title="Trigger full re-compilation and sync of QA findings and reports">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;margin-right:4px;"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+                Refresh Now
+              </button>
+            </div>
           </div>
           <p class="card-desc">Findings caught across deterministic invariant checks (Path 1) and LLM white-box audits (Path 2).</p>
           
@@ -450,6 +462,7 @@
               <button type="button" class="preset-chip wp-preset-chip" data-preset="level1_full">Full Level 1 Route (6 points)</button>
               <button type="button" class="preset-chip wp-preset-chip" data-preset="map3_sky">Map 3 Sky Castle (3 points)</button>
               <button type="button" class="preset-chip wp-preset-chip" data-preset="bug_hunt">Map 1 Bug Coordinates (3 points)</button>
+              <button type="button" class="preset-chip wp-preset-chip" data-preset="map2_bugs">Map 2 Wall Stuck & Floating (2 points)</button>
             </div>
 
             <!-- Dynamic Table of Coordinates -->

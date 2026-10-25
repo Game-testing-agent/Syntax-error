@@ -12,6 +12,7 @@ FastAPI backend providing real-time integration with:
 
 import os
 import sys
+import re
 import json
 import glob
 import time
@@ -278,9 +279,45 @@ def parse_answer_key() -> List[Dict[str, Any]]:
     return bugs
 
 
+def normalize_qa_key(item: Dict[str, Any]) -> str:
+    """Computes a canonical deduplication key for QA bug findings."""
+    if item.get("dedupe_key"):
+        return str(item["dedupe_key"]).strip().lower()
+    code = str(item.get("suspected_code") or "").strip().lower()
+    title = str(item.get("title") or "").strip().lower()
+    title = re.sub(r"^(semantic anomaly:\s*|engine anomaly:\s*)", "", title)
+    if "out of bounds" in title or "void fall" in title or "player_out_of_bounds" in title:
+        title = "out_of_bounds_void_fall"
+    elif "stairs" in title or "stair_stick" in title:
+        title = "stairs_immobilization"
+    elif "floating" in title or "floating_enemy" in title:
+        title = "floating_enemy"
+    elif "wall reversal" in title or "enemy frozen" in title:
+        title = "enemy_wall_reversal_frozen"
+    elif "portal" in title or "missing_expected_object" in title:
+        title = "portal_missing_next_scene"
+    elif "duplicate_pickup" in title or "coin overlap" in title:
+        title = "duplicate_coin_pickup"
+    elif "500 threshold" in title or "score decrements" in title:
+        title = "score_decrements_above_500"
+    elif "7th coin" in title or "seventh coin" in title:
+        title = "seventh_coin_suppression"
+    elif "wall_stuck" in title or "stuck in wall" in title or "wedged" in title or "wall geometry" in title:
+        title = "player_stuck_in_wall"
+    elif "cannot kill" in title or "not able to kill" in title or "does not kill" in title or "can_kill_player" in title or "fails to inflict lethal" in title or "fails to kill" in title:
+        title = "enemy_cannot_kill_player"
+    return f"{code}::{title}"
+
+
 def parse_game_qa_findings() -> Dict[str, Any]:
-    """Reads real bug findings from Game_QA results and notes."""
-    findings = []
+    """
+    Reads real bug findings from:
+      1. Game_QA/results/eval_results.json
+      2. Game_QA/.cache/audit_*.json (live real-time audit cache)
+      3. Game_QA/results/agent_notes/*.json
+    Deduplicates findings while merging evidence frames and metadata.
+    """
+    raw_candidates = []
     sessions_analyzed = 0
     total_events_in_session = 0
 
@@ -291,7 +328,7 @@ def parse_game_qa_findings() -> Dict[str, Any]:
             with open(eval_file, "r", encoding="utf-8") as f:
                 data = json.load(f)
                 if isinstance(data, list):
-                    sessions_analyzed = len(data)
+                    sessions_analyzed = max(sessions_analyzed, len(data))
                     for sess in data:
                         sess_id = sess.get("session_id", "unknown")
                         total_events_in_session += sess.get("total_events", 0)
@@ -299,26 +336,72 @@ def parse_game_qa_findings() -> Dict[str, Any]:
                             item_copy = dict(item)
                             item_copy["session_id"] = sess_id
                             item_copy["source_file"] = "Game_QA/results/eval_results.json"
-                            findings.append(item_copy)
+                            raw_candidates.append(item_copy)
         except Exception as e:
             print(f"[ERROR] Reading eval_results.json: {e}", file=sys.stderr)
 
-    # 2. Agent notes findings
-    notes_files = glob.glob(str(GAME_QA_DIR / "results" / "agent_notes" / "*findings*.json"))
-    for nf in notes_files:
-        try:
-            with open(nf, "r", encoding="utf-8") as f:
-                data = json.load(f)
-                if isinstance(data, list):
-                    for item in data:
-                        item_copy = dict(item)
-                        item_copy["session_id"] = Path(nf).stem.replace("_findings", "")
-                        item_copy["source_file"] = f"Game_QA/results/agent_notes/{Path(nf).name}"
-                        # Check duplicate by title + frame
-                        if not any(f.get("title") == item_copy.get("title") and f.get("evidence_frames") == item_copy.get("evidence_frames") for f in findings):
-                            findings.append(item_copy)
-        except Exception as e:
-            print(f"[ERROR] Reading {nf}: {e}", file=sys.stderr)
+    # 2. Live audit cache (.cache/audit_*.json)
+    cache_dir = GAME_QA_DIR / ".cache"
+    if cache_dir.exists():
+        for cf in glob.glob(str(cache_dir / "audit_*.json")):
+            try:
+                with open(cf, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                    if isinstance(data, dict) and data.get("verdict") == "bug":
+                        item_copy = dict(data)
+                        item_copy["source_file"] = f"Game_QA/.cache/{Path(cf).name}"
+                        raw_candidates.append(item_copy)
+            except Exception as e:
+                print(f"[ERROR] Reading {cf}: {e}", file=sys.stderr)
+
+    # 3. Agent notes findings (results/agent_notes/*.json)
+    notes_dir = GAME_QA_DIR / "results" / "agent_notes"
+    if notes_dir.exists():
+        for nf in glob.glob(str(notes_dir / "*.json")):
+            try:
+                with open(nf, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                    items = data if isinstance(data, list) else [data]
+                    for item in items:
+                        if not isinstance(item, dict):
+                            continue
+                        if item.get("verdict") == "bug" or (item.get("title") and item.get("severity")):
+                            item_copy = dict(item)
+                            item_copy["session_id"] = Path(nf).stem.replace("_findings", "").replace("finding_", "")
+                            item_copy["source_file"] = f"Game_QA/results/agent_notes/{Path(nf).name}"
+                            raw_candidates.append(item_copy)
+            except Exception as e:
+                print(f"[ERROR] Reading {nf}: {e}", file=sys.stderr)
+
+    # Deduplicate & consolidate findings
+    findings = []
+    finding_map = {}
+    sev_rank = {"critical": 4, "high": 3, "medium": 2, "low": 1}
+
+    for cand in raw_candidates:
+        key = normalize_qa_key(cand)
+        if key in finding_map:
+            existing = finding_map[key]
+            # Union evidence frames
+            ef = sorted(list(set(existing.get("evidence_frames", []) + cand.get("evidence_frames", []))))
+            existing["evidence_frames"] = ef
+            # Keep highest confidence
+            existing["confidence"] = max(existing.get("confidence", 0.0), cand.get("confidence", 0.0))
+            # Keep richer explanation
+            if len(cand.get("explanation", "")) > len(existing.get("explanation", "")):
+                existing["explanation"] = cand["explanation"]
+            # Upgrade severity if higher
+            cand_sev = str(cand.get("severity", "medium")).lower()
+            exist_sev = str(existing.get("severity", "medium")).lower()
+            if sev_rank.get(cand_sev, 0) > sev_rank.get(exist_sev, 0):
+                existing["severity"] = cand["severity"]
+        else:
+            cand_copy = dict(cand)
+            finding_map[key] = cand_copy
+            findings.append(cand_copy)
+
+    # Sort findings by severity (critical first) then confidence
+    findings.sort(key=lambda x: (sev_rank.get(str(x.get("severity", "medium")).lower(), 0), x.get("confidence", 0.0)), reverse=True)
 
     # Calculate statistics
     sev_counts = {"critical": 0, "high": 0, "medium": 0, "low": 0}
@@ -437,13 +520,38 @@ def get_latest_game_state() -> Optional[Dict[str, Any]]:
     return None
 
 
+def auto_refresh_qa_findings(force: bool = False) -> Dict[str, Any]:
+    """Auto-compiles and refreshes Game_QA findings, eval_results.json, and report.md."""
+    try:
+        qa_str = str(GAME_QA_DIR)
+        if qa_str not in sys.path:
+            sys.path.insert(0, qa_str)
+        import compile_findings
+        return compile_findings.refresh_and_compile(force=force)
+    except Exception as e:
+        return {"status": "error", "error": str(e)}
+
+
 # -----------------------------------------------------------------------------
 # API Endpoints
 # -----------------------------------------------------------------------------
 
+@app.post("/api/overview/refresh")
+def api_refresh_overview():
+    """Forces an immediate recompilation and refresh of all QA findings and reports."""
+    sync_res = auto_refresh_qa_findings(force=True)
+    overview = api_overview()
+    return {
+        "status": "success",
+        "sync": sync_res,
+        "overview": overview
+    }
+
+
 @app.get("/api/overview")
 def api_overview():
     """Returns aggregated dashboard statistics, discovered bugs, and benchmark status."""
+    auto_refresh_qa_findings(force=False)
     qa_data = parse_game_qa_findings()
     answer_key = parse_answer_key()
     agentic_runs = parse_agentic_runs()
@@ -452,28 +560,80 @@ def api_overview():
     # Match discovered findings with benchmark bugs
     benchmark_status = []
     for bb in answer_key:
-        # Check if matched by log identifier or title keywords
         matched = False
         matched_finding = None
+        bid = bb["id"].lower()
+        bdesc = bb["description"].lower()
+
         for f in qa_data["findings"]:
             ftitle = f.get("title", "").lower()
             fexpl = f.get("explanation", "").lower()
             fcode = f.get("suspected_code", "").lower()
+            fkey = f.get("dedupe_key", "").lower()
 
-            if bb["id"].lower() in fexpl or bb["id"].lower() in ftitle:
+            # Direct identifier match
+            if bid in fexpl or bid in ftitle or bid in fkey:
                 matched = True
                 matched_finding = f
                 break
-            # Semantic keyword matches
-            if "out_of_bounds" in bb["description"].lower() and "out_of_bounds" in ftitle:
+
+            # 1A: Enemy4 collision does not kill player
+            if bid == "1a" and (
+                "can_kill_player" in fexpl or "cannot kill" in ftitle or
+                "does not kill" in ftitle or "not able to kill" in ftitle or
+                "fails to inflict lethal" in ftitle or "fails to kill" in ftitle or
+                ("enemy" in ftitle and "kill" in ftitle and "reversal" not in ftitle and "frozen" not in ftitle)
+            ):
                 matched = True
                 matched_finding = f
                 break
-            if "7th coin" in bb["description"].lower() and ("coin" in ftitle or "coin" in fexpl):
+            # 1B: Void fall / out of bounds
+            if bid == "1b" and ("out of bounds" in ftitle or "void fall" in ftitle or "player_out_of_bounds" in ftitle or "boundary" in fexpl):
                 matched = True
                 matched_finding = f
                 break
-            if "enemy4" in bb["description"].lower() and "enemy" in fexpl:
+            # 1C: 7th coin collection suppresses score
+            if bid == "1c" and ("7th coin" in ftitle or "seventh coin" in ftitle or ("coin" in fcode and "score" in ftitle)):
+                matched = True
+                matched_finding = f
+                break
+            # 2A: Wedged in narrow ceiling block gap / stuck in wall
+            if bid == "2a" and ("wedged" in ftitle or "ceiling" in fexpl or "stuck in wall" in ftitle or "wall geometry" in ftitle or "map2_wall_stuck" in fexpl):
+                matched = True
+                matched_finding = f
+                break
+            # 2B: Enemy patrols off platform and floats in air
+            if bid == "2b" and ("floating" in ftitle or "floats in mid-air" in ftitle or "floating_enemy" in ftitle or "floating_enemy" in fkey):
+                matched = True
+                matched_finding = f
+                break
+            # 3A: Player stuck on staircase edge / stair stick
+            if bid == "3a" and ("stair" in ftitle or "stair_stick" in ftitle or "stair_stick" in fkey or "stair" in fcode):
+                matched = True
+                matched_finding = f
+                break
+            # 3B: 4th enemy cannot be squashed by stomping
+            if bid == "3b" and ("squash" in ftitle or "stomp" in fexpl):
+                matched = True
+                matched_finding = f
+                break
+            # 3C: Wall jump on final tower gives 2x height
+            if bid == "3c" and ("wall jump" in ftitle or "tower" in fexpl):
+                matched = True
+                matched_finding = f
+                break
+            # 4A: Delayed lava death
+            if bid == "4a" and ("lava" in ftitle or "lava" in fexpl):
+                matched = True
+                matched_finding = f
+                break
+            # 4B: Goal portal requires two distinct touches / missing next_scene property
+            if bid == "4b" and ("portal" in ftitle or "portal2d" in fcode or "next_scene" in ftitle or "missing_expected_object" in ftitle):
+                matched = True
+                matched_finding = f
+                break
+            # 4C: Level Retry fails to reset enemy positions
+            if bid == "4c" and ("retry" in ftitle and "enemy" in ftitle):
                 matched = True
                 matched_finding = f
                 break
@@ -696,7 +856,7 @@ def api_execute_run_game(req: RunGameRequest):
         if req.with_bot:
             cmd = [sys.executable, "explorer.py", "--mode", "hybrid", "--launch"]
         elif req.mode in ("headless", "debug") or req.frames:
-            cmd = [sys.executable, "run_map.py", "--map", "1"]
+            cmd = [sys.executable, "run_map.py", "--map", "0"]
             if req.mode == "headless":
                 cmd.append("--headless")
             elif req.mode == "debug":
@@ -766,7 +926,7 @@ class RunExplorerRequest(BaseModel):
     port: int = Field(4242, description="UDP port")
     fps: int = Field(60, description="Physics FPS")
     level: Optional[str] = Field(None, description="Level name or scene path")
-    map_num: Optional[int] = Field(None, description="Optional benchmark map number (1-4)")
+    map_num: Optional[int] = Field(0, description="Map number: 0 for Default Map, or 1, 2, 3, 4 for benchmark maps")
     launch: bool = Field(True, description="Auto-launch game window")
     close_on_exit: bool = Field(False, description="Close game on exit")
     verbose: bool = Field(False, description="Verbose logs")
@@ -831,7 +991,7 @@ def api_execute_run_explorer(req: RunExplorerRequest):
                 4: "res://src/Levels/Map4_LavaFortress.tscn"
             }
             cmd.extend(["--level", map_scenes[req.map_num]])
-        elif req.map_num == 0 or req.level:
+        else:
             cmd.extend(["--level", req.level or "res://src/Levels/Level01.tscn"])
 
         if req.launch:
@@ -983,6 +1143,7 @@ app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
 @app.get("/")
 def serve_index():
+    auto_refresh_qa_findings(force=False)
     index_file = STATIC_DIR / "index.html"
     if not index_file.exists():
         raise HTTPException(status_code=404, detail="index.html not found")

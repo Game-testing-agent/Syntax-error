@@ -31,6 +31,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Poll process status every 1.5s
   processPollTimer = setInterval(pollProcessStatus, 1500);
+
+  // Auto-refresh bugs & overview data every 3.5s so new audits appear live in real-time
+  setInterval(fetchOverview, 3500);
+
+  // Auto-refresh immediately whenever user refocuses window or returns to tab
+  window.addEventListener("focus", () => fetchOverview());
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) fetchOverview();
+  });
 });
 
 // ----------------------------------------------------------------------------
@@ -234,9 +243,14 @@ function loadWaypointPreset(presetType) {
     ];
   } else if (presetType === "bug_hunt") {
     sequentialWaypoints = [
-      { x: 2320, y: 800 }, // Floor void gap
-      { x: 3040, y: 560 }, // Enemy4 collision
-      { x: 3360, y: 480 }  // 7th coin pickup
+      { x: 2320, y: 800 }, // Floor void gap (Bug 1B)
+      { x: 3040, y: 560 }, // Enemy4 collision (Bug 1A)
+      { x: 3360, y: 480 }  // 7th coin pickup (Bug 1C)
+    ];
+  } else if (presetType === "map2_bugs") {
+    sequentialWaypoints = [
+      { x: 4400, y: 640 }, // Player stuck in wall (Bug 2A)
+      { x: 7520, y: 320 }  // Floating enemy (Bug 2B)
     ];
   }
   renderWaypointsTable();
@@ -322,6 +336,8 @@ function initWebSocket() {
 }
 
 // Fallback polling for process status & logs if WS is unavailable
+let lastProcessStatus = "idle";
+
 async function pollProcessStatus() {
   try {
     const res = await fetch("/api/process/status");
@@ -350,6 +366,12 @@ async function pollProcessStatus() {
         text.innerText = "READY / IDLE";
         if (stopBtn) stopBtn.style.display = "none";
       }
+
+      // Auto-refresh overview immediately when a workflow completes or fails
+      if (lastProcessStatus === "running" && st.status !== "running") {
+        refreshAllData();
+      }
+      lastProcessStatus = st.status;
     }
 
     // Incremental log poll if ws isn't open
@@ -389,6 +411,30 @@ async function refreshAllData() {
     fetchPaths(),
     fetchTelemetry()
   ]);
+}
+
+async function forceRefreshOverview(event) {
+  if (event && event.preventDefault) event.preventDefault();
+  const btn = document.getElementById("btn-force-refresh-qa");
+  const origHtml = btn ? btn.innerHTML : "";
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = `<span style="display:inline-block;animation:spin 0.8s linear infinite;">↻</span> Syncing...`;
+  }
+  try {
+    const res = await fetch("/api/overview/refresh", { method: "POST" });
+    if (res.ok) {
+      showNotification("QA findings, eval results & report synchronized!");
+    }
+  } catch (err) {
+    console.warn("Manual refresh failed:", err);
+  } finally {
+    await fetchOverview();
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = origHtml;
+    }
+  }
 }
 
 async function fetchOverview() {
@@ -735,7 +781,8 @@ async function launchGameWorkflow() {
     const data = await res.json();
     if (!res.ok) throw new Error(data.detail || "Launch failed");
 
-    showNotification(`Game launched on Map ${selectedMapId}!`);
+    const mapLabel = selectedMapId === 0 ? "Default Map" : `Map ${selectedMapId}`;
+    showNotification(`Game launched on ${mapLabel}!`);
     switchTab("terminal");
     pollProcessStatus();
   } catch (err) {
@@ -794,7 +841,8 @@ async function launchRunExplorerWorkflow() {
   const launchWindow = document.getElementById("exp-launch-window-check").checked;
   const closeOnExit = document.getElementById("exp-close-exit-check").checked;
   const verbose = document.getElementById("exp-verbose-check").checked;
-  const mapNum = parseInt(document.getElementById("exp-map-select").value, 10) || null;
+  const expMapEl = document.getElementById("exp-map-select");
+  const mapNum = expMapEl && expMapEl.value !== "" ? parseInt(expMapEl.value, 10) : 0;
 
   // Flatten coordinates for sequential waypoints
   const waypointsFlat = [];

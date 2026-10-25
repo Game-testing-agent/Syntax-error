@@ -53,7 +53,16 @@ def run_tests():
     assert 'id="ai-agent-modal"' in html_text, "AI Agent Modal must exist"
     assert 'Gemini model through Antigravity' in html_text, "Gemini default model notice must exist"
     assert 'Run game QA using game-qa skill' in html_text, "Prompt text must be present"
-    print("All AI Agent UI components verified in index.html.")
+    assert 'id="btn-force-refresh-qa"' in html_text, "Force refresh button must exist"
+    assert 'Auto-Refreshed' in html_text, "Auto-refreshed badge must exist"
+    print("All AI Agent & Auto-Refresh UI components verified in index.html.")
+
+    print("\nTesting api_refresh_overview()...")
+    refresh_res = server.api_refresh_overview()
+    assert refresh_res["status"] == "success"
+    assert "sync" in refresh_res
+    assert refresh_res["overview"]["stats"]["total_bugs_detected"] >= 21
+    print("Auto-refresh endpoint test passed successfully.")
 
     print("\n[ALL SERVER CORE INTEGRATION TESTS PASSED!]")
 
