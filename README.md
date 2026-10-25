@@ -89,6 +89,54 @@ This framework automates the game tester's entire workflow **end to end**:
 
 ---
 
+## 🤖 The Core Agentic Engine: Dual Specialized AI Skills
+
+The true intelligence of this platform is driven by **two specialized AI Agent Skills** that run interlocking agentic loops:
+
+```
+  +--------------------------------------------------------------------------------------------------+
+  |                     SKILL 1: AGENTIC PLATFORMER TEST (.agents/skills/agentic-test)               |
+  |  - Autonomous Closed-Loop Gameplay Driver: observe -> select -> execute -> evaluate -> replan   |
+  |  - Grounded Target Selection: selects safe platform coordinates from cleaned_coordinates.json    |
+  |  - Powered by the RL-Trained Hybrid Bot: navigates geometry, jumps gaps, avoids hazards          |
+  +--------------------------------------------------------------------------------------------------+
+                                                   │
+                                                   ▼ Generates Real Telemetry
+                                           game_events.jsonl
+                                                   │
+                                                   ▼ Ingested & Sliced
+  +--------------------------------------------------------------------------------------------------+
+  |                        SKILL 2: WHITE-BOX GAME QA (Game_QA/.agents/skills/game-qa)               |
+  |  - The Master Audit Brain: Comprehensive 8-phase reasoning framework for LLMs / Gemini          |
+  |  - 18 Systematic Reasoning Rules (R1–R18): absence sweeps, terminal state analysis, steelmanning |
+  |  - Cross-examines telemetry against actual GDScript source code (Player.gd, Enemy.gd, etc.)      |
+  |  - Direct Pipeline Submission: validates findings via tools/native_submit.py                     |
+  +--------------------------------------------------------------------------------------------------+
+                                                   │
+                                                   ▼ Populates Live Results
+  +--------------------------------------------------------------------------------------------------+
+  |                           INTERACTIVE DASHBOARD & BUG RADAR (Port 8080)                          |
+  |  Displays verified findings, severity ratings, evidence frames [337], and suspected code lines   |
+  +--------------------------------------------------------------------------------------------------+
+```
+
+### 1. The Master Audit Brain: `game-qa` Skill
+* **Location**: [`Game_QA/.agents/skills/game-qa/SKILL.md`](Game_QA/.agents/skills/game-qa/SKILL.md)
+* **What it does**: This is the primary skill that instructs the AI Agent (Gemini) to act as a senior QA Lead and white-box auditor. It provides an extensive, comprehensive reasoning playbook:
+  * **8-Phase Rigorous Workflow**: `Scope -> Learn Telemetry -> Build Contract Table from Source -> Generate Candidates -> Adjudicate Candidate -> Merge & Calibrate -> Submit Results -> Coverage Self-Check`.
+  * **18 Universal Reasoning Rules (`R1` to `R18`)**: Enforces scientific discipline—never rationalizing after reading logs (`R1`), tracing events both backward and forward (`R2`), checking detection vs. consequence (`R3`), state-diffing consecutive snapshots (`R6`), analyzing terminal failure paths (`R7`), steelmanning benign explanations before blaming code (`R14`), and following the Evidence Ladder (`L1 Telemetry -> L2 Code Line -> L3 Predictive Mechanism`).
+  * **Automated Cache Submission**: Validated findings are submitted directly to the pipeline cache using `tools/native_submit.py`, instantly updating `results/eval_results.json` and lighting up the **Web Dashboard Bug Radar**.
+
+### 2. Autonomous Closed-Loop Testing: `agentic-platformer-test` Skill
+* **Location**: [`.agents/skills/agentic-test/SKILL.md`](.agents/skills/agentic-test/SKILL.md)
+* **What it does**: Executes `agentic_tester.py` to test levels without human intervention:
+  * **Adaptive Closed-Loop Cycle**: Continuously runs `observe -> select target -> execute navigation -> evaluate outcome -> record evidence -> replan`.
+  * **Grounded Coordinate Selection**: Targets are selected from over 1,200 verified reachable coordinates (`cleaned_coordinates.json`) rather than impossible arbitrary points.
+  * **Exploration Strategies**: Supports `coverage` (maximizes platform segment visits), `risk` (tests high-elevation platforms and narrow hazard perimeters), and `systematic` (left-to-right sweep).
+  * **Powered by the RL-Trained Bot**: Uses `HybridBotRunner` (`bot_controller.py`) with learned takeoff timings, air steering, and enemy stomp reflexes.
+
+---
+
 ## 🛠️ Batch Scripts Reference (`.bat`)
 
 The repository includes modular batch scripts configured for different stages of the testing lifecycle:
@@ -108,6 +156,7 @@ The repository includes modular batch scripts configured for different stages of
 | **`run_reader.bat`** | Spawns a real-time terminal monitor streaming active telemetry events (`log_reader.py`). |
 | **`view_logs.bat`** | Launches a live, color-coded terminal visualizer (`view_structured_logs.py`) for formatted inspection of `game_events.jsonl`. |
 | **`setup_and_run.bat`** | Initial setup script verifying Python dependencies, checking Godot executables, and bootstrapping the test environment. |
+| **`rl_training\run_training.bat`** | Runs the standalone 300-episode Q-Learning training loop for 2D platformer navigation, gap jumping, and enemy avoidance. |
 | **`Game_QA\run_eval.bat`** | **Dual-Path QA Evaluator**. Ingests recorded logs at stride 4, runs deterministic invariant checks, triggers Antigravity Gemini semantic review, and compiles `Game_QA/report.md`. |
 
 ---
@@ -115,7 +164,9 @@ The repository includes modular batch scripts configured for different stages of
 ## 📂 Repository Architecture
 
 ```
-Syntax-error/
+├── .agents/skills/agentic-test/   # AI Skill: Autonomous Closed-Loop Platformer Testing
+│   └── SKILL.md                   # Observe-Target-Navigate-Evaluate-Replan skill instructions
+│
 ├── agentic_tester.py              # Closed-loop autonomous target planner & tester
 ├── bot_controller.py              # 5-tier reactive behavior state machine bot
 ├── explorer.py                    # Multi-mode exploration engine (UDP & Mailbox)
@@ -126,7 +177,19 @@ Syntax-error/
 ├── game_events.jsonl              # Main runtime event log stream
 ├── latest_state.json              # Atomic real-time physics state snapshot
 │
+├── rl_training/                   # Standalone Reinforcement Learning Module
+│   ├── run_training.bat           # One-click Q-learning training launcher
+│   ├── train.py                   # 300-episode training loop & trajectory evaluation
+│   ├── environment.py             # Godot 2D platformer kinematic simulation environment
+│   ├── agent.py                   # Tabular Q-learning agent with epsilon-greedy policy
+│   ├── config.json                # Hyperparameters, reward shaping & physics constants
+│   ├── q_table.json               # Trained state-action policy matrix
+│   ├── training_metrics.csv       # Episode reward, step count, and convergence logs
+│   └── training_notes.md          # Technical documentation on RL approach & architecture
+│
 ├── Game_QA/                       # Automated Dual-Path QA Subsystem
+│   ├── .agents/skills/game-qa/    # AI Skill: White-Box GDScript & Telemetry QA Lead
+│   │   └── SKILL.md               # 8-phase audit workflow & 18 universal reasoning rules
 │   ├── run_eval.bat               # One-click evaluation batch script
 │   ├── eval.py                    # Main evaluation orchestrator & deduplication
 │   ├── checker.py                 # Path 1 deterministic invariant rule checker
@@ -203,6 +266,7 @@ pip install pydantic>=2.5 simpleeval>=0.9.13 python-dotenv>=1.0 fastapi>=0.100.0
 | Subsystem | Required Packages | Purpose |
 |---|---|---|
 | **Core Bot & Explorer**<br>`(bot_controller.py, explorer.py)` | *None (Standard Library)* | Zero external dependencies! Relies exclusively on built-in Python modules (`socket`, `json`, `math`, `time`). |
+| **RL Training**<br>`(rl_training/)` | *None (Standard Library)* | Standalone Q-Learning module with zero external dependencies (pure Python). |
 | **QA Engine**<br>`(Game_QA/requirements.txt)` | `pydantic>=2.5`<br>`simpleeval>=0.9.13`<br>`python-dotenv>=1.0` | Invariant evaluation, schema data models, AST rule parsing, and environment variables. |
 | **Web Dashboard**<br>`(frontend/dashboard/requirements.txt)` | `fastapi>=0.100.0`<br>`uvicorn>=0.20.0`<br>`websockets>=11.0`<br>`psutil>=5.9.0`<br>`requests>=2.28.0` | Asynchronous REST backend, Uvicorn ASGI server, real-time live terminal streaming (`/ws/logs`), and process/memory monitoring. |
 | **Optional LLM SDKs**<br>*(If not using Antigravity Agent)* | `anthropic>=0.30`<br>`openai>=1.30`<br>`google-generativeai` | Optional if calling external cloud LLM APIs directly for Path 2 review. |
@@ -248,6 +312,14 @@ For an interactive, browser-based control hub with real-time KPI scorecards, int
 frontend\dashboard\start_dashboard.bat
 ```
 This starts the dashboard server and opens your browser at `http://localhost:8080`.
+
+### 6. (Optional) Run the RL Training Demonstration
+To train the Q-learning navigation model that powers the bot's waypoint traversal and obstacle avoidance:
+```cmd
+rl_training\run_training.bat
+```
+*(Or invoke directly from terminal: `cd rl_training && python train.py --episodes 300`)*  
+This runs the 300-episode Q-learning loop in under a second, updates `rl_training/q_table.json`, and records progress in `rl_training/training_metrics.csv`.
 
 ---
 

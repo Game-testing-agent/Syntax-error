@@ -1,0 +1,33 @@
+{
+  "project": "Syntax-error 2D Platformer RL",
+  "game_engine": "Godot 4",
+  "level_target": "Level01_GreenHills",
+  "learning_rate": 0.1,
+  "discount_factor": 0.95,
+  "epsilon_initial": 1.0,
+  "epsilon_decay": 0.995,
+  "epsilon_min": 0.05,
+  "episodes": 300,
+  "max_steps_per_episode": 200,
+  "state_discretization": {
+    "rel_x_bins": [-300.0, -80.0, 80.0, 300.0],
+    "rel_y_bins": [-50.0, 50.0],
+    "enemy_danger_radius": 120.0,
+    "stomp_tolerance_x": 40.0
+  },
+  "rewards": {
+    "goal_reached": 100.0,
+    "progress_scale": 0.15,
+    "enemy_stomped": 50.0,
+    "coin_collected": 20.0,
+    "death_penalty": -100.0,
+    "step_cost": -1.0
+  },
+  "physics": {
+    "gravity": 1000.0,
+    "max_horizontal_speed": 600.0,
+    "jump_velocity": -950.0,
+    "delta_time": 0.05,
+    "out_of_bounds_y": 1400.0
+  }
+}
