@@ -2,11 +2,18 @@
 
 > **An end-to-end autonomous Quality Assurance system for 2D platformers in Godot, powered by Reinforcement Learning navigation, high-frequency telemetry streaming, token-efficient schema compression, and AI-driven bug triage (Deterministic Rules + Gemini White-Box Code Audit).**
 
+
+
+
 ![Syntax-Error 2D Platformer Gameplay Screenshot](Screenshot%202026-10-25%20083324.png)
 
 ---
 
 ## ⚡ Quick Start: How to Run Everything (Start Here!)
+
+###  Full detailed video with demonstration :  https://youtu.be/hBalkzrW9x0
+
+
 
 ### 1. Launch the Visual Dashboard (One-Click)
 To run the full visual control hub and interactive bug radar:
