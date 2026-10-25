@@ -1,0 +1,7 @@
+{
+  "window_id": "w08",
+  "category": "kinematics",
+  "dedupe_key": "Player.gd:L254:player_out_of_bounds",
+  "repro_hint": "Fall into any pit or gap below y=1400 on Map3 and verify if death triggers.",
+  "source": "agent"
+}

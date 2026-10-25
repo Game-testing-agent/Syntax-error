@@ -1,0 +1,7 @@
+{
+  "window_id": "w07",
+  "category": "lifecycle",
+  "dedupe_key": "Portal2D.gd:L56:missing_expected_object",
+  "repro_hint": "Enter Portal2D on Map2 and observe whether next scene loads.",
+  "source": "agent"
+}

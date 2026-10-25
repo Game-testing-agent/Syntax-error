@@ -41,8 +41,21 @@ def run_tests():
     assert (server.STATIC_DIR / "js" / "terminal.js").exists()
     print("All static assets verified on disk.")
 
+    print("\nTesting find_antigravity_cli()...")
+    cli = server.find_antigravity_cli()
+    print("Found Antigravity CLI:", cli)
+    assert cli is not None, "Antigravity CLI must be found"
+
+    print("\nTesting static elements for AI Agent...")
+    html_text = (server.STATIC_DIR / "index.html").read_text(encoding="utf-8")
+    assert 'id="sidebar-btn-ai-agent"' in html_text, "Sidebar AI Agent button must exist"
+    assert 'id="btn-large-start-ai"' in html_text, "Large Start Button must exist"
+    assert 'id="ai-agent-modal"' in html_text, "AI Agent Modal must exist"
+    assert 'Gemini model through Antigravity' in html_text, "Gemini default model notice must exist"
+    assert 'Run game QA using game-qa skill' in html_text, "Prompt text must be present"
+    print("All AI Agent UI components verified in index.html.")
+
     print("\n[ALL SERVER CORE INTEGRATION TESTS PASSED!]")
 
 if __name__ == "__main__":
     run_tests()
-

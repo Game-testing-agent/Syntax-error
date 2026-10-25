@@ -1,0 +1,13 @@
+{
+  "verdict": "bug",
+  "severity": "high",
+  "confidence": 0.75,
+  "title": "Semantic Anomaly: unexpected_player_removal",
+  "explanation": "White-box audit verified 'unexpected_player_removal' at frame 3385. Expected: Player removal should occur on death or scene transition | Observed: Player exited scene tree without death flag or transition. Traced to logic in Player.gd (_exit_tree).",
+  "evidence_frames": [
+    3385
+  ],
+  "suspected_code": "Player.gd (_exit_tree)",
+  "path": "path2",
+  "needs_human_review": true
+}

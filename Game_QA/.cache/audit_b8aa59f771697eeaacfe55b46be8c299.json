@@ -1,0 +1,15 @@
+{
+  "verdict": "bug",
+  "severity": "critical",
+  "confidence": 0.95,
+  "title": "Player falling below level boundary does not trigger death (player_out_of_bounds)",
+  "explanation": "At frame 2502, the player falls below OUT_OF_BOUNDS_Y (1400.0) reaching y=1412.43, logging player_out_of_bounds anomaly. Traced to Player.gd:L254-L270 where detection logs an anomaly but never calls die(), causing the player to fall indefinitely through the void past y=320,000 without dying or respawning. This violates the physical and design invariant that falling out of the world must be fatal.",
+  "evidence_frames": [
+    2502,
+    2542,
+    3385
+  ],
+  "suspected_code": "Player.gd:L254-L270 (_physics_process)",
+  "path": "path2",
+  "needs_human_review": false
+}

@@ -250,6 +250,7 @@ class HybridBotController:
         self.current_behavior = BehaviorState.NAVIGATE
         self.recovery_attempts = 0
         self.stuck_counter = 0
+        self.fall_start_time: Optional[float] = None
         self.last_pos_x: Optional[float] = None
         self.last_pos_y: Optional[float] = None
         self.in_jump_maneuver: bool = False
@@ -318,6 +319,7 @@ class HybridBotController:
             self.in_jump_maneuver = False
             self.wp_jump_executed = False
             self.stuck_counter = 0
+            self.fall_start_time = None
             self.last_score = 0
             if self.retry_tick_counter > 0:
                 self.retry_tick_counter -= 1
@@ -336,6 +338,32 @@ class HybridBotController:
         self.retry_in_progress = False
         self.last_deaths = deaths
 
+        # Continuous falling detection: if bot is falling for >= 5.0 seconds (e.g. falling into endless abyss/void)
+        vel = player.get("velocity") or {}
+        vy = vel.get("y", 0.0) if vel else 0.0
+        is_falling = (not on_floor) and (
+            vy > 10.0
+            or py > 900.0
+            or (self.last_pos_y is not None and abs(py - self.last_pos_y) > 1.0)
+        )
+        if is_falling and player_alive and game_state not in ("scene_transitioning", "waiting_for_player"):
+            if self.fall_start_time is None:
+                self.fall_start_time = time.time()
+            fall_duration = time.time() - self.fall_start_time
+            if fall_duration >= 5.0:
+                print(f"[RECOVERY] Continuous falling detected ({round(fall_duration, 1)}s without landing, py={round(py, 1)}). Retrying level.", flush=True)
+                self.fall_start_time = None
+                self.recovery_attempts += 1
+                self.route_manager.reset_current_level()
+                self.in_jump_maneuver = False
+                self.wp_jump_executed = False
+                self.stuck_counter = 0
+                self.retry_tick_counter = 3
+                self.retry_in_progress = True
+                return (["retry"], 40, BehaviorState.RECOVERY, f"Continuous falling detected ({round(fall_duration, 1)}s), issuing level restart")
+        else:
+            self.fall_start_time = None
+
         # Auto-resync: if player is at spawn position on floor but waypoint index has advanced
         if on_floor and px < 350.0 and self.route_manager.current_waypoint_idx >= 2:
             print(f"[RECOVERY] Player position ({round(px, 1)}) is at level start but route is at waypoint {self.route_manager.current_waypoint_idx}. Resynchronizing route.")
@@ -343,6 +371,7 @@ class HybridBotController:
             self.in_jump_maneuver = False
             self.wp_jump_executed = False
             self.stuck_counter = 0
+            self.fall_start_time = None
 
         # Stuck detection: only count when grounded
         if on_floor and self.last_pos_x is not None and abs(px - self.last_pos_x) < 4.0:
@@ -765,6 +794,8 @@ class HybridBotRunner:
         self.completed_levels: List[str] = []
         self.victory: bool = False
         self.target_reached: bool = False
+        self.runner_fall_start: Optional[float] = None
+        self.runner_last_y: Optional[float] = None
 
     def navigate_to(self, tx: float, ty: Optional[float] = None,
                     tolerance: Optional[float] = None,
@@ -777,6 +808,8 @@ class HybridBotRunner:
         self.target_coord = (tx, ty)
         self.target_reached = False
         self.victory = False
+        self.runner_fall_start = None
+        self.runner_last_y = None
         steps_limit = max_steps if max_steps is not None else self.max_steps
 
         self.route_manager.set_target_coordinate(tx, ty, tolerance_x=self.coord_tolerance)
@@ -847,10 +880,70 @@ class HybridBotRunner:
                     self.controller.pause(False)
                 break
 
-            # Automatic retry on death before deciding action
+            # Automatic retry on continuous falling (> 5.0 seconds in air/abyss)
             p_alive_before = (p_before.get("alive", False) if state_before else False) and (state_before.get("game_state") != "player_died")
+            on_f_before = bool(p_before.get("on_floor", False)) if p_before else True
+            vy_before = float((p_before.get("velocity") or {}).get("y", 0.0)) if p_before else 0.0
+            is_falling_runner = (not on_f_before) and (
+                vy_before > 10.0
+                or by > 900.0
+                or (self.runner_last_y is not None and abs(by - self.runner_last_y) > 1.0)
+            )
+            self.runner_last_y = by
+
+            if p_alive_before and is_falling_runner and state_before.get("game_state") != "scene_transitioning":
+                if self.runner_fall_start is None:
+                    self.runner_fall_start = time.time()
+                fall_dur = time.time() - self.runner_fall_start
+                if fall_dur >= 5.0:
+                    print(f"\n[AUTO-RETRY] Continuous falling detected ({round(fall_dur, 1)}s, py={round(by, 1)})! Issuing automatic retry...", flush=True)
+                    self.runner_fall_start = None
+                    if hasattr(self.controller, "log_event"):
+                        self.controller.log_event(
+                            "waypoint_auto_retry",
+                            category="recovery",
+                            data={
+                                "reason": "continuous_falling",
+                                "fall_duration_sec": round(fall_dur, 2),
+                                "target": {"x": tx, "y": ty},
+                                "step": step_idx
+                            },
+                            player_state=state_before
+                        )
+                    self.controller.release_all()
+                    self.controller.retry()
+                    t_respawn = time.time()
+                    while time.time() - t_respawn < 5.0:
+                        time.sleep(0.1)
+                        st_re = self.controller.get_latest_state()
+                        if st_re and (st_re.get("player") or {}).get("alive", False) and st_re.get("game_state") not in ("player_died", "scene_transitioning"):
+                            print(f"[AUTO-RETRY] Respawn successful. Resuming navigation toward ({tx}, {ty}) from start.", flush=True)
+                            break
+                    self.route_manager.reset_current_level()
+                    self.bot.in_jump_maneuver = False
+                    self.bot.wp_jump_executed = False
+                    self.bot.stuck_counter = 0
+                    self.bot.fall_start_time = None
+                    self.bot.retry_tick_counter = 0
+                    self.bot.retry_in_progress = False
+                    continue
+            else:
+                self.runner_fall_start = None
+
+            # Automatic retry on death before deciding action
             if state_before and not p_alive_before and state_before.get("game_state") != "scene_transitioning":
                 print("\n[AUTO-RETRY] Player death detected! Issuing automatic retry to continue navigation...", flush=True)
+                if hasattr(self.controller, "log_event"):
+                    self.controller.log_event(
+                        "waypoint_auto_retry",
+                        category="recovery",
+                        data={
+                            "reason": "player_died",
+                            "target": {"x": tx, "y": ty},
+                            "step": step_idx
+                        },
+                        player_state=state_before
+                    )
                 self.controller.release_all()
                 self.controller.retry()
                 t_respawn = time.time()
@@ -864,6 +957,7 @@ class HybridBotRunner:
                 self.bot.in_jump_maneuver = False
                 self.bot.wp_jump_executed = False
                 self.bot.stuck_counter = 0
+                self.bot.fall_start_time = None
                 self.bot.retry_tick_counter = 0
                 self.bot.retry_in_progress = False
                 continue
@@ -876,6 +970,22 @@ class HybridBotRunner:
             wp_str = wp.get("id") if wp else f"TARGET({tx})"
             print(f"[{step_idx:03d}/{steps_limit}] [{behavior.value.upper()}] WP: {wp_str} | Actions: {actions} ({dur_sec}s, {frames}f)", flush=True)
             print(f"       Reason: {reason}", flush=True)
+
+            if hasattr(self.controller, "log_event"):
+                self.controller.log_event(
+                    "waypoint_action_step",
+                    category="waypoint",
+                    data={
+                        "step": step_idx,
+                        "target": {"x": tx, "y": ty},
+                        "actions": actions,
+                        "frames": frames,
+                        "behavior": behavior.value,
+                        "reason": reason,
+                        "player_position": {"x": bx, "y": by}
+                    },
+                    player_state=state_before
+                )
 
             # Send actions to game
             if "retry" in actions:
@@ -1084,8 +1194,45 @@ class HybridBotRunner:
                     self.controller.pause(True)
                 break
 
-            # Automatic retry on death before deciding action
+            # Automatic retry on continuous falling (> 5.0 seconds in air/abyss)
             p_alive_before = (p_before.get("alive", False) if state_before else False) and (state_before.get("game_state") != "player_died")
+            on_f_before = bool(p_before.get("on_floor", False)) if p_before else True
+            vy_before = float((p_before.get("velocity") or {}).get("y", 0.0)) if p_before else 0.0
+            is_falling_runner = (not on_f_before) and (
+                vy_before > 10.0
+                or by > 900.0
+                or (self.runner_last_y is not None and abs(by - self.runner_last_y) > 1.0)
+            )
+            self.runner_last_y = by
+
+            if p_alive_before and is_falling_runner and state_before.get("game_state") != "scene_transitioning":
+                if self.runner_fall_start is None:
+                    self.runner_fall_start = time.time()
+                fall_dur = time.time() - self.runner_fall_start
+                if fall_dur >= 5.0:
+                    print(f"\n[AUTO-RETRY] Continuous falling detected ({round(fall_dur, 1)}s, py={round(by, 1)})! Issuing automatic retry...", flush=True)
+                    self.runner_fall_start = None
+                    self.controller.release_all()
+                    self.controller.retry()
+                    t_respawn = time.time()
+                    while time.time() - t_respawn < 5.0:
+                        time.sleep(0.1)
+                        st_re = self.controller.get_latest_state()
+                        if st_re and (st_re.get("player") or {}).get("alive", False) and st_re.get("game_state") not in ("player_died", "scene_transitioning"):
+                            print(f"[AUTO-RETRY] Respawn successful. Resuming navigation from start.", flush=True)
+                            break
+                    self.route_manager.reset_current_level()
+                    self.bot.in_jump_maneuver = False
+                    self.bot.wp_jump_executed = False
+                    self.bot.stuck_counter = 0
+                    self.bot.fall_start_time = None
+                    self.bot.retry_tick_counter = 0
+                    self.bot.retry_in_progress = False
+                    continue
+            else:
+                self.runner_fall_start = None
+
+            # Automatic retry on death before deciding action
             if state_before and not p_alive_before and state_before.get("game_state") != "scene_transitioning":
                 print("\n[AUTO-RETRY] Player death detected! Issuing automatic retry to continue navigation...", flush=True)
                 self.controller.release_all()
@@ -1101,6 +1248,7 @@ class HybridBotRunner:
                 self.bot.in_jump_maneuver = False
                 self.bot.wp_jump_executed = False
                 self.bot.stuck_counter = 0
+                self.bot.fall_start_time = None
                 self.bot.retry_tick_counter = 0
                 self.bot.retry_in_progress = False
                 continue

@@ -1,0 +1,15 @@
+{
+  "verdict": "bug",
+  "severity": "medium",
+  "confidence": 0.92,
+  "title": "Duplicate body_entered overlap on collected coin (duplicate_pickup_attempt)",
+  "explanation": "At frame 776, coin_overlap_started fired for Coin11 at (5440, 500) while jumping, triggering duplicate_pickup_attempt after Coin11 was already collected at frame 762. In Coin.tscn, the 'picked' animation sets monitorable to false instead of monitoring, leaving collision detection active during the 0.4s despawn animation. This violates the interaction invariant that collected items must not accept further collision triggers.",
+  "evidence_frames": [
+    762,
+    776,
+    786
+  ],
+  "suspected_code": "Coin.gd:L21-L36 (_on_body_entered)",
+  "path": "path2",
+  "needs_human_review": false
+}

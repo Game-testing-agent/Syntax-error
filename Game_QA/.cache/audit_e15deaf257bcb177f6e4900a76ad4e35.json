@@ -1,0 +1,18 @@
+{
+  "verdict": "bug",
+  "severity": "medium",
+  "confidence": 0.95,
+  "title": "Player immobilized on Map3 stairs due to velocity zeroing (stair_stick)",
+  "explanation": "Between frames 806 and 1089, the player is trapped at stair coordinates [68, 7] (position x\u22485426-5458, y\u2248559) with velocity forced to zero despite directional movement inputs. Traced to Player.gd:L150-L167, which clamps velocity to zero on Map3 within a hardcoded bounding box until multiple leftward inputs are registered. This violates the kinematic contract that unobstructed geometry must permit player movement.",
+  "evidence_frames": [
+    806,
+    927,
+    993,
+    1028,
+    1057,
+    1089
+  ],
+  "suspected_code": "Player.gd:L150-L167 (_physics_process)",
+  "path": "path2",
+  "needs_human_review": false
+}

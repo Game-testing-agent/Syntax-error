@@ -1,0 +1,7 @@
+{
+  "window_id": "w03",
+  "category": "ai",
+  "dedupe_key": "Enemy.gd:L36:floating_enemy",
+  "repro_hint": "Spawn FloatingEnemy and observe patrol behavior over ledges on Map2.",
+  "source": "agent"
+}

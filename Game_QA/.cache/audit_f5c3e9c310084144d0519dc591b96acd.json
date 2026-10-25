@@ -1,0 +1,13 @@
+{
+  "verdict": "bug",
+  "severity": "critical",
+  "confidence": 0.95,
+  "title": "Portal2D next_scene is null or empty (missing_expected_object)",
+  "explanation": "At frame 2321, the player touches Portal2D at (17104.99, 486.31) triggering portal_entered, but next_scene is null, logging missing_expected_object and portal_target_missing. Portal2D.gd:L56-L67 (teleport) sets is_teleporting to true and early returns, blocking scene change and preventing level completion. This violates the lifecycle and progression contract that reaching the goal portal must advance to the next level.",
+  "evidence_frames": [
+    2321
+  ],
+  "suspected_code": "Portal2D.gd:L56-L67 (teleport)",
+  "path": "path2",
+  "needs_human_review": false
+}

@@ -80,6 +80,14 @@
         Overview & Bugs
       </a>
 
+      <!-- MAIN AI AGENT BUTTON: In between Telemetry and Execution -->
+      <div class="nav-section-title">AI Autonomous QA</div>
+      <button type="button" id="sidebar-btn-ai-agent" class="nav-item nav-ai-agent-btn" onclick="openAiAgentModal()" title="Run the AI agent for game qa">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;flex-shrink:0;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+        <span class="nav-ai-agent-text">Run the AI agent for game qa</span>
+        <span class="nav-badge">AI</span>
+      </button>
+
       <div class="nav-section-title">Execution Hub</div>
       <a href="#run-game" class="nav-item" data-tab="run-game">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
@@ -150,6 +158,22 @@
             <span class="stat-value" id="kpi-agentic-runs">-</span>
             <span class="stat-sub">Recorded test sessions</span>
           </div>
+        </div>
+
+        <!-- Hero Banner: In between Telemetry KPIs and Bugs/Execution -->
+        <div class="ai-agent-hero-banner" id="overview-ai-agent-banner">
+          <div class="ai-agent-hero-info">
+            <div class="ai-agent-hero-badge">
+              <span>ANTIGRAVITY // AUTONOMOUS QA</span>
+            </div>
+            <h3 class="ai-agent-hero-title">Run AI Agent for Game QA</h3>
+            <p class="ai-agent-hero-desc">
+              Automates closed-loop testing and white-box GDScript analysis in <code>Game_QA</code>. By default runs through the <strong>Gemini model through Antigravity</strong>. For other LLM modes, use prompt: <code>Run game QA using game-qa skill</code>.
+            </p>
+          </div>
+          <button type="button" id="overview-btn-run-ai-agent" class="btn btn-primary" onclick="openAiAgentModal()" title="Run the AI agent for game qa" style="padding:12px 22px;font-size:13.5px;font-weight:600;white-space:nowrap;">
+            Run the AI agent for game qa
+          </button>
         </div>
 
         <!-- Discovered Bugs Table from Game_QA -->
@@ -557,6 +581,9 @@
               Recent Telemetry Stream
             </h2>
             <button class="btn btn-secondary btn-sm" onclick="fetchTelemetry()">Refresh Telemetry</button>
+            <button class="btn btn-primary btn-sm" id="telem-btn-run-ai-agent" onclick="openAiAgentModal()" title="Run the AI agent for game qa" style="margin-left:8px;">
+              Run the AI agent for game qa
+            </button>
           </div>
           <p class="card-desc">Structured telemetry recorded in <code>game_events.jsonl</code> emitted by <code>GameLogger.gd</code> at 60 FPS.</p>
 
@@ -641,7 +668,92 @@
     </div>
   </div>
 
-  <script src="/static/js/terminal.js"></script>
+
+  <!-- ========================================================================
+       AI Autonomous QA Agent Launch Modal
+       ======================================================================== -->
+  <div id="ai-agent-modal" class="modal-backdrop">
+    <div class="modal-content ai-agent-modal-dialog">
+      <button class="modal-close" onclick="closeAiAgentModal()" title="Close">&times;</button>
+      
+      <!-- Clean Header -->
+      <div class="ai-modal-header">
+        <div class="ai-modal-badge">
+          <span>ANTIGRAVITY // AUTONOMOUS QA</span>
+        </div>
+        <h2 class="ai-modal-title">
+          Run the AI Agent for Game QA
+        </h2>
+        <p class="ai-modal-desc">
+          Dispatches autonomous QA testing and GDScript white-box analysis in the <code>Game_QA</code> folder.
+        </p>
+      </div>
+
+      <!-- LLM Engine & Execution Model Notice (Gemini Default + Other LLM prompt guidance) -->
+      <div class="ai-model-notice-card">
+        <div class="notice-header">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--accent-cyan);"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+          <span class="notice-title">LLM Execution Model Notice</span>
+        </div>
+        <p class="notice-text">
+          By default, this runs through the <strong>Gemini model through Antigravity</strong>. If you are using another mode of LLM, please use the prompt below:
+        </p>
+        <div class="prompt-copy-box">
+          <div class="prompt-text-display" id="ai-agent-prompt-display">
+            <code>Run game QA using game-qa skill</code>
+          </div>
+          <button type="button" class="btn btn-secondary btn-sm copy-btn" onclick="copyAiPrompt()" id="btn-copy-prompt" title="Copy prompt to clipboard">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+            <span id="copy-btn-text">Copy Prompt</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Mission Specs Grid -->
+      <div class="ai-mission-grid">
+        <div class="mission-item">
+          <span class="mission-label">Target Folder</span>
+          <span class="mission-val code-val">Game_QA/</span>
+        </div>
+        <div class="mission-item">
+          <span class="mission-label">Autonomous Skill</span>
+          <span class="mission-val skill-badge">game-qa</span>
+        </div>
+        <div class="mission-item">
+          <span class="mission-label">Default LLM</span>
+          <span class="mission-val" style="color:var(--accent-cyan);">Gemini (Antigravity)</span>
+        </div>
+        <div class="mission-item">
+          <span class="mission-label">Action</span>
+          <span class="mission-val">Open Chat & Dispatch</span>
+        </div>
+      </div>
+
+      <!-- NORMAL LARGE START BUTTON (Clean & Professional) -->
+      <div class="large-start-container">
+        <button id="btn-large-start-ai" class="large-start-button" onclick="executeAiAgentDirectly()">
+          <span class="large-start-headline">Start AI Agent for Game QA</span>
+          <span class="large-start-sub">Open Antigravity chat in Game_QA &bull; Send prompt "Run game QA using game-qa skill"</span>
+        </button>
+      </div>
+
+      <!-- Status Card -->
+      <div id="ai-launch-status-card" class="ai-status-card" style="display:none;">
+        <div class="ai-status-indicator">
+          <span class="status-spinner" id="ai-status-spinner"></span>
+          <span id="ai-status-headline" class="ai-status-headline">Dispatching agent to Antigravity...</span>
+        </div>
+        <div id="ai-status-details" class="ai-status-details"></div>
+        <div id="ai-status-actions" class="ai-status-actions" style="display:none;">
+          <button class="btn btn-primary btn-sm" onclick="switchToTerminalTab()">View Live Terminal Output</button>
+          <button class="btn btn-secondary btn-sm" onclick="closeAiAgentModal()">Close</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+    <script src="/static/js/terminal.js"></script>
   <script src="/static/js/dashboard.js"></script>
 </body>
 </html>

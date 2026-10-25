@@ -1,13 +1,119 @@
 [
   {
-    "session_id": "session_1792882296_84915",
-    "total_events": 723,
-    "total_snapshots": 14,
-    "findings": [],
+    "session_id": "session_1792887612_53424",
+    "total_events": 764,
+    "total_snapshots": 13,
+    "findings": [
+      {
+        "verdict": "bug",
+        "severity": "critical",
+        "confidence": 0.95,
+        "title": "Engine Anomaly: missing_expected_object",
+        "explanation": "Expected: Valid PackedScene assigned to next_scene | Observed: next_scene is null or empty across frame(s) [2321].",
+        "evidence_frames": [
+          2321
+        ],
+        "suspected_code": "Portal2D.gd (teleport)",
+        "path": "path1",
+        "needs_human_review": false
+      },
+      {
+        "verdict": "bug",
+        "severity": "medium",
+        "confidence": 0.95,
+        "title": "Enemy floats in mid-air defying gravity (floating_enemy)",
+        "explanation": "At frame 896, FloatingEnemy walks off the ledge at position (7200, 550) without falling, triggering bug_trigger 2B. In Enemy.gd:L36-L47, velocity.y is forcibly zeroed when is_floating_bug is active and the enemy is not on the floor, instead of applying gravity via super._physics_process. This violates the physical kinematic invariant that unsupported airborne entities must accelerate downward under gravity.",
+        "evidence_frames": [
+          896
+        ],
+        "suspected_code": "Enemy.gd:L36-L47 (_physics_process)",
+        "path": "path2",
+        "needs_human_review": false
+      },
+      {
+        "verdict": "bug",
+        "severity": "high",
+        "confidence": 0.75,
+        "title": "Phantom Enemy Wall Reversal (Enemy Frozen)",
+        "explanation": "Enemy attempted wall reversal at frame 1260 but old_direction and new_direction were both 0.0, causing the enemy to freeze.",
+        "evidence_frames": [
+          1260
+        ],
+        "suspected_code": "Enemy.gd (_physics_process: is_on_wall)",
+        "path": "path2",
+        "needs_human_review": true
+      },
+      {
+        "verdict": "bug",
+        "severity": "critical",
+        "confidence": 0.95,
+        "title": "Portal2D next_scene is null or empty (missing_expected_object)",
+        "explanation": "At frame 2321, the player touches Portal2D at (17104.99, 486.31) triggering portal_entered, but next_scene is null, logging missing_expected_object and portal_target_missing. Portal2D.gd:L56-L67 (teleport) sets is_teleporting to true and early returns, blocking scene change and preventing level completion. This violates the lifecycle and progression contract that reaching the goal portal must advance to the next level.",
+        "evidence_frames": [
+          2321
+        ],
+        "suspected_code": "Portal2D.gd:L56-L67 (teleport)",
+        "path": "path2",
+        "needs_human_review": false
+      }
+    ],
     "score": {
       "matched": [],
-      "false_positives": [],
-      "n_findings": 0
+      "false_positives": [
+        {
+          "verdict": "bug",
+          "severity": "critical",
+          "confidence": 0.95,
+          "title": "Engine Anomaly: missing_expected_object",
+          "explanation": "Expected: Valid PackedScene assigned to next_scene | Observed: next_scene is null or empty across frame(s) [2321].",
+          "evidence_frames": [
+            2321
+          ],
+          "suspected_code": "Portal2D.gd (teleport)",
+          "path": "path1",
+          "needs_human_review": false
+        },
+        {
+          "verdict": "bug",
+          "severity": "medium",
+          "confidence": 0.95,
+          "title": "Enemy floats in mid-air defying gravity (floating_enemy)",
+          "explanation": "At frame 896, FloatingEnemy walks off the ledge at position (7200, 550) without falling, triggering bug_trigger 2B. In Enemy.gd:L36-L47, velocity.y is forcibly zeroed when is_floating_bug is active and the enemy is not on the floor, instead of applying gravity via super._physics_process. This violates the physical kinematic invariant that unsupported airborne entities must accelerate downward under gravity.",
+          "evidence_frames": [
+            896
+          ],
+          "suspected_code": "Enemy.gd:L36-L47 (_physics_process)",
+          "path": "path2",
+          "needs_human_review": false
+        },
+        {
+          "verdict": "bug",
+          "severity": "high",
+          "confidence": 0.75,
+          "title": "Phantom Enemy Wall Reversal (Enemy Frozen)",
+          "explanation": "Enemy attempted wall reversal at frame 1260 but old_direction and new_direction were both 0.0, causing the enemy to freeze.",
+          "evidence_frames": [
+            1260
+          ],
+          "suspected_code": "Enemy.gd (_physics_process: is_on_wall)",
+          "path": "path2",
+          "needs_human_review": true
+        },
+        {
+          "verdict": "bug",
+          "severity": "critical",
+          "confidence": 0.95,
+          "title": "Portal2D next_scene is null or empty (missing_expected_object)",
+          "explanation": "At frame 2321, the player touches Portal2D at (17104.99, 486.31) triggering portal_entered, but next_scene is null, logging missing_expected_object and portal_target_missing. Portal2D.gd:L56-L67 (teleport) sets is_teleporting to true and early returns, blocking scene change and preventing level completion. This violates the lifecycle and progression contract that reaching the goal portal must advance to the next level.",
+          "evidence_frames": [
+            2321
+          ],
+          "suspected_code": "Portal2D.gd:L56-L67 (teleport)",
+          "path": "path2",
+          "needs_human_review": false
+        }
+      ],
+      "n_findings": 4
     }
   }
 ]

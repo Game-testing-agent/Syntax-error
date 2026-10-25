@@ -275,6 +275,99 @@ class GameController:
         """Precise waiting helper."""
         time.sleep(max(0.0, duration))
 
+    def log_event(self, event_name: str, category: str = "waypoint",
+                  data: Optional[Dict[str, Any]] = None,
+                  player_state: Optional[Dict[str, Any]] = None) -> Optional[Dict[str, Any]]:
+        """Appends a Schema 1.0 JSON Lines record directly into game_events.jsonl in workspace directories."""
+        st = player_state or self.get_latest_state() or {}
+        player = st.get("player") or {}
+        pos = player.get("position") or {}
+        vel = player.get("velocity") or {}
+        stats = st.get("stats") or {}
+
+        # Determine monotonic event_id
+        if not hasattr(self, "_current_event_id"):
+            self._current_event_id = self.get_latest_event_id()
+        self._current_event_id += 1
+        event_id = self._current_event_id
+
+        # Determine session_id
+        if not hasattr(self, "_session_id") or not self._session_id:
+            st_sess = st.get("session_id")
+            if st_sess:
+                self._session_id = str(st_sess)
+            else:
+                self._session_id = f"session_{int(time.time())}_{random.randint(10000, 99999)}"
+
+        if not hasattr(self, "_session_start_ms"):
+            self._session_start_ms = int(time.time() * 1000)
+
+        now_ms = int(time.time() * 1000)
+        elapsed_ms = max(0, now_ms - self._session_start_ms)
+
+        player_dict = None
+        if player and player.get("alive", False):
+            player_dict = {
+                "instance_id": int(player.get("instance_id", 0)) if player.get("instance_id") else None,
+                "position": {"x": round(float(pos.get("x", 0.0)), 2), "y": round(float(pos.get("y", 0.0)), 2)},
+                "velocity": {"x": round(float(vel.get("x", 0.0)), 2), "y": round(float(vel.get("y", 0.0)), 2)},
+                "grounded": bool(player.get("on_floor", False))
+            }
+
+        game_state_dict = {
+            "score": stats.get("score", 0),
+            "deaths": stats.get("deaths", 0),
+            "paused": st.get("game_state") == "paused"
+        }
+
+        recent_actions = []
+        for act in self.active_actions:
+            recent_actions.append({
+                "action": act,
+                "physics_frame": st.get("frame", 0),
+                "timestamp_unix_ms": now_ms
+            })
+
+        record = {
+            "schema_version": "1.0",
+            "session_id": self._session_id,
+            "event_id": event_id,
+            "event_name": event_name,
+            "category": category,
+            "timestamp_unix_ms": now_ms,
+            "elapsed_ms": elapsed_ms,
+            "physics_frame": st.get("frame", 0),
+            "scene": st.get("scene", "res://src/Levels/Level01.tscn"),
+            "player": player_dict,
+            "game_state": game_state_dict,
+            "entity": None,
+            "action_context": {
+                "recent_actions": recent_actions
+            },
+            "evidence": {
+                "screenshot_path": None
+            },
+            "data": data or {}
+        }
+
+        target_dirs = []
+        if self.workspace_dir and os.path.isdir(self.workspace_dir):
+            target_dirs.append(self.workspace_dir)
+        godot_dir = os.path.join(self.workspace_dir, "godot-4game")
+        if os.path.isdir(godot_dir) and godot_dir not in target_dirs:
+            target_dirs.append(godot_dir)
+
+        json_line = json.dumps(record, ensure_ascii=False)
+        for d in target_dirs:
+            ev_file = os.path.join(d, EVENTS_FILE)
+            try:
+                with open(ev_file, "a", encoding="utf-8") as f:
+                    f.write(json_line + "\n")
+            except OSError:
+                pass
+
+        return record
+
     def close(self) -> None:
         """Cleanup socket and releases inputs."""
         self.release_all()
@@ -1254,11 +1347,37 @@ class SequentialWaypointsExplorer:
         print(f"     Auto-retry on death: Enabled", flush=True)
         print("=" * 80, flush=True)
 
+        if hasattr(self.controller, "log_event"):
+            self.controller.log_event(
+                "waypoint_session_started",
+                category="waypoint",
+                data={
+                    "total_waypoints": n_total,
+                    "waypoints": [{"x": p[0], "y": p[1]} for p in self.waypoints],
+                    "wait_between_sec": self.wait_between,
+                    "tolerance_px": self.tolerance
+                }
+            )
+
         for idx, (tx, ty) in enumerate(self.waypoints, start=1):
             is_final = (idx == n_total)
             print("\n" + "=" * 70, flush=True)
             print(f"   >>> [WAYPOINT {idx}/{n_total}] Navigating to Target: ({tx}, {ty})", flush=True)
             print("=" * 70, flush=True)
+
+            if hasattr(self.controller, "log_event"):
+                self.controller.log_event(
+                    "waypoint_target_started",
+                    category="waypoint",
+                    data={
+                        "waypoint_index": idx,
+                        "total_waypoints": n_total,
+                        "target_x": tx,
+                        "target_y": ty,
+                        "tolerance": self.tolerance,
+                        "is_final": is_final
+                    }
+                )
 
             reached = self.runner.navigate_to(
                 tx=tx,
@@ -1272,16 +1391,59 @@ class SequentialWaypointsExplorer:
             if reached:
                 self.completed_waypoints.append((tx, ty))
                 print(f"\n[OK] Waypoint {idx}/{n_total} REACHED at ({tx}, {ty})!", flush=True)
+                if hasattr(self.controller, "log_event"):
+                    self.controller.log_event(
+                        "waypoint_reached",
+                        category="waypoint",
+                        data={
+                            "waypoint_index": idx,
+                            "total_waypoints": n_total,
+                            "target_x": tx,
+                            "target_y": ty,
+                            "stomp_successes": self.runner.bot.stomp_successes,
+                            "is_final": is_final
+                        }
+                    )
             else:
                 print(f"\n[!] Waypoint {idx}/{n_total} ({tx}, {ty}) was not reached within step limit.", flush=True)
+                if hasattr(self.controller, "log_event"):
+                    self.controller.log_event(
+                        "waypoint_failed",
+                        category="waypoint",
+                        data={
+                            "waypoint_index": idx,
+                            "total_waypoints": n_total,
+                            "target_x": tx,
+                            "target_y": ty,
+                            "steps_exhausted": self.max_steps_per_point
+                        }
+                    )
 
-            # Wait 3 seconds between waypoints if not the final waypoint
+            # Wait between waypoints if not the final waypoint
             if idx < n_total:
                 print(f"\n[PAUSE] Waiting for {self.wait_between} seconds before moving to next waypoint...", flush=True)
+                if hasattr(self.controller, "log_event"):
+                    self.controller.log_event(
+                        "waypoint_wait_started",
+                        category="waypoint",
+                        data={
+                            "waypoint_index": idx,
+                            "wait_duration_sec": self.wait_between
+                        }
+                    )
                 t_end = time.time() + self.wait_between
                 while time.time() < t_end:
                     time.sleep(min(0.5, max(0.05, t_end - time.time())))
                 print(f"[RESUME] Continuing to Waypoint #{idx + 1}...", flush=True)
+                if hasattr(self.controller, "log_event"):
+                    self.controller.log_event(
+                        "waypoint_wait_ended",
+                        category="waypoint",
+                        data={
+                            "waypoint_index": idx,
+                            "next_waypoint_index": idx + 1
+                        }
+                    )
                 if hasattr(self.controller, "pause"):
                     self.controller.pause(False)
 
@@ -1289,6 +1451,18 @@ class SequentialWaypointsExplorer:
         self.controller.release_all()
         if hasattr(self.controller, "pause"):
             self.controller.pause(False)
+
+        if hasattr(self.controller, "log_event"):
+            self.controller.log_event(
+                "waypoint_session_completed",
+                category="waypoint",
+                data={
+                    "total_waypoints": n_total,
+                    "completed_waypoints": len(self.completed_waypoints),
+                    "success": len(self.completed_waypoints) == n_total,
+                    "final_destination": {"x": self.waypoints[-1][0], "y": self.waypoints[-1][1]} if self.waypoints else None
+                }
+            )
 
         print("\n" + "*" * 80, flush=True)
         print(f"   [ALL WAYPOINTS COMPLETED] Successfully visited {len(self.completed_waypoints)}/{n_total} waypoints!", flush=True)

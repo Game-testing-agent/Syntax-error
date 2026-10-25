@@ -974,3 +974,312 @@ body::before {
   .sidebar-footer { display: none; }
 }
 
+
+
+/* ==========================================================================
+   AI Autonomous QA Launcher (Clean Professional Styling)
+   ========================================================================== */
+
+/* Sidebar AI Agent Button */
+.nav-ai-agent-btn {
+  background: rgba(56, 189, 248, 0.08);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  color: #fff !important;
+  font-weight: 500;
+  border-radius: var(--radius-sm);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-align: left;
+  cursor: pointer;
+  width: 100%;
+  padding: 8px 12px;
+  transition: all var(--transition-fast);
+}
+
+.nav-ai-agent-btn:hover {
+  background: rgba(56, 189, 248, 0.16);
+  border-color: var(--accent-cyan);
+  color: #fff !important;
+}
+
+.nav-ai-agent-text {
+  flex: 1;
+  font-size: 13px;
+}
+
+/* Hero Banner on Overview Tab */
+.ai-agent-hero-banner {
+  background: var(--bg-card);
+  border: 1px solid var(--border-accent);
+  border-radius: var(--radius-md);
+  padding: 18px 22px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.ai-agent-hero-info {
+  flex: 1;
+}
+
+.ai-agent-hero-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 10.5px;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: var(--accent-cyan);
+  background: rgba(56, 189, 248, 0.1);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 6px;
+}
+
+.ai-agent-hero-title {
+  color: #fff;
+  font-size: 17px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.ai-agent-hero-desc {
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.5;
+  max-width: 720px;
+}
+
+/* Modal Dialog */
+.ai-agent-modal-dialog {
+  max-width: 620px !important;
+  background: var(--bg-secondary) !important;
+  border: 1px solid var(--border-accent) !important;
+  border-radius: var(--radius-lg) !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6) !important;
+  padding: 24px !important;
+}
+
+.ai-modal-header {
+  margin-bottom: 16px;
+}
+
+.ai-modal-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 10.5px;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: var(--accent-cyan);
+  background: rgba(56, 189, 248, 0.1);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 8px;
+}
+
+.ai-modal-title {
+  color: #fff;
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.ai-modal-desc {
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* Model Notice Card */
+.ai-model-notice-card {
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  margin-bottom: 16px;
+}
+
+.notice-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.notice-title {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.notice-text {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  margin: 6px 0 10px 0;
+  line-height: 1.5;
+}
+
+.prompt-copy-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+}
+
+.prompt-text-display {
+  flex: 1;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--accent-cyan);
+}
+
+.prompt-text-display code {
+  color: var(--accent-cyan);
+  background: transparent;
+}
+
+.copy-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  font-size: 12px;
+}
+
+/* Mission Specs Grid */
+.ai-mission-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  background: rgba(15, 23, 42, 0.4);
+  border: 1px solid var(--border-color);
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 18px;
+}
+
+.mission-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mission-label {
+  font-size: 10px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.mission-val {
+  font-size: 12px;
+  color: #fff;
+  font-weight: 600;
+}
+
+.mission-val.code-val {
+  font-family: var(--font-mono);
+  color: var(--accent-cyan);
+}
+
+.mission-val.skill-badge {
+  display: inline-block;
+  background: rgba(16, 185, 129, 0.15);
+  color: #6ee7b7;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  width: fit-content;
+}
+
+/* NORMAL LARGE START BUTTON */
+.large-start-container {
+  margin: 12px 0 16px 0;
+}
+
+.large-start-button {
+  width: 100%;
+  min-height: 64px;
+  background: #2563eb;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-md);
+  color: #ffffff;
+  cursor: pointer;
+  padding: 12px 20px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
+  transition: all var(--transition-fast);
+}
+
+.large-start-button:hover {
+  background: #1d4ed8;
+  border-color: rgba(255, 255, 255, 0.35);
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.45);
+  transform: translateY(-1px);
+}
+
+.large-start-button:active {
+  transform: translateY(0);
+}
+
+.large-start-headline {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+}
+
+.large-start-sub {
+  font-size: 11.5px;
+  color: rgba(255, 255, 255, 0.85);
+  font-weight: 400;
+}
+
+/* Status card inside modal */
+.ai-status-card {
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  margin-top: 14px;
+}
+
+.ai-status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.ai-status-headline {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.ai-status-details {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.ai-status-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+}

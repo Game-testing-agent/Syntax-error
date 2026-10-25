@@ -118,6 +118,29 @@ class MockTelemetryController:
         self.command_history.append({"command": "pause", "val": val})
         self.state["game_state"] = "paused" if val is not False else "playing"
 
+    def log_event(self, event_name: str, category: str = "waypoint",
+                  data: Optional[Dict[str, Any]] = None,
+                  player_state: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        self.event_counter += 1
+        record = {
+            "schema_version": "1.0",
+            "session_id": "mock_session",
+            "event_id": self.event_counter,
+            "event_name": event_name,
+            "category": category,
+            "timestamp_unix_ms": 1000000,
+            "elapsed_ms": 1000,
+            "physics_frame": self.state.get("frame", 100),
+            "scene": self.state.get("scene", "Level01"),
+            "player": self.state.get("player"),
+            "game_state": self.state.get("game_state"),
+            "data": data or {}
+        }
+        if not hasattr(self, "logged_events"):
+            self.logged_events = []
+        self.logged_events.append(record)
+        return record
+
 
 class TestHybridBot(unittest.TestCase):
 
@@ -717,6 +740,115 @@ class TestHybridBot(unittest.TestCase):
         final_pos = mock_ctrl.state["player"]["position"]
         self.assertAlmostEqual(final_pos["x"], 6257.0, delta=70.0)
         self.assertAlmostEqual(final_pos["y"], 80.0, delta=80.0)
+
+    def test_continuous_falling_triggers_retry(self):
+        """Validates that falling continuously for >= 5.0 seconds triggers level retry."""
+        import time
+        bot = HybridBotController(self.route_mgr, variation_mode=False, seed=42)
+        falling_state = {
+            "scene": "Level01",
+            "game_state": "playing",
+            "player": {
+                "alive": True,
+                "on_floor": False,
+                "position": {"x": 2500.0, "y": 1450.0},
+                "velocity": {"x": 0.0, "y": 800.0}
+            },
+            "stats": {"score": 0, "deaths": 0}
+        }
+        # Simulate that falling has been ongoing for 5.5 seconds
+        bot.fall_start_time = time.time() - 5.5
+        actions, frames, behavior, reason = bot.decide_action(falling_state)
+        self.assertEqual(actions, ["retry"])
+        self.assertEqual(behavior, BehaviorState.RECOVERY)
+        self.assertIn("Continuous falling detected", reason)
+
+    def test_normal_jump_no_falling_retry(self):
+        """Validates that a normal jump (< 5.0s in air) does not trigger falling retry."""
+        import time
+        bot = HybridBotController(self.route_mgr, variation_mode=False, seed=42)
+        airborne_state = {
+            "scene": "Level01",
+            "game_state": "playing",
+            "player": {
+                "alive": True,
+                "on_floor": False,
+                "position": {"x": 2500.0, "y": 700.0},
+                "velocity": {"x": 200.0, "y": -300.0}
+            },
+            "stats": {"score": 0, "deaths": 0}
+        }
+        # Simulate jump airborne for 0.4 seconds
+        bot.fall_start_time = time.time() - 0.4
+        actions, frames, behavior, reason = bot.decide_action(airborne_state)
+        self.assertNotIn("retry", actions)
+
+    def test_grounded_resets_fall_timer(self):
+        """Validates that landing on floor resets the falling start timer."""
+        import time
+        bot = HybridBotController(self.route_mgr, variation_mode=False, seed=42)
+        bot.fall_start_time = time.time() - 2.0
+        grounded_state = {
+            "scene": "Level01",
+            "game_state": "playing",
+            "player": {
+                "alive": True,
+                "on_floor": True,
+                "position": {"x": 2500.0, "y": 760.0},
+                "velocity": {"x": 0.0, "y": 0.0}
+            },
+            "stats": {"score": 0, "deaths": 0}
+        }
+        bot.decide_action(grounded_state)
+        self.assertIsNone(bot.fall_start_time)
+
+    def test_w2_sequential_waypoints_logs_to_game_events(self):
+        """Validates that W2 SequentialWaypointsExplorer logs milestone events."""
+        from explorer import SequentialWaypointsExplorer
+        mock_ctrl = MockTelemetryController()
+        explorer = SequentialWaypointsExplorer(
+            controller=mock_ctrl,
+            waypoints=[(850.0, 750.0)],
+            routes_file=self.routes_path,
+            tolerance=60.0,
+            wait_between=0.01,
+            max_steps_per_point=30
+        )
+        success = explorer.run()
+        self.assertTrue(success)
+
+        # Verify logged events
+        event_names = [e["event_name"] for e in mock_ctrl.logged_events]
+        self.assertIn("waypoint_session_started", event_names)
+        self.assertIn("waypoint_target_started", event_names)
+        self.assertIn("waypoint_action_step", event_names)
+        self.assertIn("waypoint_reached", event_names)
+        self.assertIn("waypoint_session_completed", event_names)
+
+    def test_game_controller_log_event_schema(self):
+        """Validates that GameController.log_event writes valid Schema 1.0 JSON Lines."""
+        import tempfile
+        from explorer import GameController
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            ctrl = GameController(workspace_dir=tmp_dir)
+            rec = ctrl.log_event(
+                "test_event",
+                category="waypoint",
+                data={"test_key": "test_val"}
+            )
+            self.assertEqual(rec["schema_version"], "1.0")
+            self.assertEqual(rec["event_name"], "test_event")
+            self.assertEqual(rec["category"], "waypoint")
+            self.assertEqual(rec["data"]["test_key"], "test_val")
+
+            # Check file content
+            ev_file = os.path.join(tmp_dir, "game_events.jsonl")
+            self.assertTrue(os.path.exists(ev_file))
+            with open(ev_file, "r", encoding="utf-8") as f:
+                line = f.readline().strip()
+                data = json.loads(line)
+                self.assertEqual(data["event_name"], "test_event")
+                self.assertEqual(data["schema_version"], "1.0")
 
 
 if __name__ == "__main__":

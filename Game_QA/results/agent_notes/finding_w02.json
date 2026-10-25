@@ -1,12 +1,7 @@
 {
-  "verdict": "bug",
-  "severity": "high",
-  "confidence": 0.9,
-  "title": "Phantom Enemy Wall Reversal Freezes Patrol at Zero Velocity",
-  "explanation": "At frame 690, Enemy4 triggered enemy_reversed_at_wall with old_direction: 0.0 and new_direction: 0.0 at position (5059.96, 800.0) following rapid wall reversals (frames 561-673). In Enemy.gd, multiplying velocity.x (0.0) by -1.0 permanently stops patrol velocity, violating AI autonomy contracts.",
-  "evidence_frames": [561, 597, 633, 653, 673, 690],
-  "suspected_code": "Enemy.gd:L44-L50 (_physics_process)",
-  "path": "path2",
-  "needs_human_review": false
+  "window_id": "w02",
+  "category": "interaction",
+  "dedupe_key": "Coin.gd:L21:duplicate_pickup_attempt",
+  "repro_hint": "Collect Coin11 and jump back into its position within 0.4 seconds.",
+  "source": "agent"
 }
-

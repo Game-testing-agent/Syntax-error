@@ -904,3 +904,146 @@ function escapeHtml(str) {
     .replace(/'/g, "&#039;");
 }
 
+
+
+// ============================================================================
+// AI Autonomous QA Agent Controller (Clean & Direct Dispatch)
+// ============================================================================
+
+function openAiAgentModal() {
+  const modal = document.getElementById("ai-agent-modal");
+  if (!modal) return;
+  modal.classList.add("show");
+
+  // Reset status card
+  const statusCard = document.getElementById("ai-launch-status-card");
+  if (statusCard) statusCard.style.display = "none";
+
+  const btn = document.getElementById("btn-large-start-ai");
+  if (btn) {
+    btn.disabled = false;
+    btn.style.opacity = "1";
+    btn.focus();
+  }
+}
+
+function closeAiAgentModal() {
+  const modal = document.getElementById("ai-agent-modal");
+  if (modal) modal.classList.remove("show");
+}
+
+function switchToTerminalTab() {
+  closeAiAgentModal();
+  const termTabBtn = document.querySelector('.sidebar .nav-item[data-tab="terminal"]');
+  if (termTabBtn) {
+    termTabBtn.click();
+  }
+}
+
+function copyAiPrompt() {
+  const promptText = "Run game QA using game-qa skill";
+  navigator.clipboard.writeText(promptText).then(() => {
+    const copyBtnText = document.getElementById("copy-btn-text");
+    if (copyBtnText) {
+      copyBtnText.innerText = "Copied!";
+      setTimeout(() => {
+        copyBtnText.innerText = "Copy Prompt";
+      }, 2000);
+    }
+    showToast("Prompt copied to clipboard!");
+  }).catch(() => {
+    showToast("Prompt: " + promptText);
+  });
+}
+
+// Executes Antigravity chat dispatch cleanly and directly without rocket animation
+async function executeAiAgentDirectly() {
+  const btn = document.getElementById("btn-large-start-ai");
+  if (btn) {
+    btn.disabled = true;
+    btn.style.opacity = "0.7";
+  }
+
+  const promptText = "Run game QA using game-qa skill";
+  const statusCard = document.getElementById("ai-launch-status-card");
+  const statusHeadline = document.getElementById("ai-status-headline");
+  const statusDetails = document.getElementById("ai-status-details");
+  const statusSpinner = document.getElementById("ai-status-spinner");
+  const statusActions = document.getElementById("ai-status-actions");
+
+  if (statusCard) statusCard.style.display = "block";
+  if (statusActions) statusActions.style.display = "none";
+  if (statusSpinner) statusSpinner.style.display = "inline-block";
+  if (statusHeadline) statusHeadline.innerText = "Opening Antigravity Chat in Game_QA...";
+  if (statusDetails) statusDetails.innerHTML = `Default model: <strong>Gemini (Antigravity)</strong> &bull; Prompt: "${escapeHtml(promptText)}"`;
+
+  try {
+    const res = await fetch("/api/execute/launch-ai-agent", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        prompt: promptText,
+        folder: "Game_QA"
+      })
+    });
+
+    const data = await res.json();
+
+    if (res.ok && data.success) {
+      showToast("Antigravity Agent chat opened in Game_QA!");
+      if (statusSpinner) statusSpinner.style.display = "none";
+      if (statusHeadline) {
+        statusHeadline.innerHTML = "<span style='color:var(--accent-green)'>✓ Antigravity Chat Opened Successfully</span>";
+      }
+      if (statusDetails) {
+        statusDetails.innerHTML = `
+          <div><strong>Workspace:</strong> <code>Game_QA/</code></div>
+          <div><strong>Injected Prompt:</strong> "${escapeHtml(promptText)}"</div>
+          <div><strong>Model Mode:</strong> Gemini (via Antigravity)</div>
+          <div style="margin-top:6px;color:var(--text-dim);font-size:11.5px;">Note: If using another LLM mode, run: <code>${escapeHtml(promptText)}</code></div>
+        `;
+      }
+      if (statusActions) statusActions.style.display = "flex";
+
+      // Focus window deep link fallback
+      try {
+        const deepLink = "antigravity-ide://";
+        const ifr = document.createElement("iframe");
+        ifr.style.display = "none";
+        ifr.src = deepLink;
+        document.body.appendChild(ifr);
+        setTimeout(() => document.body.removeChild(ifr), 1000);
+      } catch (e) {}
+
+    } else {
+      const errorMsg = data.detail || data.error || "Unknown error dispatching agent";
+      showToast("Error: " + errorMsg, true);
+      if (statusSpinner) statusSpinner.style.display = "none";
+      if (statusHeadline) {
+        statusHeadline.innerHTML = "<span style='color:var(--accent-red)'>⚠ Dispatch Warning</span>";
+      }
+      if (statusDetails) {
+        statusDetails.innerHTML = `<div>${escapeHtml(errorMsg)}</div>`;
+      }
+      if (statusActions) statusActions.style.display = "flex";
+      if (btn) {
+        btn.disabled = false;
+        btn.style.opacity = "1";
+      }
+    }
+  } catch (err) {
+    showToast("Network error: " + err.message, true);
+    if (statusSpinner) statusSpinner.style.display = "none";
+    if (statusHeadline) {
+      statusHeadline.innerHTML = "<span style='color:var(--accent-red)'>⚠ Network Error</span>";
+    }
+    if (statusDetails) {
+      statusDetails.innerText = String(err);
+    }
+    if (statusActions) statusActions.style.display = "flex";
+    if (btn) {
+      btn.disabled = false;
+      btn.style.opacity = "1";
+    }
+  }
+}

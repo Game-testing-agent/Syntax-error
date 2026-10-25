@@ -17,6 +17,7 @@ import glob
 import time
 import signal
 import asyncio
+import shutil
 import subprocess
 import threading
 from collections import deque
@@ -97,7 +98,7 @@ class ActiveProcessManager:
                 "total_lines": len(self.log_buffer)
             }
 
-    def start_process(self, cmd: List[str], workflow_name: str, cwd: Optional[Path] = None, env: Optional[Dict[str, str]] = None) -> Dict[str, Any]:
+    def start_process(self, cmd: List[str], workflow_name: str, cwd: Optional[Path] = None, env: Optional[Dict[str, str]] = None, shell: bool = False) -> Dict[str, Any]:
         with self.lock:
             if self.process and self.status == "running":
                 ret = self.process.poll()
@@ -133,7 +134,8 @@ class ActiveProcessManager:
                     bufsize=1,
                     universal_newlines=True,
                     cwd=work_dir,
-                    env=run_env
+                    env=run_env,
+                    shell=shell
                 )
                 self.pid = self.process.pid
             except Exception as e:
@@ -631,6 +633,32 @@ def api_telemetry_latest():
 # Workflow Execution Endpoints
 # -----------------------------------------------------------------------------
 
+class LaunchAiAgentRequest(BaseModel):
+    prompt: str = Field("Run game QA using game-qa skill", description="Prompt to send to Antigravity chat")
+    folder: str = Field("Game_QA", description="Target workspace folder name")
+    reuse_window: bool = Field(True, description="Reuse active Antigravity IDE window")
+
+
+def find_antigravity_cli() -> Optional[Path]:
+    """Finds the Antigravity CLI or IDE binary across standard installation paths."""
+    candidates = [
+        Path(os.environ.get("LOCALAPPDATA", "")) / "Programs" / "Antigravity IDE" / "bin" / "antigravity-ide.cmd",
+        Path("C:/Users/vinay/AppData/Local/Programs/Antigravity IDE/bin/antigravity-ide.cmd"),
+        Path(os.environ.get("LOCALAPPDATA", "")) / "Programs" / "Antigravity IDE" / "Antigravity IDE.exe",
+        Path("C:/Users/vinay/AppData/Local/Programs/Antigravity IDE/Antigravity IDE.exe"),
+        Path(os.environ.get("LOCALAPPDATA", "")) / "Programs" / "antigravity" / "Antigravity.exe",
+        Path("C:/Users/vinay/AppData/Local/Programs/antigravity/Antigravity.exe"),
+    ]
+    for c in candidates:
+        if c.exists():
+            return c
+    for name in ["antigravity-ide", "antigravity", "agy"]:
+        which_path = shutil.which(name)
+        if which_path:
+            return Path(which_path)
+    return None
+
+
 class RunGameRequest(BaseModel):
     map_num: Optional[int] = Field(0, description="Map number: 0 for Default Map, or 1, 2, 3, 4 for benchmark maps")
     mode: str = Field("windowed", description="'windowed', 'headless', or 'debug'")
@@ -838,6 +866,71 @@ def api_execute_qa_eval(stride: int = 4, ignore_checks: bool = True):
         status = proc_manager.start_process(cmd, workflow_name="game_qa_eval", cwd=GAME_QA_DIR)
         return {"success": True, "process": status}
     except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/execute/launch-ai-agent")
+def api_execute_launch_ai_agent(req: Optional[LaunchAiAgentRequest] = None):
+    """
+    Launches Antigravity IDE chat session in Game_QA folder with prompt 'Run game QA using game-qa skill'.
+    """
+    if req is None:
+        req = LaunchAiAgentRequest()
+
+    target_prompt = (req.prompt or "").strip() or "Run game QA using game-qa skill"
+    target_dir = GAME_QA_DIR
+    cli_path = find_antigravity_cli()
+
+    timestamp = datetime.now().strftime("%H:%M:%S")
+    proc_manager._append_log(f"[{timestamp}] [AI_AGENT] ==================================================")
+    proc_manager._append_log(f"[{timestamp}] [AI_AGENT] 🚀 DISPATCHING AI AGENT FOR GAME QA")
+    proc_manager._append_log(f"[{timestamp}] [AI_AGENT] Target Workspace: {target_dir}")
+    proc_manager._append_log(f"[{timestamp}] [AI_AGENT] Active Skill: game-qa")
+    proc_manager._append_log(f"[{timestamp}] [AI_AGENT] Prompt: \"{target_prompt}\"")
+
+    if not cli_path:
+        err_msg = "Could not locate Antigravity IDE binary on disk."
+        proc_manager._append_log(f"[{timestamp}] [ERROR] {err_msg}")
+        raise HTTPException(status_code=500, detail=err_msg)
+
+    proc_manager._append_log(f"[{timestamp}] [AI_AGENT] Executable: {cli_path}")
+
+    cmd = [str(cli_path), "chat", "-r", target_prompt]
+
+    try:
+        if proc_manager.get_status()["status"] != "running":
+            status = proc_manager.start_process(cmd, workflow_name="antigravity_ai_agent", cwd=target_dir, shell=True)
+            proc_manager._append_log(f"[{timestamp}] [AI_AGENT] [OK] Process started (PID: {status.get('pid')})")
+        else:
+            proc_manager._append_log(f"[{timestamp}] [AI_AGENT] [INFO] Launching concurrent IPC dispatch while {proc_manager.workflow} is active...")
+            run_env = os.environ.copy()
+            run_env["PYTHONUNBUFFERED"] = "1"
+            p = subprocess.Popen(
+                cmd,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True,
+                cwd=str(target_dir),
+                env=run_env
+            )
+            def _log_output():
+                for line in p.stdout:
+                    proc_manager._append_log(f"[{datetime.now().strftime('%H:%M:%S')}] [AI_AGENT] {line.strip()}")
+                p.wait()
+                proc_manager._append_log(f"[{datetime.now().strftime('%H:%M:%S')}] [AI_AGENT] [OK] Antigravity Chat session ready in Game_QA!")
+            threading.Thread(target=_log_output, daemon=True).start()
+
+        proc_manager._append_log(f"[{timestamp}] [AI_AGENT] [OK] Opened Antigravity Chat in Game_QA with prompt: \"{target_prompt}\"")
+        return {
+            "success": True,
+            "prompt": target_prompt,
+            "folder": "Game_QA",
+            "folder_path": str(target_dir),
+            "binary": str(cli_path),
+            "message": f"Antigravity chat opened in Game_QA folder with prompt: \"{target_prompt}\""
+        }
+    except Exception as e:
+        proc_manager._append_log(f"[{timestamp}] [ERROR] Failed to dispatch Antigravity chat: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 

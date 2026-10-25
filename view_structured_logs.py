@@ -34,7 +34,9 @@ CATEGORY_COLORS = {
     "ui": COLOR_CYAN,
     "state_snapshot": COLOR_DIM,
     "anomaly": "\033[41;97m", # White text on red background
-    "runtime_error": "\033[41;97m"
+    "runtime_error": "\033[41;97m",
+    "waypoint": COLOR_MAGENTA,
+    "recovery": COLOR_YELLOW
 }
 
 
